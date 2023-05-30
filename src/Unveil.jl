@@ -41,6 +41,15 @@ using .Spectralwindowopti
 using .Graphic
 using .Data_analysis
 
+export pca
+export swo
+export convpca
+export convswo
+export cvcvi
+export cvi 
+export multipca
+export combinecv
+
 """
 Use a PCA (Principal Component Analysis) process on a cube and with N PCs given as input
 User parameters have to be modified in file /varfiles/pca.txt. Another VARFILEPATH can be given, but the structure of the file should be followed !
@@ -103,7 +112,7 @@ function pca(;VARFILEPATH = "varfiles/pca.txt")
     cubereconstructed = reshape(cubereconstructed,DATADIMENSION)
 
     println("Saving Fits")
-    Data_preparation.write_pca_fits(NBPC,VARPERCENT[NBPC],"$(FITSPATH)","RECONSTRUCTED_$(NBPC)PC","$PATHTOSAVE/Data/",cubereconstructed,DATADIMENSION,BLANK)
+    Data_preparation.write_pca_fits(NBPC,VARPERCENT[NBPC],"$(FITSPATH)/$(FILENAME)","RECONSTRUCTED_$(NBPC)PC","$PATHTOSAVE/Data/",cubereconstructed,DATADIMENSION,BLANK)
     println("Data reconstructed from PCA saved in $(PATHTOSAVE)/Data/RECONSTRUCTED_$(NBPC)PC_NumberOfFilesWithTheSameNameAsPrefixe.fits as a fits.")
 
     cubereconstructed = 0
@@ -154,7 +163,7 @@ function swo(;VARFILEPATH="varfiles/swo.txt")
     
     maskinterv,sigmaT = Functionforwindowopti.optiwind(cube,DATADIMENSION_NOMISSING,VELOCITYVECTOR,NOISECAN,BLANK,RANGE)
     println("Saving Fits")
-    Data_preparation.write_fits("$(FITSPATH)","RECONSTRUCTED_$(RANGE)SWO","$PATHTOSAVE/Data/",maskinterv,DATADIMENSION,BLANK,more=["RANGE","$range"])
+    Data_preparation.write_fits("$(FITSPATH)/$FILENAME","RECONSTRUCTED_$(RANGE)SWO","$PATHTOSAVE/Data/",maskinterv,DATADIMENSION,BLANK,more=["RANGE","$range"])
     println("Data reconstructed from PCA saved in $(PATHTOSAVE)/Data/RECONSTRUCTED_$(RANGE)SWO_NumberOfFilesWithTheSameNameAsPrefixe.fits as a fits.")
 end  #swo
 
