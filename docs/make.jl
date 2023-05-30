@@ -20,6 +20,9 @@ makedocs(sitename="Unveil.jl Documentation",
          #format = Documenter.LaTeX()
          format = Documenter.HTML(prettyurls = false)
 )
+deploydocs(
+    repo = "https://gricad-gitlab.univ-grenoble-alpes.fr/delcamps/unveil",
+)
 # Documenter can also automatically deploy documentation to gh-pages.
 # See "Hosting Documentation" and deploydocs() in the Documenter manual
 # for more information.
