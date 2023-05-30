@@ -89,41 +89,41 @@ end
 
 
 """
-    construct_cvimap(xyarr,Lag::Vector{Int64},mapdim,blank) 
+    construct_cvimap(cvmap,Lag::Vector{Int64},nangle,mapdim; diff="relative",keepmissing=true,BLANK=-1000)
 
-Will construct a cvi map. The cvi map is constructed by taking the mean of all rotations of the cv increment calculation at each pixel. The Lag is the increment. xyarr have to be in 2D (pixel*pixel). Mapdim is the dimension of your 2Dmap. The differences can be absolute or relative. Nangle refers to the number of rotations of the cvmap: a higher value will compute a higher number of differences pixel per pixel, so a higher number of directions.
+Construct a Centroid Velocity Increment map based on a 'cvmap'. The cvi map is constructed by taking the mean of all rotations of the Centroid Velocity Increment calculation at each pixel. The Lag is the increment. xyarr have to be in 2D (pixel*pixel). Mapdim is the dimension of your 2Dmap. The differences can be absolute or relative. Nangle refers to the number of rotations of the cvmap: a higher value will compute a higher number of differences pixel per pixel, so a higher number of directions.
 """
-function construct_cvimap(xyarr,Lag::Vector{Int64},nangle,mapdim; diff="relative",keepmissing=true,BLANK=-1000)
-    cvi_allangle_alllag = cv_increment(xyarr,Lag,nangle,diff=diff)
-    println("CV inc done") 
-    xyarr = 0.0
-    GC.gc()
+function construct_cvimap(cvmap,Lag::Vector{Int64},nangle,mapdim; diff="relative",keepmissing=true,BLANK=-1000)
+    cvi_allangle_alllag = cv_increment(cvmap,Lag,nangle,diff=diff)
+    #println("CV inc done") 
+    cvmap = 0.0
+    GC.gc()  # CLEANING MEMORY
+
+    cvi_allangle_alllag = Data_preparation.replace_nantomissing(cvi_allangle_alllag)   # Replace NaN into missing for the average
     cvi_allangle_alllag = Data_preparation.replace_blanktomissing(cvi_allangle_alllag,BLANK)   # Replace blank into missing for the average
     cvi_averaged_alllag = Array{Union{Missing,Float64},2}(undef,size(cvi_allangle_alllag)[1],size(Lag)[1])
+
     @inbounds @views for lagstep=1:size(Lag)[1]
         if keepmissing==true
             missing1D = findall(ismissing,cvi_allangle_alllag[:,:,lagstep])
             cvi_allangle_alllag[missing1D,lagstep] .= missing
         end
         @inbounds @views for pix=1:size(cvi_allangle_alllag)[1]
-            #keepmissing==false && (cvi_averaged_alllag[pix,lagstep] = mean(skipmissing(cvi_allangle_alllag[pix,:,lagstep])))
-            #keepmissing==true  && (cvi_averaged_alllag[pix,lagstep] = mean(skipmissing(cvi_allangle_alllag[pix,:,lagstep])))
-            (cvi_averaged_alllag[pix,lagstep] = mean(skipmissing(cvi_allangle_alllag[pix,:,lagstep])))
+            (cvi_averaged_alllag[pix,lagstep] = mean((cvi_allangle_alllag[pix,:,lagstep])))
         end
     end
+
     cvi_averaged_alllag = reshape(cvi_averaged_alllag,mapdim[1],mapdim[2],size(Lag)[1])
-    #return(cvi_averaged_alllag,cvi_allangle_alllag)
-    return(cvi_averaged_alllag)
+    return(cvi_allangle_alllag,cvi_averaged_alllag)
 end
 
-
 """
-    construct_cvimap(xyarr,Lag::Int64,nangle,mapdim; diff="relative",keepmissing=true) 
+    construct_cvimap(cvmap,Lag::Int64,nangle,mapdim; diff="relative",keepmissing=true) 
 
 Same as construct_cvimap if Lag is a Int64 of one lag. Mapdim is the dimension of your 2Dmap. The differences can be absolute or relative. Nangle refers to the number of rotations of the cvmap: a higher value will compute a higher number of differences pixel per pixel, so a higher number of directions.
 """
-function construct_cvimap(xyarr,Lag::Int64,nangle,mapdim; diff="relative",keepmissing=true)
-    cvi_allangle = reshape(cv_increment(xyarr,Lag,nangle,diff=diff,mapdim),mapdim[1]*mapdim[2],nangle) 
+function construct_cvimap(cvmap,Lag::Int64,nangle,mapdim; diff="relative",keepmissing=true)
+    cvi_allangle = reshape(cv_increment(cvmap,Lag,nangle,diff=diff,mapdim),mapdim[1]*mapdim[2],nangle) 
     #ss = open("/tmp/mmap_cvi.bin","w+")
     #cvi_averaged = Mmap.mmap(ss,BitArray,size(cvi_allangle)[1])
     cvi_averaged = Array{Union{Missing,Float64}}(undef,size(cvi_allangle)[1])

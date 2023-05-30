@@ -1,5 +1,5 @@
 
-# FILE USED TO RUN FUNCTION  "cvi"  
+# FILE USED TO RUN FUNCTION  "cv"  
 # COMMENTS ARE #
 
 #---------------------------------------------------------------------------------------------------------------#
@@ -10,7 +10,4 @@ PATHTOSAVE       "PATH/FOR/SAVING"                                          # Pa
 UNITVELOCITY      m/s									                    # Velocity units of the fits file
 NBPC              0                                                         # Number of PC used for the reconstruction before the CV computation if PCA was used before. If method SWO used instead, enter -1, and if its the original cube without treatment, enter 0. 
 BLANK             -1000                                                     # Blanking data
-LAG               2,3,5,7,10,20,50                                          # Values of the Lag used for CVI calculations
-NANGLE            80                                                        # Number of rotation during the CVI process 
-DIFFTYPE          relative                                                  # Type of differences computed during CVI calculation (relative or abs)
 

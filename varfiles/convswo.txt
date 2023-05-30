@@ -1,23 +1,13 @@
-
-# FILE USED TO RUN SCRIPT "pcaconvproj.JL" 
+# FILE USED TO RUN FUNCTION "convswo" 
 # COMMENTS ARE #
 
 #---------------------------------------------------------------------------------------------------------------#
-
 
 
 FITSPATH            "PATH/TO/FITS"                                      # Path of the fits. Its header will be used for the writting of the output fits file.
 FITSNAME         "FITSNAME"                                                 # Name of the fits at the FITSPATH
 PATHTOSAVE       "PATH/FOR/SAVING"                                          # Path where Data and Plots will be saved
 UNITVELOCITY      m/s									            # Velocity units of the fits file
-HIGHESTPC          20                                                # Maximum number of PCs to test the convergence
+RANGE             4,20                                                # Lower and higher numbers of velocity channel to used for the SWO method. Every ranges between these two will be tested. 
 BLANK             -1000                                             # Blanking data
-#---------------------------------------------------------------------------------------------------------------#
-
-
-# DIRECTORIES BRANCHES EXPLANATIONS
-#               [PATH TO SAVE]
-#               |             |
-#              /               \
-#             /                 \
-#   [Convergence_Criteria]      [DATA] 
+NOISECAN         1,50                                       # Positions of the noise channels

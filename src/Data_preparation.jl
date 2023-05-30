@@ -349,11 +349,12 @@ function directory_prep(PATHTOSAVE)
     #(isdir("$(PATHTOSAVE)/Plots/$(DIRECTORYNAME)/convergence_criteria"))==0       && mkdir("$(PATHTOSAVE)/Plots/$(DIRECTORYNAME)/convergence_criteria")
 
     (isdir("$(PATHTOSAVE)/Data/"))==0                                            && mkdir("$(PATHTOSAVE)/Data/")
+
     #(isdir("$(PATHTOSAVE)/Data/$(DIRECTORYNAME)"))==0                            && mkdir("$(PATHTOSAVE)/Data/$(DIRECTORYNAME)")
     #(isdir("$(PATHTOSAVE)/Data/$(DIRECTORYNAME)/CVI"))==0                        && mkdir("$(PATHTOSAVE)/Data/$(DIRECTORYNAME)/CVI")
     #(isdir("$(PATHTOSAVE)/Data/$(DIRECTORYNAME)/CV"))==0                         && mkdir(("$(PATHTOSAVE)/Data/$(DIRECTORYNAME)/CV"))
     #(isdir("$(PATHTOSAVE)/Data/$(DIRECTORYNAME)/convergence_criteria"))==0       && mkdir("$(PATHTOSAVE)/Data/$(DIRECTORYNAME)/convergence_criteria")
-    (isdir("$(PATHTOSAVE)/Convergence_Criteria"))==0       && mkdir("$(PATHTOSAVE)/Convergence_Criteria")
+    #(isdir("$(PATHTOSAVE)/Convergence_Criteria"))==0       && mkdir("$(PATHTOSAVE)/Convergence_Criteria")
     return()
 end
 
@@ -430,12 +431,12 @@ Will also check if any missing value still exist in the data, showing that the d
 function pca_prep(arr,arraydimension)
         DATASIZETYPE = eltype(size(arr))
         (typeof(size(arr))==Tuple{DATASIZETYPE,DATASIZETYPE,DATASIZETYPE}) && (arr = reshape(arr,arraydimension[1]*arraydimension[2],arraydimension[3])) #3D -> 2D
-        println("produce boolean matrix")
+        #println("produce boolean matrix")
         missing1D, missing2D = Data_preparation.boolmatrix_missing(arr) #Boolean matrix to catch missing values
-        println("convert and delete")
+        #println("convert and delete")
         arr2D_nomissing     = Data_preparation.deletemissing(arr,missing1D) #Data without missing value
         arr = 0.0
-        println("regular blanking")
+        #println("regular blanking")
         regular_blanking(arr2D_nomissing)
         return(arr2D_nomissing,missing1D,missing2D)
 end
@@ -869,7 +870,7 @@ function write_fits(fitstocopy::String,newname::String,pathtosave::String,datato
     # Check if there is already a file with the same name
     if (overwrite==false && isfile("$(pathtosave)/$(newname).fits")==true)
         println("THE GIVEN FILE NAME ALREADY EXIST. AN INDICE WILL BE ADDED AT THE END OF THE GIVEN NAME, EQUAL TO THE NUMBER OF FILES WITH THE SAME NAME +1 ")
-        count = 0
+        count = 1
         for ix=1:size((findall.("$(newname)",readdir("$(pathtosave)"))))[1]
             if size(findall("$(newname)",readdir("$(pathtosave)")[ix]))[1]!=0
                 count += 1

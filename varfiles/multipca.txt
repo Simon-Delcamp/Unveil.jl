@@ -3,11 +3,11 @@
 # COMMENTS ARE #
 
 #---------------------------------------------------------------------------------------------------------------#
-FITSPATH         "/home/delcamps/Data/Polaris/"                                        # Path of the fits. Its header will be used for the writting of the output fits file.
-FILENAME         "polarishera_masked.fits"                                    # Name of the fits
-PATHTOSAVE       "/home/delcamps/Data/Polaris/PCA/"                                  # Path where Data and Plots will be saved
+FITSPATH         "/PATH/TO/FITS"                                         # Path of the fits. Its header will be used for the writting of the output fits file.
+FILENAME         "FITSNAME.fits"                                    # Name of the fits
+PATHTOSAVE       "PATH/FOR/SAVING"                                 # Path where Data and Plots will be saved
 UNITVELOCITY      m/s									            # Velocity units of the fits file
-NBPC              8,10,20,30,40,50,60,70,80                                       # Number of PC used for the reconstruction. 
+NBPC              8,10                                       # Number of PC used for the reconstruction. 
 BLANK             -1000                                             # Blanking data
 
 #---------------------------------------------------------------------------------------------------------------#

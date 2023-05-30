@@ -157,7 +157,8 @@ function optiwind(cube,DATADIMENSION,VELOCITYVECTOR,NOISECAN,BLANK,INTERV)
             end#if
         end#if
     end#for
-    return(maskcube.*cube,sigmaT)
+    maskcube = Data_preparation.blank_equal(maskcube.*cube,0,BLANK )
+    return(maskcube,sigmaT)
 end
 #= function optiwindTEST(cube,DATADIMENSION,cvmap,VELOCITYVECTOR,NOISECAN,BLANK,INTERV)
     maskcube = Array{Float64}(undef,(DATADIMENSION[1],DATADIMENSION[2]))    # PV mask. Will then multiply the source PV cube.

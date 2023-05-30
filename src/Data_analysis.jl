@@ -96,19 +96,20 @@ end
 
 
 """ 
-    fourmoments(cube;dim=1)
+    fourmoments(cube;dim=2)
 
 Compute the first four moments order of a given cube of dimension 'dim'. If 2D PV cube, will compute the moments on each row. Return the four moments. They are Vector of dimension=size(cube)[1]
 
 """
-function fourmoments(cube;dim=2)
+function fourmoments(cube;dim=2,bin=50)
     if dim==2
+        mom1 = Array{Float64}(undef,size(cube)[2])
+        mom2 = similar(mom1)
+        mom3 = similar(mom1)
+        mom4 = similar(mom1)
         for dx=1:size(cube)[2]
-            mom1 = Array{Float64}(undef,size(cube)[2])
-            mom2 = similar(mom1)
-            mom3 = similar(mom1)
-            mom4 = similar(mom1)
-            hist  = StatsBase.fit(Histogram,cube[:,dx],nbins=50)
+
+            hist  = StatsBase.fit(Histogram,cube[:,dx],nbins=bin)
             histnall = StatsBase.normalize(hist,mode=:pdf)
             histn = histnall.weights
             edges = Data_preparation.flatiterator(histnall.edges)[1,:]
@@ -142,7 +143,7 @@ function fourmoments(cube;dim=2)
         #mom2 = similar(mom1)
         #mom3 = similar(mom1)
         #mom4 = similar(mom1)
-        hist  = StatsBase.fit(Histogram,cube,nbins=50)
+        hist  = StatsBase.fit(Histogram,cube,nbins=bin)
         histnall = StatsBase.normalize(hist,mode=:pdf)
         histn = histnall.weights
         edges = Data_preparation.flatiterator(histnall.edges)[1,:]
