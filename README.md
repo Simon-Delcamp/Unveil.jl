@@ -1,3 +1,6 @@
+[![Docs-stable][docs-stable-img]][docs-stable-url]
+
+
 # Presentation 
 This code is built in order to unveil positions of extreme intermittent dissipation of turbulence on PPV cubes obtained by observing molecular gas inside molecular clouds. Statistical analysis is also performed by computing Centroid Velocity Increments, based on Lis et al. 1996, Pety et al. 1999, Hily-Blant et al. 2007, Hily-Blant et al. 2008, Hily-Blant et al. 2009, and on the PhD thesis of Simon Delcamp (in prep).
 
@@ -88,3 +91,9 @@ julia> Unveil.Data_preparation.replace_nantoblank(cube,newvalue)   # Change all 
 ```
 
 For a list and description of every function, please see the doc : download the folder 'docs/build' and open the '.html' files inside it. 
+
+
+
+
+
+[docs-stable-url]: https://delcamps.gitlab.io/Unveil/stable
