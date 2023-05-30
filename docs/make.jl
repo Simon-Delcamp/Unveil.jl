@@ -17,6 +17,7 @@ makedocs(sitename="Unveil.jl Documentation",
             "Functions used by Unveil and more"=> "Others.md",
             "Detailed API" => "Api.md"
          ],
+         #format = Documenter.LaTeX()
          format = Documenter.HTML(prettyurls = false)
 )
 # Documenter can also automatically deploy documentation to gh-pages.

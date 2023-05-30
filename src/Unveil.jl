@@ -50,11 +50,15 @@ export cvi
 export multipca
 export combinecv
 
+
+
 """
-Use a PCA (Principal Component Analysis) process on a cube and with N PCs given as input
-User parameters have to be modified in file /varfiles/pca.txt. Another VARFILEPATH can be given, but the structure of the file should be followed !
+    pca(VARFILEPATH)
+
+Use a PCA (Principal Component Analysis) process on a cube and with N PCs given as input. A '.txt' file should be used accordingly as an input (see models inside folders '/varfiles/pca.txt').
+
 Use this function in a julia terminal with :
-    julia> Unveil.pca()
+    julia> Unveil.pca(VARFILEPATH)
 """
 function pca(;VARFILEPATH = "varfiles/pca.txt")
 
@@ -62,11 +66,12 @@ function pca(;VARFILEPATH = "varfiles/pca.txt")
     println(" Path to the variable file ? (txt file containing all the informations relevant to read and work on the data)") 
     #VARFILEPATH = "varfiles/pca.txt"
     GC.gc()
+    
     FITSPATH,FILENAME,PATHTOSAVE,UNITVELOCITY,NBPC,BLANK = read_var_files(VARFILEPATH)
     (NBPC == 0) && (NBPC="raw")
 
     # Read the fits from the path. Return the data, the VelocityVector, the dimension, the velocity_increment, and the header.
-    cube,VELOCITYVECTOR,DATADIMENSION,VELOCITYINCREMENT,HEAD = Data_preparation.read_fits_ppv("$(FITSPATH)/$(FILENAME)",UNITVELOCITY ; check=false)
+    cube,VELOCITYVECTOR,DATADIMENSION,VELOCITYINCREMENT,HEAD = Data_preparation.read_fits_ppv("$(FITSPATH)/$(FILENAME)",UNITVELOCITY ; check=true)
 
     # Prepare directories where plots and data will be saved.
     Data_preparation.directory_prep(PATHTOSAVE)
@@ -125,10 +130,12 @@ end   #pca
 
 
 """
-Use a SWO (Spectral Window Optimisation) process on a cube.
-User parameters have to be modified in file /varfiles/swo.txt. Another VARFILEPATH can be given as input, but the structure of the file should be followed !
+    swo(VARFILEPATH)
+
+Use a SWO (Spectral Window Optimisation) process on a cube. A '.txt' file should be used accordingly as an input (see models inside folders '/varfiles/swo.txt').
+
 Use this function in a julia terminal with :
-    julia> Unveil.swo()
+    julia> Unveil.swo(VARFILEPATH)
 """
 function swo(;VARFILEPATH="varfiles/swo.txt")
     println("")
@@ -171,10 +178,12 @@ end  #swo
 
 
 """
-Produce calculations to find the PCA convergence criteria based on the matrix projection from PCA. No PCA reconstructed cube will be saved. 
-User parameters have to be modified in file /../varfiles/cvoptiwind.txt or /../varfiles/pcaconvproj.txt if want to use it with bash script
+    convpca(VARFILEPATH)
+
+Produce calculations to find the PCA convergence criteria based on the matrix projection from PCA. No PCA reconstructed cube will be saved. A '.txt' file should be used accordingly as an input (see models inside folders '/varfiles/convpca.txt').
+
 Use this script in a julia terminal with :
-     julia>Unveil.pcaconvproj()
+    julia>Unveil.convpca(VARFILEPATH)
 """
 function convpca(;VARFILEPATH = "varfiles/convpca.txt")
 
@@ -238,10 +247,12 @@ end #convpca
 
 
 """
- Look for the best interval to integrate the spectra for the window optimisation process.
- User parameters have to be modified in file /../varfiles/convoptiwind.txt 
- Use this script in a julia terminal with :
-     julia>Unveil.convoptiwind()
+    convswo(VARFILEPATH)
+
+Look for the best interval to integrate the spectra for the window optimisation process. A '.txt' file should be used accordingly as an input (see models inside folders '/varfiles/convswo.txt').
+
+Use this script in a julia terminal with :
+    julia>Unveil.convswo(VARFILEPATH)
 """
 function convswo(;VARFILEPATH = "varfiles/convswo.txt")
     println("")
@@ -311,10 +322,12 @@ end #convswo
 
 
 """
-Calculate the CV and CVI from a cube given in input.
-User parameters have to be modified in file /../varfiles/cvi.txt or /../varfiles/cvi_forbash.txt if want to use it with bash script
+    cvcvi(VARFILEPATH)
+
+Calculate the CV and CVI from a cube given in input. A '.txt' file should be used accordingly as an input (see models inside folders '/varfiles/cvcvi.txt').
+
 Use this script in a julia terminal with :
-    julia>Unveil.cvcvi()
+    julia>Unveil.cvcvi(VARFILEPATH)
 """
 function cvcvi(;VARFILEPATH = "varfiles/cvcvi.txt")
 
@@ -418,10 +431,12 @@ end #function cvcvi
 
 
 """
-Calculate the CV and CVI from a cube given in input.
-User parameters have to be modified in file /../varfiles/cvi.txt or /../varfiles/cvi_forbash.txt if want to use it with bash script
-    Use this script in a julia terminal with :
-        julia>Unveil.cvi()
+    cvi(VARFILEPATH)
+
+Calculate the CV and CVI from a cube given in input. A '.txt' file should be used accordingly as an input (see models inside folders '/varfiles/cvi.txt').
+
+Use this script in a julia terminal with :
+    julia>Unveil.cvi(VARFILEPATH)
 """
 function cvi(;VARFILEPATH = "varfiles/cvi.txt")
 
@@ -488,10 +503,12 @@ end #function cvi
 
 
 """
-Use multiple PCA processes on a cube and with multiple numbers of PCs given as input
-User parameters have to be modified in file /../varfiles/multipca.txt
+    multipca(VARFILEPATH)
+
+Use multiple PCA processes on a cube and with multiple numbers of PCs given as input. A '.txt' file should be used accordingly as an input (see models inside folders '/varfiles/multipca.txt').
+
 Use this script in a julia terminal with :
-    julia>Unveil.multipca()
+    julia>Unveil.multipca(VARFILEPATH)
 """
 function multipca(;VARFILEPATH = "varfiles/multipca.txt")
 

@@ -664,12 +664,13 @@ end
 A function to read and import values of a variable files. The variable files can be anywhere in the machine, but preferentially localised in the "var_file" folders.
 """
 function read_var_files(varfile_path)
-    if isfile("$(varfile_path)")==false
-        println("Your file does not exist. Would you like to create one ? (Y/N)")
-        answer = readline()
-        answer == "N" && (error("No .txt file at that location"))
-        create_var_file(varfile_path)
-    end
+    #if isfile("$(varfile_path)")==false
+    #    println("Your file does not exist. Would you like to create one ? (Y/N)")
+    #    answer = readline()
+    #    answer == "N" && (error("No .txt file at that location"))
+    #    create_var_file(varfile_path)
+    #end
+    (isfile("$(varfile_path)")==false) && (error("No .txt file at that location"))
     var_data = readdlm("$(varfile_path)",comments=true)
     toreturn = Array{Any,2}(undef, size(var_data)[1], 1)
     for ix=1:size(var_data)[1] # Through the line
