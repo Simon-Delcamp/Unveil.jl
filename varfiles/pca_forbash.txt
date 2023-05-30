@@ -1,0 +1,28 @@
+
+# FILE USED TO RUN SCRIPT "PCA.JL" WITH BASH SCRIPT (MAINLY FOR LARGE DATA)
+# COMMENTS ARE #
+# USE IT IN BASH FILE LIKE SO (NamesWrittenLikeThis are to be changed by the user):
+#        cp pca_forbash.txt temp.txt
+#        sed -i "s+fitspath+YourPath/FitsName.fits+" temp.txt
+#        sed -i "s+pathtosave+YourPathWhereToSaveResults" temp.txt
+#        mv temp.txt pca_forbash.txt
+#        cd ../scripts
+#        julia pca_forbash.jl
+#        cd ../varfiles 
+#---------------------------------------------------------------------------------------------------------------#
+
+FITSPATH         "fitspath"                                         # Path to the fits
+PATHTOSAVE        "pathtosave"                                      # Path where Data and Plots will be saved
+UNITVELOCITY      m/s									            # Velocity units of the fits file
+NBPC              nbpc                                              # Number of PC used for the reconstruction. 
+BLANK             -1000                                             # Blanking data
+
+#---------------------------------------------------------------------------------------------------------------#
+
+# DIRECTORIES BRANCHES EXPLANATIONS
+#               [PATH TO SAVE]
+#               |             |
+#              /               \
+#             /                 \
+#   [Convergence_Criteria]      [DATA] 
+#

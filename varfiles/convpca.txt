@@ -1,0 +1,22 @@
+
+# FILE USED TO RUN SCRIPT "pcaconvproj.JL" 
+# COMMENTS ARE #
+
+#---------------------------------------------------------------------------------------------------------------#
+
+
+FITSPATH         "/home/delcamps/Data/Polaris/Gd_champ/" #"/home/delcamps/Data/Pipe_nebula/TestPCA/" #Polaris/Gd_champ/"                                     # Path of the fits. Its header will be used for the writting of the output fits file.
+FILENAME         "polarishera_masked.fits" # "FULL_RES32m.fits" #                                    # Name of the fits
+PATHTOSAVE       "/home/delcamps/Data/Polaris/Gd_champ/" # "/home/delcamps/Data/Pipe_nebula/TestPCA/" #Polaris/Gd_champ/"                                  # Path where Data and Plots will be saved
+UNITVELOCITY      m/s									            # Velocity units of the fits file
+HIGHESTPC          200                                                # Number of PC to look at
+BLANK             -1000                                             # Blanking data
+#---------------------------------------------------------------------------------------------------------------#
+
+
+# DIRECTORIES BRANCHES EXPLANATIONS
+#               [PATH TO SAVE]
+#               |             |
+#              /               \
+#             /                 \
+#   [Convergence_Criteria]      [DATA] 

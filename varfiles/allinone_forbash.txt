@@ -1,0 +1,39 @@
+
+# FILE USED TO RUN SCRIPT "allinone.JL" WITH A BASH COMMAND (MAINLY FOR light DATA SET)
+# USE IT IN BASH FILE LIKE SO (NamesWrittenLikeThis are to be changed by the user):
+#        cp allinone_forbash.txt temp.txt
+#        sed -i "s+fitspath+YourPath/FitsName.fits+" temp.txt
+#        sed -i "s+pathtosave+YourPathWhereToSaveResults" temp.txt
+#        sed -i "s+firstnoisecanal+FirstNoiseCanal+" temp.txt
+#        sed -i "s+lastnoisecanal+LastNoiseCanal+" temp.txt
+#        mv temp.txt allinone.txt
+#        cd ../scripts
+#        julia allinone.jl
+#        cd ../varfiles 
+# COMMENTS ARE #
+
+#---------------------------------------------------------------------------------------------------------------#
+FITSPATH         fitspath                                    # Path of the fits. Its header will be used for the writting of the output fits file.
+PATHTOSAVE       pathtosave                                  # Path where Data and Plots will be saved
+DATANAMETITLE               ""                               # Name to give at the plots referencing to the data
+UNITVELOCITY      m/s									     # Velocity units of the fits file
+NBPC              100                                        # Number of PC used for the reconstruction. 
+BLANK             -1000                                      # Blanking data
+NBPCCONVERGENCEANALYSIS  40                                  # The number of PC to keep for the convergence analysis
+FIRSTNOISECANAL        firstnoisecanal                       # First velocity canals where there is only noise
+LASTNOISECANAL         lastnoisecanal                        # Last velocity canals where there is only noise
+VELOCITYSIZEOFINTEGRATION   0.6                              # Size of the velocity integration range
+LAG               2,3,5,7,10,20,50                           # Values of the Lag used for CVI calculations
+NANGLE            80                                         # Number of rotation during the CVI process (averaged at the end)
+DIFFTYPE          relative                                   # Type of differences computed during CVI calculation (relative or abs)
+
+#---------------------------------------------------------------------------------------------------------------#
+
+
+# DIRECTORIES BRANCHES EXPLANATIONS
+#               [PATH TO SAVE]
+#               |             |
+#              /               \
+#             /                 \
+#   [Convergence_Criteria]      [DATA] 
+#

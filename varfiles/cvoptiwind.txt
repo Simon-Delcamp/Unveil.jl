@@ -1,0 +1,26 @@
+
+# FILE USED TO RUN SCRIPT "cvoptiwind.JL" 
+# COMMENTS ARE #
+
+#---------------------------------------------------------------------------------------------------------------#
+
+
+FITSPATH        "/home/delcamps/Data/Pipe_nebula/30m/OTFMAP/Pierre/" 
+#"/home/delcamps/Data/Polaris/Gd_champ/"                                     # Path of the fits. Its header will be used for the writting of the output fits file.
+FILENAME        "FULL_RES32m.fits "
+#"polarishera_masked.fits"                                    # Name of the fits 
+PATHTOSAVE      "/home/delcamps/Data/Pipe_nebula/TestOW/" 
+#"/home/delcamps/Data/Polaris/Gd_champ/"                                  # Path where Data and Plots will be saved 
+UNITVELOCITY      m/s									            # Velocity units of the fits file
+RANGE             6                                                # Number of velocity channel used for the OptiWindow method
+BLANK             -1000                                             # Blanking data
+NOISECAN         1,30                                     # Positions of the noise channels
+#---------------------------------------------------------------------------------------------------------------#
+
+
+# DIRECTORIES BRANCHES EXPLANATIONS
+#               [PATH TO SAVE]
+#               |             |
+#              /               \
+#             /                 \
+#   [Convergence_Criteria]      [DATA] 

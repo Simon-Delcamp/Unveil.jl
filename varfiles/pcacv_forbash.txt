@@ -1,0 +1,28 @@
+# FILE USED TO RUN SCRIPT "onlypcacv.JL" WITH A BASH SCRIPT
+# COMMENTS ARE #
+# USE IT IN BASH FILE LIKE SO (NamesWrittenLikeThis are to be changed by the user):
+#        cp onlypcacv_forbash.txt temp.txt
+#        sed -i "s+fitspath+YourPath/FitsName.fits+" temp.txt
+#        sed -i "s+pathtosave+YourPathWhereToSaveResults" temp.txt
+#        mv temp.txt onlypcacv_forbash.txt
+#        cd ../scripts
+#        julia onlypcacv_forbash.jl
+#        cd ../varfiles 
+#---------------------------------------------------------------------------------------------------------------#
+FITSPATH         "fitspath"                                         # Path to the fits
+PATHTOSAVE        "pathtosave"                                      # Path where Data and Plots will be saved
+DATANAMETITLE               ""                                      # Name to give at the plots referencing to the data
+UNITVELOCITY      m/s									            # Velocity units of the fits file
+NBPC              nbpc                                              # Number of PC used for the reconstruction. 
+                                                                    # Also used as the maximum number of PC on which the convergence analysis will be run.
+BLANK             -1000                                             # Blanking data
+
+#---------------------------------------------------------------------------------------------------------------#
+
+# DIRECTORIES BRANCHES EXPLANATIONS
+#               [PATH TO SAVE]
+#               |             |
+#              /               \
+#             /                 \
+#   [Convergence_Criteria]      [DATA] 
+#

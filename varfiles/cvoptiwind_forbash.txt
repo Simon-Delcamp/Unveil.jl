@@ -1,0 +1,32 @@
+
+# FILE USED TO RUN SCRIPT "cvoptiwind.JL" WITH A BASH SCRPT
+# COMMENTS ARE #
+# USE IT IN BASH FILE LIKE SO (NamesWrittenLikeThis are to be changed by the user):
+#        cp cvoptiwind.txt temp.txt
+#        sed -i "s+fitspath+YourPath/FitsName.fits+" temp.txt
+#        sed -i "s+pathtosave+YourPathWhereToSaveResults" temp.txt
+#        mv temp.txt cvinopca_forbash.txt
+#        cd ../scripts
+#        julia cvoptiwind.jl
+#        cd ../varfiles 
+#---------------------------------------------------------------------------------------------------------------#
+
+FITSPATH          fitspath                                          # Path to the fits
+FILENAME          filename                                          # Name of the fits
+PATHTOSAVE        pathtosave                                        # Path where Data and Plots will be saved
+DIRECTORYNAME     ""                                                # Name of the directory placed in Data and Plots directory
+UNITVELOCITY      m/s									            # Velocity units of the fits file
+RANGE             range                                             # Number of velocity channels used for the OptiWindow convergence calculation
+BLANK             -1000                                             # Blanking data
+LAG               2,3,5,7,10,20,50                                  # Values of the Lag used for CVI calculations
+NANGLE            80                                                # Number of rotation during the CVI process 
+DIFFTYPE          relative                                          # Type of differences computed during CVI calculation (relative or abs)
+#---------------------------------------------------------------------------------------------------------------#
+
+# DIRECTORIES BRANCHES EXPLANATIONS
+#               [PATH TO SAVE]
+#               |             |
+#              /               \
+#             /                 \
+#   [Convergence_Criteria]      [DATA] 
+#

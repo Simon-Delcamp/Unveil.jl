@@ -1,0 +1,21 @@
+# FILE USED TO RUN SCRIPT "cvpca.JL"  (MAINLY FOR light DATA SET)
+# COMMENTS ARE #
+
+#---------------------------------------------------------------------------------------------------------------#
+FITSPATH         "/home/delcamps/Data/Polaris/Gd_champ/polarishera_masked.fits"                                     # Path of the fits. Its header will be used for the writting of the output fits file.
+PATHTOSAVE       "/home/delcamps/Data/Polaris/Gd_champ/"                                  # Path where Data and Plots will be saved
+DATANAMETITLE               ""                                      # Name to give at the plots referencing to the data
+UNITVELOCITY      m/s									            # Velocity units of the fits file
+NBPC              39                                               # Number of PC used for the reconstruction. 
+BLANK             -1000                                             # Blanking data
+
+#---------------------------------------------------------------------------------------------------------------#
+
+
+# DIRECTORIES BRANCHES EXPLANATIONS
+#               [PATH TO SAVE]
+#               |             |
+#              /               \
+#             /                 \
+#   [Convergence_Criteria]      [DATA] 
+#

@@ -1,0 +1,23 @@
+
+# FILE USED TO RUN FUNCTION "PCA"  
+# COMMENTS ARE #
+
+#---------------------------------------------------------------------------------------------------------------#
+
+FITSPATH            "/home/delcamps/Data/Pipe_nebula/TestPCA/"    # Path of the fits. Its header will be used for the writting of the output fits file.
+FILENAME              " FULL_RES32m.fits"
+PATHTOSAVE          "/home/delcamps/Data/Pipe_nebula/TestPCA/"                            # Path where Data and Plots will be saved
+UNITVELOCITY      m/s									         # Velocity units of the fits file
+NBPC              64                                              # Number of PC used for the reconstruction. 
+BLANK             -1000                                          # Blanking data
+
+#---------------------------------------------------------------------------------------------------------------#
+
+
+# DIRECTORIES BRANCHES EXPLANATIONS
+#               [PATH TO SAVE]
+#               |             |
+#              /               \
+#             /                 \
+#   [Convergence_Criteria]      [DATA] 
+#

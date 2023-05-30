@@ -1,0 +1,24 @@
+
+# FILE USED TO RUN SCRIPT "cvi.JL"  (MAINLY FOR LARGE DATA)
+# COMMENTS ARE #
+
+#---------------------------------------------------------------------------------------------------------------#
+
+FITSPATH         "/home/delcamps/Data/Polaris/Gd_champ/Data/cv_39.fits" 
+#"/home/delcamps/Data/Polaris/Gd_champ/Data/cv_nopca_optiwind.fits"                                             # Path of the fits. Its header will be used for the writting of the output fits file.
+PATHTOSAVE       "/home/delcamps/Data/Polaris/Gd_champ/"                                          # Path where Data and Plots will be saved
+UNITVELOCITY      m/s									                    # Velocity units of the fits file
+NBPC              0                                                         # Number of PC used for the reconstruction. 
+BLANK             -1000                                                     # Blanking data
+LAG               6,10,14,20                                          # Values of the Lag used for CVI calculations
+NANGLE            80                                                        # Number of rotation during the CVI process 
+DIFFTYPE          abs                                                  # Type of differences computed during CVI calculation (relative or abs)
+#---------------------------------------------------------------------------------------------------------------#
+
+# DIRECTORIES BRANCHES EXPLANATIONS
+#               [PATH TO SAVE]
+#               |             |
+#              /               \
+#             /                 \
+#   [Convergence_Criteria]      [DATA] 
+#
