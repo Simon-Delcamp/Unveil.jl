@@ -176,7 +176,7 @@ end
 """
     ppv_from_fbm3(imsize,powerlaw,xarray,sig,stdev,tmax)
 
-Compute a ppv cube, with two gaussian components of maxima equal to the values obtained in 2D fbm maps minus the mean of the xarray (== velocity array). A noise with a standard deviation of stdev is added.  Xarray is the velocity axis wanted (write it as : -20:01:20 for example) xinc is an array (3 of size) given the increments for each components. sig is an array (3 of size) given the dispersions. A random value will also be added.
+Compute a ppv cube, with three gaussian components of maxima equal to the values obtained in 2D fbm maps minus the mean of the xarray (== velocity array). A noise with a standard deviation of stdev is added.  Xarray is the velocity axis wanted (write it as : -20:01:20 for example) xinc is an array (3 of size) given the increments for each components. sig is an array (3 of size) given the dispersions. A random value will also be added.
 """
 #function ppv_from_fbm3(imsize,powerlaw,sig,stdev,tmax,fitspath,fitsname,T,xarray,xinc; more=[""])  # DO NOT ADD A RANDOM VALUE IN SUPPLEMENT OF THE POSITION GIVEN BY THE FBM.
 #    #xarray = -20:0.1:20
