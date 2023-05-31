@@ -8,7 +8,7 @@ The idea is to give quick and simple tools to interested researchers, written in
 As can be see on the next Figure, the module **Unveil.jl** is the main one. It contains 8 functions, each one comunicating with others modules inside this package. To be able to use one function of **Unveil**, you should first produce a '.txt' variable file. This allow to use functions with high numbers or long inputs more easily and quickier. The files should be of the same structure as the one specified in folder 'varfiles' (one file for each Unveil function, with corresponding names). 
 
 
-![Structuration of the code](https://gricad-gitlab.univ-grenoble-alpes.fr/delcamps/unveil/-/tree/main/docs/build/assets/codestructure.png)
+![Structuration of the code](docs/build/assets/codestructure.png)
 
 ## Statistical analysis
 The statistical analysis is based on the computation of the Centroid Velocity, and the Centroid Velocity Increment. On a PPV (Position-Position-Velocity) cube, the centroid velocity is writen as :
