@@ -5,7 +5,7 @@ This code is built in order to unveil positions of extreme intermittent dissipat
 
 The idea is to give quick and simple tools to interested researchers, written in a new, promising and well maintain programming language for him to evolve. 
 
-As can be see on the next Figure, the module **Unveil.jl** is the main one. It contains 8 functions, each one comunicating with others modules inside this package. To be able to use one function of **Unveil**, you should first produce a '.txt' variable file. This allow to use functions with high numbers or long inputs more easily and quickier. The files should be of the same structure as the one specified in folder 'varfiles' (one file for each Unveil function, with corresponding names). 
+As can be see on the next Figure, the module **Unveil.jl** is the main one. It contains 7 functions (plus two in development), each one comunicating with others modules. To be able to use one function of **Unveil**, a first '.txt' file containing all the variables needed should be constructed. This allow to use functions with high numbers or long inputs more easily and quickier. The files should be of the same structure as the one specified in the folder 'varfiles' (one file for each Unveil function, with corresponding names). 
 
 
 ![Structuration of the code](docs/build/assets/codestructure.png)
