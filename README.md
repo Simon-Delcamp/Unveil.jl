@@ -1,4 +1,3 @@
-[![Docs-stable][docs-stable-img]][docs-stable-url]
 
 
 # Presentation 
@@ -7,6 +6,9 @@ This code is built in order to unveil positions of extreme intermittent dissipat
 The idea is to give quick and simple tools to interested researchers, written in a new, promising and well maintain programming language for him to evolve. 
 
 As can be see on Fig, the module **Unveil.jl** is the main one. It contains 8 functions, each one comunicating with others modules inside this package. To be able to use one function of **Unveil**, you should first produce a '.txt' variable file. This allow to use functions with high numbers or long inputs more easily and quickier. The files should be of the same structure as the one specified in folder 'varfiles' (one file for each Unveil function, with corresponding names). 
+
+
+![alt text](https://gricad-gitlab.univ-grenoble-alpes.fr/delcamps/unveil/-/tree/main/docs/build/assets/codestructure.pdf)
 
 ## Statistical analysis
 The statistical analysis is based on the computation of the Centroid Velocity, and the Centroid Velocity Increment. On a PPV (Position-Position-Velocity) cube, the centroid velocity is writen as :
@@ -96,4 +98,3 @@ For a list and description of every function, please see the doc : download the 
 
 
 
-[docs-stable-url]: https://delcamps.gitlab.io/Unveil/stable

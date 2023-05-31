@@ -103,7 +103,7 @@ function convpca(VARFILEPATH)
     Graphic.distribcv_multipc(mom1[2:end-1],mom2[2:end-1],mom3[2:end-1],mom4[2:end-1],metric[2:end-1],xvector[2:end-1])
     Plots.savefig("$(PATHTOSAVE)/pca_metric.pdf")
 
-    Data_preparation.write_dat([metric mom1 mom2 mom3 mom4 xvector],"$PATHTOSAVE","metric",overwrite=true,more=["$FILENAME","Metric  Mom1   Mom2   Mom3   Mom4   PCs"])
+    Data_preparation.write_dat([metric mom1 mom2 mom3 mom4 xvector],"$PATHTOSAVE","metricPCA",overwrite=true,more=["$FILENAME","Metric  Mom1   Mom2   Mom3   Mom4   PCs"])
     minimetr = minimum(metric)
     minipc   = xvector[findall(x->x==minimetr,metric)]
     println("Metric minimum=$(minimetr)")
@@ -157,6 +157,8 @@ function convswo(VARFILEPATH)
 
     Graphic.distribcv_multiow(mus[1:end],sigs[1:end],gams[1:end],kaps[1:end],mets[1:end],RANGE[1][1:end],"Parameters of distribution of the percentage of flagged velocity canals",SIGMAT=0)
     Plots.savefig("$PATHTOSAVE/swo_percFLAGGED.pdf")
+
+    Data_preparation.write_dat([mets mus sigs gams kaps RANGE[1][:]],"$PATHTOSAVE","metricSWO",overwrite=true,more=["$FILENAME","Metric  Mom1   Mom2   Mom3   Mom4   RANGE"])
 
 end #convswo
 
