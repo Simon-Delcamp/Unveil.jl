@@ -581,6 +581,10 @@ function swo(VARFILEPATH)
 
 
     if EXAMPLES=="YES"
+        if ismis == 1
+            cube = Data_preparation.addblank(cube,missingplaces2D,BLANK,DATADIMENSION)
+        end
+        cube = reshape(cube,DATADIMENSION)
         Graphic.checkwindowopti(cube,maskinterv,VELOCITYVECTOR,4,4)
         savefig("$(PATHTOSAVE)/checkswo1.pdf")
         Graphic.checkwindowopti(cube,maskinterv,VELOCITYVECTOR,4,4)

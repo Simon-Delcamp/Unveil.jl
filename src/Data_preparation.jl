@@ -350,6 +350,7 @@ function directory_prep(PATHTOSAVE)
 
     (isdir("$(PATHTOSAVE)/Data/"))==0                                            && mkdir("$(PATHTOSAVE)/Data/")
 
+
     #(isdir("$(PATHTOSAVE)/Data/$(DIRECTORYNAME)"))==0                            && mkdir("$(PATHTOSAVE)/Data/$(DIRECTORYNAME)")
     #(isdir("$(PATHTOSAVE)/Data/$(DIRECTORYNAME)/CVI"))==0                        && mkdir("$(PATHTOSAVE)/Data/$(DIRECTORYNAME)/CVI")
     #(isdir("$(PATHTOSAVE)/Data/$(DIRECTORYNAME)/CV"))==0                         && mkdir(("$(PATHTOSAVE)/Data/$(DIRECTORYNAME)/CV"))
