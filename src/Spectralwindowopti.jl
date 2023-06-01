@@ -37,9 +37,9 @@ function convoptiwind(cubesource,DATADIMENSION_NOMISSING,SOURCEDIMENSION,VELOCIT
         cubedif = Array{Float64}(undef,DATADIMENSION_NOMISSING[1]) 
         sizenotzero = Array{Float64}(undef,DATADIMENSION_NOMISSING[1]) 
         cubemasked,SIGMAT = optiwind(cubesource,DATADIMENSION_NOMISSING,VELOCITYVECTOR,NOISECAN,BLANK,RANGE[rx])
-        cubemasked = Data_preparation.replace_blanktomissing(cubemasked,BLANK)
+        cubemasked = Data_preparation.blank_equal(cubemasked,BLANK,0)
         #println(SIGMAT)
-        cubedif .= (sum(skipmissing(cubesource),dims=2).-sum(skipmissing(cubemasked),dims=2)).*abs(VELOCITYVECTOR[2]-VELOCITYVECTOR[1])
+        cubedif .= (sum(cubesource,dims=2).-sum(cubemasked,dims=2)).*abs(VELOCITYVECTOR[2]-VELOCITYVECTOR[1])
         for px=1:DATADIMENSION_NOMISSING[1]
             sizenotzero[px] = (DATADIMENSION_NOMISSING[2]-size(findall(x->x>0,cubemasked[px,:]))[1])/DATADIMENSION_NOMISSING[2]*100
         end #px
