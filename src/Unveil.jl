@@ -144,6 +144,7 @@ function convswo(VARFILEPATH)
         cube                                  = convert(Array{Float64},cube)
         DATADIMENSION_NOMISSING               = Data_preparation.read_dim(cube)
     else
+        missingplaces2D = 0
         cube                                 = reshape(cube,DATADIMENSION[1]*DATADIMENSION[2],DATADIMENSION[3])
         cube                                 = convert(Array{Float64},cube)
         DATADIMENSION_NOMISSING              = (DATADIMENSION[1]*DATADIMENSION[2],DATADIMENSION[3])
@@ -576,7 +577,7 @@ function swo(VARFILEPATH)
     maskinterv = reshape(maskinterv,DATADIMENSION)
 
     Data_preparation.write_fits("$(FITSPATH)/$FILENAME","RECONSTRUCTED_$(RANGE)SWO","$PATHTOSAVE/Data/",maskinterv,DATADIMENSION,BLANK,more=["RANGE","$range"])
-    println("Data reconstructed from PCA saved in $(PATHTOSAVE)/Data/RECONSTRUCTED_$(RANGE)SWO_NumberOfFilesWithTheSameNameAsPrefixe.fits as a fits.")
+    println("Data reconstructed from SWO method saved in $(PATHTOSAVE)/Data/RECONSTRUCTED_$(RANGE)SWO_NumberOfFilesWithTheSameNameAsPrefixe.fits as a fits.")
 end  #swo
 
 
