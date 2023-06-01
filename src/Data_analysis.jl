@@ -52,6 +52,13 @@ function calcmetric(mom1,mom2,mom3,mom4,dv)
 end#calcmetric
 
 
+
+"""
+    calcmetricOW(mom1,mom2,mom3,mom4,dv,SIGMAT)
+
+
+Calculate the following metric on each values of mom1,2,3 and 4: sqrt((mom1/dv)**2+(mom2/dv)**2+(mom3-SIGMAT)**2+(mom4-3)**2)
+"""
 function calcmetricOW(mom1,mom2,mom3,mom4,dv,SIGMAT)
     metric = similar(mom1)
     for ix=1:size(metric)[1]
@@ -59,7 +66,7 @@ function calcmetricOW(mom1,mom2,mom3,mom4,dv,SIGMAT)
     end
     return(metric)
 
-end#calcmetric
+end#calcmetricOW
 
 
 """

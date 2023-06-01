@@ -574,10 +574,12 @@ function swo(VARFILEPATH)
     if EXAMPLES=="YES"
         Graphic.checkwindowopti(cube,maskinterv,VELOCITYVECTOR,4,4)
         Plots.savefig("$(PATHTOSAVE)/checkswo1.pdf")
+
         Graphic.checkwindowopti(cube,maskinterv,VELOCITYVECTOR,4,4)
-        Plots.savefig("$(PATHTOSAVE)/checkswo1.pdf")
+        Plots.savefig("$(PATHTOSAVE)/checkswo2.pdf")
+
         Graphic.checkwindowopti(cube,maskinterv,VELOCITYVECTOR,4,4)
-        Plots.savefig("$(PATHTOSAVE)/checkswo1.pdf")
+        Plots.savefig("$(PATHTOSAVE)/checkswo3.pdf")
     end
 
     if ismis == 1
