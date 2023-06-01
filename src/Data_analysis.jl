@@ -55,7 +55,7 @@ end#calcmetric
 function calcmetricOW(mom1,mom2,mom3,mom4,dv,SIGMAT)
     metric = similar(mom1)
     for ix=1:size(metric)[1]
-        metric[ix] = sqrt((mom1[ix])^2 + ((mom2[ix]))^2+(mom3[ix])^2+(mom4[ix]-3)^2)
+        metric[ix] = sqrt((mom1[ix]/dv)^2 + ((mom2[ix]/dv))^2+(mom3[ix]-SIGMAT)^2+(mom4[ix]-3)^2)
     end
     return(metric)
 
