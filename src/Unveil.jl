@@ -570,6 +570,15 @@ function swo(VARFILEPATH)
     
     
     maskinterv,sigmaT = Spectralwindowopti.optiwind(cube,DATADIMENSION_NOMISSING,VELOCITYVECTOR,NOISECAN,BLANK,RANGE)
+    
+    if EXAMPLES=="YES"
+        Graphic.checkwindowopti(cube,maskinterv,VELOCITYVECTOR,4,4)
+        savefig("$(PATHTOSAVE)/checkswo1.pdf")
+        Graphic.checkwindowopti(cube,maskinterv,VELOCITYVECTOR,4,4)
+        savefig("$(PATHTOSAVE)/checkswo1.pdf")
+        Graphic.checkwindowopti(cube,maskinterv,VELOCITYVECTOR,4,4)
+        savefig("$(PATHTOSAVE)/checkswo1.pdf")
+    end
 
     if ismis == 1
         maskinterv = Data_preparation.addblank(maskinterv,missingplaces2D,BLANK,DATADIMENSION)
@@ -580,18 +589,7 @@ function swo(VARFILEPATH)
     println("Data reconstructed from SWO method saved in $(PATHTOSAVE)/Data/RECONSTRUCTED_$(RANGE)SWO_NumberOfFilesWithTheSameNameAsPrefixe.fits as a fits.")
 
 
-    if EXAMPLES=="YES"
-        if ismis == 1
-            cube = Data_preparation.addblank(cube,missingplaces2D,BLANK,DATADIMENSION)
-        end
-        cube = reshape(cube,DATADIMENSION)
-        Graphic.checkwindowopti(cube,maskinterv,VELOCITYVECTOR,4,4)
-        savefig("$(PATHTOSAVE)/checkswo1.pdf")
-        Graphic.checkwindowopti(cube,maskinterv,VELOCITYVECTOR,4,4)
-        savefig("$(PATHTOSAVE)/checkswo1.pdf")
-        Graphic.checkwindowopti(cube,maskinterv,VELOCITYVECTOR,4,4)
-        savefig("$(PATHTOSAVE)/checkswo1.pdf")
-    end
+
 end  #swo
 
 
