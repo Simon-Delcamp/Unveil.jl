@@ -67,7 +67,7 @@ To be used correctly, few rules should be followed :
 1. All files should be **.fits**
 2. For better results, it is highly recommanded to blank the maps edges, and/or the noisiest spectra. 
 3. For a PPV (Position-Position-Velocity) cube, at one given position in PP space, if one velocity channel is blanked, it should be blanked on every others velocity channels. We call that *regular blanking*. If not, the code will throw an error. 
-4. The fits header should contain these three entries : "BLANK", "BZERO" and "BSCALE". See [this list of keywords definition](https://heasarc.gsfc.nasa.gov/docs/fcg/standard_dict.html) of the fits file convention for more informations. If these entries don't exist, an error will be print.
+4. The fits header should contain usual entries. See [this list of keywords definition](https://heasarc.gsfc.nasa.gov/docs/fcg/standard_dict.html) of the fits file convention for more informations. As far as we know, using the software GILDAS to convert from 'fits' to 'lmv' and then from 'lmv' into 'fits' works. The parameters seems to be 'DATAMIN', 'DATAMAX', 'CTYPE1', 'CRVAL1', 'CDELT1', 'CRPIX1' and 'CROTA1' (with every numbers given above going from 1 to 3).
 
 
 

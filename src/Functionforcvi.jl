@@ -50,8 +50,8 @@ end
 Will construct a cvi map using preallocated array. Need an array preallocated for the storage of the average on all cvi angle (cvimean), and another for the cvi calculated with all angle and lag (cvi_allangle_alllag). The cvi map is constructed by taking the mean of all rotations of the cv increment calculation at each pixel. The Lag is the increment. xyarr have to be in 2D (pixel*pixel). Mapdim is the dimension of your 2Dmap. The differences can be absolute or relative. 
 """
 function construct_cvimap!(xyarr,Lag::Vector{Int64},nangle,mapdim,cvi_averaged_alllag::Array{Union{Missing, Float64},2},cvi_allangle_alllag::Array{Union{Missing, Float64}, 3},cvi_allangle::Array{Union{Missing,Float64},3}; diff="relative",keepmissing=true)
-    nangle = 2pi ./(atan.(1 ./Lag))
-
+    nangle = floor(Int,2pi ./(atan.(1 ./Lag)))
+    
     cvi_allangle_alllag = cv_increment!(xyarr,Lag,nangle,cvi_allangle_alllag,cvi_allangle,diff=diff)
     @inbounds @views for lagstep=1:size(Lag)[1]
         if keepmissing==true
@@ -64,7 +64,7 @@ function construct_cvimap!(xyarr,Lag::Vector{Int64},nangle,mapdim,cvi_averaged_a
         end
     end
     cvi_averaged_alllag = reshape(cvi_averaged_alllag,mapdim[1],mapdim[2],size(Lag)[1])
-    return(cvi_averaged_alllag,cvi_allangle_alllag)
+    return(cvi_averaged_alllag,cvi_allangle_alllag,nangle)
 end
 
 
@@ -75,8 +75,7 @@ end
 Will construct a cvi map using preallocated array. Need an array preallocated for the storage of the average on all cvi angle (cvi_averaged), and another for the cvi calculated with all angle and lag (cvi_allangle). The cvi map is constructed by taking the mean of all rotations of the cv increment calculation at each pixel. The Lag is the increment. xyarr have to be in 2D (pixel*pixel). Mapdim is the dimension of your 2Dmap. The differences can be absolute or relative. 
 """
 function construct_cvimap!(xyarr,Lag::Int64,mapdim,cvi_averaged::Array{Union{Missing, Float64}},cvi_allangle::Array{Union{Missing,Float64},3}; diff="relative",keepmissing=true) 
-    nangle = 2pi ./(atan.(1 ./Lag))
-
+    nangle = floor.(Int,2pi ./(atan.(1 ./Lag)))
     cvi_allangle = reshape(cv_increment!(xyarr,Lag,nangle,cvi_allangle,diff=diff),mapdim[1]*mapdim[2],nangle) 
     if keepmissing==true
         missing1D               = findall(ismissing,cvi_allangle)
@@ -87,7 +86,7 @@ function construct_cvimap!(xyarr,Lag::Int64,mapdim,cvi_averaged::Array{Union{Mis
         keepmissing==true  && (cvi_averaged[pix] = mean(cvi_allangle[pix,:]))
     end
     cvi_averaged = reshape(cvi_averaged,mapdim[1],mapdim[2])
-    return(cvi_averaged,cvi_allangle)
+    return(cvi_averaged,cvi_allangle,nangle)
 end
 
 
@@ -98,7 +97,7 @@ end
 Construct a Centroid Velocity Increment map based on a 'cvmap'. The cvi map is constructed by taking the mean of all rotations of the Centroid Velocity Increment calculation at each pixel. The Lag is the increment. xyarr have to be in 2D (pixel*pixel). Mapdim is the dimension of your 2Dmap. The differences can be absolute or relative. 
 """
 function construct_cvimap(cvmap,Lag::Vector{Int64},mapdim; diff="relative",keepmissing=true,BLANK=-1000)
-    nangle = 2pi ./(atan.(1 ./Lag))
+    nangle = floor.(Int,2pi ./(atan.(1 ./Lag)) )
     cvi_allangle_alllag = cv_increment(cvmap,Lag,nangle,diff=diff)
     #println("CV inc done") 
     cvmap = 0.0
@@ -119,7 +118,7 @@ function construct_cvimap(cvmap,Lag::Vector{Int64},mapdim; diff="relative",keepm
     end
 
     cvi_averaged_alllag = reshape(cvi_averaged_alllag,mapdim[1],mapdim[2],size(Lag)[1])
-    return(cvi_allangle_alllag,cvi_averaged_alllag)
+    return(cvi_allangle_alllag,cvi_averaged_alllag,nangle)
 end
 
 """
@@ -128,7 +127,7 @@ end
 Same as construct_cvimap if Lag is a Int64 of one lag. Mapdim is the dimension of your 2Dmap. The differences can be absolute or relative.
 """
 function construct_cvimap(cvmap,Lag::Int64,mapdim; diff="relative",keepmissing=true)
-    nangle = 2pi/(atan(1/Lag))
+    nangle = floor(Int,2pi/(atan(1/Lag)))
     cvi_allangle = reshape(cv_increment(cvmap,Lag,nangle,diff=diff,mapdim),mapdim[1]*mapdim[2],nangle) 
     #ss = open("/tmp/mmap_cvi.bin","w+")
     #cvi_averaged = Mmap.mmap(ss,BitArray,size(cvi_allangle)[1])
@@ -143,7 +142,7 @@ function construct_cvimap(cvmap,Lag::Int64,mapdim; diff="relative",keepmissing=t
     end
     cvi_averaged = reshape(cvi_averaged,mapdim[1],mapdim[2])
     #return(cvi_averaged,cvi_allangle)
-    return(cvi_averaged)
+    return(cvi_averaged,nangle)
 
 end
 
@@ -214,14 +213,14 @@ end
 Compute the centroid velocity increment of xyarr at multiple Lag values. Nangle is the number of angle using to compute the differences (it's a value in the parameter file, equal to 192). Diff (default relative) is for differences between two pixels : absolute or relative. Periodic=true (default=false) is for working on periodic data (from simulations like fbm). The returned array will have the first dimension equal to the size of the map (pixel square), the second dimension is the cvi computed at each angle, and the third dimension is for each value of Lag.
 """
 function cv_increment(xyarr,Lag::Vector{Int64},nangle; diff="relative",periodic=false, BLANK=-1000) 
-    cvi_allangle             = convert(Array{Union{Missing,Float64}},zeros(Float64,size(xyarr)[1],size(xyarr)[2],nangle))
-    cvi_allangle_alllag      = convert(Array{Union{Missing,Float64}},zeros(Float64,size(xyarr)[1]*size(xyarr)[2],nangle,size(Lag)[1]))
+    cvi_allangle             = convert(Array{Union{Missing,Float64}},zeros(Float64,size(xyarr)[1],size(xyarr)[2],maximum(nangle)))
+    cvi_allangle_alllag      = convert(Array{Union{Missing,Float64}},zeros(Float64,size(xyarr)[1]*size(xyarr)[2],maximum(nangle),size(Lag)[1]))
     cvi_allangle            .= BLANK
     cvi_allangle_alllag     .= BLANK 
-    @inbounds @views for lagstep=1:size(Lag)[1]
+    for lagstep=1:size(Lag)[1]
     # Iteration for angles
-        @inbounds @views for angl=1:nangle
-            alpha = angl*2.0*pi/nangle
+        for angl=1:nangle[lagstep]
+            alpha = angl*2.0*pi/nangle[lagstep]
             periodic==false && (xyarr_shifted = ShiftedArray(xyarr,(trunc(Int,Lag[lagstep]*cos(alpha)),trunc(Int,Lag[lagstep]*sin(alpha)))))
             periodic==true  && (xyarr_shifted = circshift(xyarr,(trunc(Int,Lag[lagstep]*cos(alpha)),trunc(Int,Lag[lagstep]*sin(alpha)))))
             #xyarr_shifted = Data_preparation.replace_missingtoblank(xyarr_shifted,BLANK)
@@ -242,15 +241,15 @@ function cv_increment(xyarr,Lag::Vector{Int64},nangle; diff="relative",periodic=
                     end
                 end
             else
-                @inbounds @views for col=1:size(xyarr)[2]
+                 for col=1:size(xyarr)[2]
                     # Iteration in rows
-                    @inbounds @views for row=1:size(xyarr)[1]
+                    for row=1:size(xyarr)[1]
                         (ismissing(xyarr_shifted[row,col]) || ismissing(xyarr[row,col]) || xyarr_shifted[row,col] != BLANK || xyarr[row,col] != BLANK) && (cvi_allangle[row,col,angl] = xyarr_shifted[row,col]-xyarr[row,col])
                     end
                 end
             end
         end
-        cvi_allangle_alllag[:,:,lagstep] = reshape(cvi_allangle,size(xyarr)[1]*size(xyarr)[2],nangle)
+        cvi_allangle_alllag[:,:,lagstep] = reshape(cvi_allangle,size(xyarr)[1]*size(xyarr)[2],maximum(nangle))
     end
     #diff == "absolute" && return(abs.(cvi_allangle_alllag))
     return(cvi_allangle_alllag)
@@ -264,10 +263,10 @@ end
 Compute the centroid velocity increment of xyarr at one Lag. Nangle is the number of angle using to compute the differences (it's a value in the parameter file, equal to 192). Diff (default relative) is for differences between two pixels : absolute or relative. Periodic=true (default=false) is for working on periodic data (from simulations like fbm). The returned array will have the first two dimensions equal to the size of the map, and the third dimension is the cvi computed at each angle.
 """
 function cv_increment(xyarr,Lag::Int64,nangle,DataDimension; diff="relative",periodic=false)
-    cvi_allangle  = convert(Array{Union{Missing,Float64}},zeros(Float64,size(xyarr)[1],size(xyarr)[2],nangle))
+    cvi_allangle  = convert(Array{Union{Missing,Float64}},zeros(Float64,size(xyarr)[1],size(xyarr)[2],size(nangle)[1]))
     # Iteration for angles
-    @inbounds @views for angl=1:nangle
-        alpha = angl*2.0*pi/nangle
+    @inbounds @views for angl=1:nangle[lagstep]
+        alpha = angl*2.0*pi/nangle[lagstep]
         periodic==false && (xyarr_shifted = ShiftedArray(xyarr,(trunc(Int,Lag*cos(alpha)),trunc(Int,Lag*sin(alpha)))))
         periodic==true  && (xyarr_shifted = circshift(xyarr,(trunc(Int,Lag*cos(alpha)),trunc(Int,Lag*sin(alpha)))))
         # Iteration in columns
