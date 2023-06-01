@@ -10,3 +10,4 @@ UNITVELOCITY      m/s									         # Velocity units of the fits file
 RANGE             6                                              # Number of velocity cahnnel to used for the SWO method
 BLANK             -1000                                          # Blanking data
 NOISECAN          1,30                                           # Positions of the noise channels
+EXAMPLES          YES                                            # YES or NO. If yes, will plot 3 figures of 16 randomly chosen spectra each of the new cube in front of the source cube.

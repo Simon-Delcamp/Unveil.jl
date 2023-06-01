@@ -544,7 +544,7 @@ Use this function in a julia terminal with :
     julia> Unveil.swo(VARFILEPATH)
 """
 function swo(VARFILEPATH)   
-    FITSPATH,FILENAME,PATHTOSAVE,UNITVELOCITY,RANGE,BLANK,NOISECANTXT = read_var_files(VARFILEPATH)
+    FITSPATH,FILENAME,PATHTOSAVE,UNITVELOCITY,RANGE,BLANK,NOISECANTXT,EXAMPLES = read_var_files(VARFILEPATH)
     NOISECAN = [parse(Int, ss) for ss in split(NOISECANTXT,",")]
     
     
@@ -578,6 +578,16 @@ function swo(VARFILEPATH)
 
     Data_preparation.write_fits("$(FITSPATH)/$FILENAME","RECONSTRUCTED_$(RANGE)SWO","$PATHTOSAVE/Data/",maskinterv,DATADIMENSION,BLANK,more=["RANGE","$range"])
     println("Data reconstructed from SWO method saved in $(PATHTOSAVE)/Data/RECONSTRUCTED_$(RANGE)SWO_NumberOfFilesWithTheSameNameAsPrefixe.fits as a fits.")
+
+
+    if EXAMPLES=="YES"
+        Graphic.checkwindowopti(cube,maskinterv,VELOCITYVECTOR,4,4)
+        savefig("$(PATHTOSAVE)/checkswo1.pdf")
+        Graphic.checkwindowopti(cube,maskinterv,VELOCITYVECTOR,4,4)
+        savefig("$(PATHTOSAVE)/checkswo1.pdf")
+        Graphic.checkwindowopti(cube,maskinterv,VELOCITYVECTOR,4,4)
+        savefig("$(PATHTOSAVE)/checkswo1.pdf")
+    end
 end  #swo
 
 
