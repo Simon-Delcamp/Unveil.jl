@@ -236,7 +236,7 @@ Use this script in a julia terminal with :
     julia>Unveil.cvcvi(VARFILEPATH)
 """
 function cvcvi(VARFILEPATH)
-    FITSPATH,FITSNAME,PATHTOSAVE,UNITVELOCITY,NBPC,BLANK,LAG,NANGLE,DIFFTYPE = read_var_files(VARFILEPATH)
+    FITSPATH,FITSNAME,PATHTOSAVE,UNITVELOCITY,NBPC,BLANK,LAG,DIFFTYPE = read_var_files(VARFILEPATH)
     LAG = [parse(Int, ss) for ss in split(LAG,",")]
     if NBPC == 0
         NBPC="raw"
@@ -288,11 +288,11 @@ function cvcvi(VARFILEPATH)
 
     println("------ CVI CALCULATION ------")
     if DIFFTYPE=="relative" 
-        cviallangle,cvimap_averaged = Functionforcvi.construct_cvimap(cvmap,LAG,NANGLE,(DATADIMENSION[1],DATADIMENSION[2]),diff="relative")
+        cviallangle,cvimap_averaged = Functionforcvi.construct_cvimap(cvmap,LAG,(DATADIMENSION[1],DATADIMENSION[2]),diff="relative")
         DIFFTYPE = "rel"
 
     elseif DIFFTYPE=="abs" 
-        cviallangle,cvimap_averaged = Functionforcvi.construct_cvimap(cvmap,LAG,NANGLE,(DATADIMENSION[1],DATADIMENSION[2]),diff="absolute")
+        cviallangle,cvimap_averaged = Functionforcvi.construct_cvimap(cvmap,LAG,(DATADIMENSION[1],DATADIMENSION[2]),diff="absolute")
         DIFFTYPE = "abs"
 
     else
@@ -334,7 +334,7 @@ Use this script in a julia terminal with :
     julia>Unveil.cvi(VARFILEPATH)
 """
 function cvi(VARFILEPATH)
-    FITSPATH,FITSNAME,PATHTOSAVE,UNITVELOCITY,NBPC,BLANK,LAG,NANGLE,DIFFTYPE = read_var_files(VARFILEPATH)
+    FITSPATH,FITSNAME,PATHTOSAVE,UNITVELOCITY,NBPC,BLANK,LAG,DIFFTYPE = read_var_files(VARFILEPATH)
     LAG = [parse(Int, ss) for ss in split(LAG,",")]
     if NBPC == 0
         NBPC="raw"
@@ -352,11 +352,11 @@ function cvi(VARFILEPATH)
 
     println("------ CVI CALCULATION ------")
     if DIFFTYPE=="relative" 
-        cviallangle,cvimap_averaged = Functionforcvi.construct_cvimap(cvmap,LAG,NANGLE,(DATADIMENSION[1],DATADIMENSION[2]),diff="relative")
+        cviallangle,cvimap_averaged = Functionforcvi.construct_cvimap(cvmap,LAG,(DATADIMENSION[1],DATADIMENSION[2]),diff="relative")
         DIFFTYPE = "rel"
 
     elseif DIFFTYPE=="abs" 
-        cviallangle,cvimap_averaged = Functionforcvi.construct_cvimap(cvmap,LAG,NANGLE,(DATADIMENSION[1],DATADIMENSION[2]),diff="absolute")
+        cviallangle,cvimap_averaged = Functionforcvi.construct_cvimap(cvmap,LAG,(DATADIMENSION[1],DATADIMENSION[2]),diff="absolute")
         DIFFTYPE = "abs"
 
     else

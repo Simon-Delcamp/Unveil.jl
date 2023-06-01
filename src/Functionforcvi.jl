@@ -45,11 +45,13 @@ end
 
 
 """
-    construct_cvimap!(xyarr,Lag::Vector{Int64},nangle,mapdim,cvi_averaged_alllag::Array{Union{Missing, Float64},2},cvi_allangle_alllag::Array{Union{Missing, Float64}, 3},cvi_allangle::Array{Union{Missing,Float64},3}; diff="relative",keepmissing=true)
+    construct_cvimap!(xyarr,Lag::Vector{Int64},mapdim,cvi_averaged_alllag::Array{Union{Missing, Float64},2},cvi_allangle_alllag::Array{Union{Missing, Float64}, 3},cvi_allangle::Array{Union{Missing,Float64},3}; diff="relative",keepmissing=true)
 
-Will construct a cvi map using preallocated array. Need an array preallocated for the storage of the average on all cvi angle (cvimean), and another for the cvi calculated with all angle and lag (cvi_allangle_alllag). The cvi map is constructed by taking the mean of all rotations of the cv increment calculation at each pixel. The Lag is the increment. xyarr have to be in 2D (pixel*pixel). Mapdim is the dimension of your 2Dmap. The differences can be absolute or relative. Nangle refers to the number of rotations of the cvmap: a higher value will compute a higher number of differences pixel per pixel, so a higher number of directions.
+Will construct a cvi map using preallocated array. Need an array preallocated for the storage of the average on all cvi angle (cvimean), and another for the cvi calculated with all angle and lag (cvi_allangle_alllag). The cvi map is constructed by taking the mean of all rotations of the cv increment calculation at each pixel. The Lag is the increment. xyarr have to be in 2D (pixel*pixel). Mapdim is the dimension of your 2Dmap. The differences can be absolute or relative. 
 """
 function construct_cvimap!(xyarr,Lag::Vector{Int64},nangle,mapdim,cvi_averaged_alllag::Array{Union{Missing, Float64},2},cvi_allangle_alllag::Array{Union{Missing, Float64}, 3},cvi_allangle::Array{Union{Missing,Float64},3}; diff="relative",keepmissing=true)
+    nangle = 2pi ./(atan.(1 ./Lag))
+
     cvi_allangle_alllag = cv_increment!(xyarr,Lag,nangle,cvi_allangle_alllag,cvi_allangle,diff=diff)
     @inbounds @views for lagstep=1:size(Lag)[1]
         if keepmissing==true
@@ -68,11 +70,13 @@ end
 
 
 """
-    construct_cvimap!(xyarr,Lag::Int64,nangle,mapdim,cvi_averaged::Array{Union{Missing, Float64}},cvi_allangle::Array{Union{Missing,Float64},3}; diff="relative",keepmissing=true) 
+    construct_cvimap!(xyarr,Lag::Int64,mapdim,cvi_averaged::Array{Union{Missing, Float64}},cvi_allangle::Array{Union{Missing,Float64},3}; diff="relative",keepmissing=true) 
 
-Will construct a cvi map using preallocated array. Need an array preallocated for the storage of the average on all cvi angle (cvi_averaged), and another for the cvi calculated with all angle and lag (cvi_allangle). The cvi map is constructed by taking the mean of all rotations of the cv increment calculation at each pixel. The Lag is the increment. xyarr have to be in 2D (pixel*pixel). Mapdim is the dimension of your 2Dmap. The differences can be absolute or relative. Nangle refers to the number of rotations of the cvmap: a higher value will compute a higher number of differences pixel per pixel, so a higher number of directions.
+Will construct a cvi map using preallocated array. Need an array preallocated for the storage of the average on all cvi angle (cvi_averaged), and another for the cvi calculated with all angle and lag (cvi_allangle). The cvi map is constructed by taking the mean of all rotations of the cv increment calculation at each pixel. The Lag is the increment. xyarr have to be in 2D (pixel*pixel). Mapdim is the dimension of your 2Dmap. The differences can be absolute or relative. 
 """
-function construct_cvimap!(xyarr,Lag::Int64,nangle,mapdim,cvi_averaged::Array{Union{Missing, Float64}},cvi_allangle::Array{Union{Missing,Float64},3}; diff="relative",keepmissing=true) 
+function construct_cvimap!(xyarr,Lag::Int64,mapdim,cvi_averaged::Array{Union{Missing, Float64}},cvi_allangle::Array{Union{Missing,Float64},3}; diff="relative",keepmissing=true) 
+    nangle = 2pi ./(atan.(1 ./Lag))
+
     cvi_allangle = reshape(cv_increment!(xyarr,Lag,nangle,cvi_allangle,diff=diff),mapdim[1]*mapdim[2],nangle) 
     if keepmissing==true
         missing1D               = findall(ismissing,cvi_allangle)
@@ -89,11 +93,12 @@ end
 
 
 """
-    construct_cvimap(cvmap,Lag::Vector{Int64},nangle,mapdim; diff="relative",keepmissing=true,BLANK=-1000)
+    construct_cvimap(cvmap,Lag::Vector{Int64},mapdim; diff="relative",keepmissing=true,BLANK=-1000)
 
-Construct a Centroid Velocity Increment map based on a 'cvmap'. The cvi map is constructed by taking the mean of all rotations of the Centroid Velocity Increment calculation at each pixel. The Lag is the increment. xyarr have to be in 2D (pixel*pixel). Mapdim is the dimension of your 2Dmap. The differences can be absolute or relative. Nangle refers to the number of rotations of the cvmap: a higher value will compute a higher number of differences pixel per pixel, so a higher number of directions.
+Construct a Centroid Velocity Increment map based on a 'cvmap'. The cvi map is constructed by taking the mean of all rotations of the Centroid Velocity Increment calculation at each pixel. The Lag is the increment. xyarr have to be in 2D (pixel*pixel). Mapdim is the dimension of your 2Dmap. The differences can be absolute or relative. 
 """
-function construct_cvimap(cvmap,Lag::Vector{Int64},nangle,mapdim; diff="relative",keepmissing=true,BLANK=-1000)
+function construct_cvimap(cvmap,Lag::Vector{Int64},mapdim; diff="relative",keepmissing=true,BLANK=-1000)
+    nangle = 2pi ./(atan.(1 ./Lag))
     cvi_allangle_alllag = cv_increment(cvmap,Lag,nangle,diff=diff)
     #println("CV inc done") 
     cvmap = 0.0
@@ -118,11 +123,12 @@ function construct_cvimap(cvmap,Lag::Vector{Int64},nangle,mapdim; diff="relative
 end
 
 """
-    construct_cvimap(cvmap,Lag::Int64,nangle,mapdim; diff="relative",keepmissing=true) 
+    construct_cvimap(cvmap,Lag::Int64,mapdim; diff="relative",keepmissing=true) 
 
-Same as construct_cvimap if Lag is a Int64 of one lag. Mapdim is the dimension of your 2Dmap. The differences can be absolute or relative. Nangle refers to the number of rotations of the cvmap: a higher value will compute a higher number of differences pixel per pixel, so a higher number of directions.
+Same as construct_cvimap if Lag is a Int64 of one lag. Mapdim is the dimension of your 2Dmap. The differences can be absolute or relative.
 """
-function construct_cvimap(cvmap,Lag::Int64,nangle,mapdim; diff="relative",keepmissing=true)
+function construct_cvimap(cvmap,Lag::Int64,mapdim; diff="relative",keepmissing=true)
+    nangle = 2pi/(atan(1/Lag))
     cvi_allangle = reshape(cv_increment(cvmap,Lag,nangle,diff=diff,mapdim),mapdim[1]*mapdim[2],nangle) 
     #ss = open("/tmp/mmap_cvi.bin","w+")
     #cvi_averaged = Mmap.mmap(ss,BitArray,size(cvi_allangle)[1])
@@ -259,7 +265,6 @@ Compute the centroid velocity increment of xyarr at one Lag. Nangle is the numbe
 """
 function cv_increment(xyarr,Lag::Int64,nangle,DataDimension; diff="relative",periodic=false)
     cvi_allangle  = convert(Array{Union{Missing,Float64}},zeros(Float64,size(xyarr)[1],size(xyarr)[2],nangle))
-
     # Iteration for angles
     @inbounds @views for angl=1:nangle
         alpha = angl*2.0*pi/nangle
