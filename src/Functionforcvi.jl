@@ -108,11 +108,14 @@ function construct_cvimap(cvmap,Lag::Vector{Int64},mapdim; diff="relative",keepm
 
     cvi_averaged_alllag = Array{Union{Missing,Float64},2}(undef,size(cvi_allangle_alllag)[1],size(Lag)[1])
     cvi_averaged_alllag .= BLANK
+
+
     @inbounds @views for lagstep=1:size(Lag)[1]
         if keepmissing==true
             missing1D = findall(ismissing,cvi_allangle_alllag[:,:,lagstep])
             cvi_allangle_alllag[missing1D,lagstep] .= missing
         end
+
         @inbounds @views for pix=1:size(cvi_allangle_alllag)[1]
             #(ismissing(cvi_allangle_alllag[pix,1,lagstep])) || (cvi_averaged_alllag[pix,lagstep] = mean(skipmissing((cvi_allangle_alllag[pix,:,lagstep]))))
             (cvi_averaged_alllag[pix,lagstep] = mean(skipmissing((cvi_allangle_alllag[pix,:,lagstep]))))
@@ -124,6 +127,8 @@ function construct_cvimap(cvmap,Lag::Vector{Int64},mapdim; diff="relative",keepm
     cvi_averaged_alllag = reshape(cvi_averaged_alllag,mapdim[1],mapdim[2],size(Lag)[1])
     return(cvi_allangle_alllag,cvi_averaged_alllag,nangle)
 end
+
+
 
 """
     construct_cvimap(cvmap,Lag::Int64,mapdim; diff="relative",keepmissing=true) 
@@ -250,7 +255,7 @@ function cv_increment(xyarr,Lag::Vector{Int64},nangle; diff="relative",periodic=
                  for col=1:size(xyarr)[2]
                     # Iteration in rows
                     for row=1:size(xyarr)[1]
-                        (ismissing(xyarr_shifted[row,col]) || ismissing(xyarr[row,col]) || xyarr_shifted[row,col] != BLANK || xyarr[row,col] != BLANK) && (cvi_allangle[row,col,angl] = xyarr_shifted[row,col]-xyarr[row,col])
+                        ((ismissing(xyarr_shifted[row,col])) || ismissing(xyarr[row,col]) || (xyarr_shifted[row,col] != BLANK || xyarr[row,col] != BLANK)) && (cvi_allangle[row,col,angl] = xyarr_shifted[row,col]-xyarr[row,col])
                     end
                 end
             end

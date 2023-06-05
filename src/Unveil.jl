@@ -370,14 +370,17 @@ function cvi(VARFILEPATH)
     # Prepare directories where plots and data will be saved.
     Data_preparation.directory_prep(PATHTOSAVE)
 
+    cvmap = Data_preparation.replace_nantomissing(cvmap)   
+    cvmap = Data_preparation.replace_blanktomissing(cvmap,BLANK)
+
 
     println("------ CVI CALCULATION ------")
     if DIFFTYPE=="relative" 
-        cviallangle,cvimap_averaged = Functionforcvi.construct_cvimap(cvmap,LAG,(DATADIMENSION[1],DATADIMENSION[2]),diff="relative")
+        cviallangle,cvimap_averaged,NANGLE = Functionforcvi.construct_cvimap(cvmap,LAG,(DATADIMENSION[1],DATADIMENSION[2]),diff="relative",BLANK=BLANK)
         DIFFTYPE = "rel"
 
     elseif DIFFTYPE=="abs" 
-        cviallangle,cvimap_averaged = Functionforcvi.construct_cvimap(cvmap,LAG,(DATADIMENSION[1],DATADIMENSION[2]),diff="absolute")
+        cviallangle,cvimap_averaged,NANGLE = Functionforcvi.construct_cvimap(cvmap,LAG,(DATADIMENSION[1],DATADIMENSION[2]),diff="absolute",BLANK=BLANK)
         DIFFTYPE = "abs"
 
     else
@@ -386,6 +389,13 @@ function cvi(VARFILEPATH)
 
 
     cvimap_averaged = reshape(cvimap_averaged,DATADIMENSION[1],DATADIMENSION[2],size(LAG)[1])
+    for lag=1:size(LAG)[1]
+        cvimap_averaged[:,1:LAG[lag],lag] .= missing
+        cvimap_averaged[1:LAG[lag],:,lag] .= missing
+        cvimap_averaged[(DATADIMENSION[1]-LAG[lag])+1:DATADIMENSION[1],:,lag] .= missing
+        cvimap_averaged[:,(DATADIMENSION[2]-LAG[lag])+1:DATADIMENSION[2],lag] .= missing
+    end
+
     cvimap_averaged = Data_preparation.replace_missingtoblank(cvimap_averaged,BLANK)
     cvimap_averaged = Data_preparation.blank_equal(cvimap_averaged,0.0,BLANK)
     cvimap_averaged = convert(Array{Float64},cvimap_averaged)
@@ -399,7 +409,7 @@ function cvi(VARFILEPATH)
     Data_preparation.write_fits("$(FITSPATH)/$FITSNAME","CVI$(DIFFTYPE)_$(SAVENAME)_multlag_METH$(NBPC)","$(PATHTOSAVE)/Data/",cvimap_averaged,(DATADIMENSION[1],DATADIMENSION[2],size(LAG)[1]),BLANK,finished=true,cvi=true,lags=LAG,overwrite=OVERWRITE)
     println("CVI map reconstructed from PCA saved in $(PATHTOSAVE)/Data/CVI$(DIFFTYPE)_$(SAVENAME)_multlag_$(NBPC)PC_NumberOfFilesWithTheSameNameAsPrefixe.fits as a fits.")
 
-    Data_preparation.write_fits("$(FITSPATH)/$FITSNAME","CVI$(DIFFTYPE)_$(SAVENAME)_multlag_allangle_METH$(NBPC)","$(PATHTOSAVE)/Data",cviallangle,(DATADIMENSION[1]*DATADIMENSION[2],NANGLE,size(LAG)[1]),BLANK,finished=true,overwrite=OVERWRITE)
+    Data_preparation.write_fits("$(FITSPATH)/$FITSNAME","CVI$(DIFFTYPE)_$(SAVENAME)_multlag_allangle_METH$(NBPC)","$(PATHTOSAVE)/Data",cviallangle,(DATADIMENSION[1]*DATADIMENSION[2],maximum(NANGLE),size(LAG)[1]),BLANK,finished=true,overwrite=OVERWRITE)
     println("CVI map with all angles values reconstructed from PCA saved in the $(PATHTOSAVE)/Data/CVI$(DIFFTYPE)_$(SAVENAME)_multlag_allangle_METH$(NBPC)_NumberOfFilesWithTheSameNameAsPrefixe.fits as a fits.")
 end #function cvi
 
