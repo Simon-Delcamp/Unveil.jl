@@ -488,13 +488,9 @@ Use this function in a julia terminal with :
     julia> Unveil.pca(VARFILEPATH)
 """
 function pca(VARFILEPATH)
-
-    #println("")
-    #println(" Path to the variable file ? (txt file containing all the informations relevant to read and work on the data)") 
-    ##VARFILEPATH = "varfiles/pca.txt"
-    #GC.gc()
-    FITSPATH,FILENAME,PATHTOSAVE,SAVENAME,UNITVELOCITY,NBPC,BLANK,OVERWRITE = read_var_files(VARFILEPATH)
+    FITSPATH,FILENAME,PATHTOSAVE,SAVENAME,UNITVELOCITY,NBPC,BLANK,NOISECANTXT,OVERWRITE = read_var_files(VARFILEPATH)
     (NBPC == 0) && (NBPC="raw")
+    NOISECAN = [parse(Int, ss) for ss in split(NOISECANTXT,",")]
 
     # Read the fits from the path. Return the data, the VelocityVector, the dimension, the velocity_increment, and the header.
     cube,VELOCITYVECTOR,DATADIMENSION,VELOCITYINCREMENT,HEAD = Data_preparation.read_fits_ppv("$(FITSPATH)/$(FILENAME)",UNITVELOCITY ; check=false)
@@ -503,8 +499,12 @@ function pca(VARFILEPATH)
     Data_preparation.directory_prep(PATHTOSAVE)
 
     # Replace any NaN value into a missing value and deleted them (can't do PCA on missing values with that package)
+    SIGMAMAP= Data_analysis.rms_cube(cube,NOISECAN)[1]
     cube = Data_preparation.replace_nantomissing(cube)
     cube = Data_preparation.replace_blanktomissing(cube,BLANK)
+    
+    cube = Data_preparation.replace_nosignal(cube,DATADIMENSION,VELOCITYVECTOR,BLANK,SIGMAMAP)
+
 
     ismis = 0
     if any(ismissing,cube) 

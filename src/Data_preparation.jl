@@ -42,6 +42,7 @@ export replace_inf_in_nan
 export replace_missingtoblank
 export replace_nantoblank
 export replace_nantomissing
+export replace_nosignal
 export valid_header
 export wait_for_key
 export write_cv_fits
@@ -49,6 +50,7 @@ export write_cvi_fits
 export write_dat
 export write_fits
 export write_pca_fits
+
 
 using FITSIO, MultivariateStats, StatsBase, Distributions, DelimitedFiles
 using Makie, GLMakie, StaticArrays, PolygonOps # For add mask funtcion
@@ -432,6 +434,7 @@ Will also check if any missing value still exist in the data, showing that the d
 function pca_prep(arr,arraydimension)
         DATASIZETYPE = eltype(size(arr))
         (typeof(size(arr))==Tuple{DATASIZETYPE,DATASIZETYPE,DATASIZETYPE}) && (arr = reshape(arr,arraydimension[1]*arraydimension[2],arraydimension[3])) #3D -> 2D
+
         #println("produce boolean matrix")
         missing1D, missing2D = Data_preparation.boolmatrix_missing(arr) #Boolean matrix to catch missing values
         #println("convert and delete")
@@ -754,6 +757,27 @@ function replace_nantomissing(arr)
     return(arr)
 end
 
+
+"""
+    function replace_nosignal(cube,DATADIMENSION,VELOCITYVECTOR,BLANK,SIGMAMAP)
+
+Replace spectra without signal by blank value. We recover the spectra without signal by compute the intensity integration of each of them. If it is less than 2 times the dispersion of the noise, then it is blanked. SIGMAMAP is the 2D map of each rms noise of your cube ; use Data_analysis.rms_cube(cube,NOISECAN)[1] to compute it.
+"""
+function replace_nosignal(cube,DATADIMENSION,VELOCITYVECTOR,BLANK,SIGMAMAP)
+    DELTAV = abs(VELOCITYVECTOR[2]-VELOCITYVECTOR[1])
+    #integ = Array{Float64}(undef,DATADIMENSION[1]*DATADIMENSION[2])
+    for pixc=1:DATADIMENSION[2]
+        for pixr=1:DATADIMENSION[1]
+            integ = sum(skipmissing(cube[pixr,pixc,:]))*DELTAV
+            if integ<(2*SIGMAMAP[pixr,pixc]) 
+                cube[pixr,pixc,:] .= missing
+            end
+        end
+           
+    end
+    return(cube)
+
+end
 
 
 """

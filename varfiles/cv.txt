@@ -13,6 +13,5 @@ THREHSOLD         0.2                                                       # Va
 NOISECANTXT       1,25                                                      # Noise channels 
 NBPC              0                                                         # Number of PC used for the reconstruction before the CV computation if PCA was used before. If method SWO used instead, enter -1, and if its the original cube without treatment, enter 0. 
 BLANK             -1000                                                     # Blanking data
-OVERWRITE         False                                             # Would you like to overwrite output files with the same name ? True or False 
-
+OVERWRITE         false                                             # Would you like to overwrite output files with the same name ? true or false 
 

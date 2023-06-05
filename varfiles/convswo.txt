@@ -12,5 +12,4 @@ UNITVELOCITY      m/s									            # Velocity units of the fits file
 RANGE             4,20                                                # Lower and higher numbers of velocity channel to used for the SWO method. Every ranges between these two will be tested. 
 BLANK             -1000                                             # Blanking data
 NOISECAN         1,50                                       # Positions of the noise channels
-OVERWRITE         False                                             # Would you like to overwrite output files with the same name ? True or False 
-
+OVERWRITE         false                                             # Would you like to overwrite output files with the same name ? true or false 
