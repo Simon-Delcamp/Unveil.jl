@@ -9,15 +9,11 @@
 FITSPATH            "PATH/TO/FITS"                                      # Path of the fits. Its header will be used for the writting of the output fits file.
 FITSNAME         "FITSNAME"                                                 # Name of the fits at the FITSPATH
 PATHTOSAVE       "PATH/FOR/SAVING"                                          # Path where Data and Plots will be saved
+SAVENAME	 "SAVENAME"					    # Generic name for the outputs. Extensions and attributes will be added by Unveil.
 UNITVELOCITY      m/s									            # Velocity units of the fits file
 HIGHESTPC          20                                                # Maximum number of PCs to test the convergence
 BLANK             -1000                                             # Blanking data
+OVERWRITE         False                                             # Would you like to overwrite output files with the same name ? True or False 
 #---------------------------------------------------------------------------------------------------------------#
 
 
-# DIRECTORIES BRANCHES EXPLANATIONS
-#               [PATH TO SAVE]
-#               |             |
-#              /               \
-#             /                 \
-#   [Convergence_Criteria]      [DATA] 

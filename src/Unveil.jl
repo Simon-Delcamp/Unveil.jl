@@ -27,6 +27,7 @@ import Documenter
 import Statistics
 import Colors
 import Profile
+using StatsBase
 
 include("Data_preparation.jl") # Read and write fits
 include("Data_analysis.jl") 
@@ -63,7 +64,7 @@ Use this script in a julia terminal with :
     julia>Unveil.convpca(VARFILEPATH)
 """
 function convpca(VARFILEPATH)
-    FITSPATH,FILENAME,PATHTOSAVE,UNITVELOCITY,HIGHESTPC,BLANK = read_var_files(VARFILEPATH)
+    FITSPATH,FILENAME,PATHTOSAVE,SAVENAME,UNITVELOCITY,HIGHESTPC,BLANK,OVERWRITE = read_var_files(VARFILEPATH)
 
     # Read the fits from the path. Return the data, the VelocityVector, the dimension, the velocity_increment, and the header.
     cube,VELOCITYVECTOR,DATADIMENSION,VELOCITYINCREMENT,HEAD = Data_preparation.read_fits_ppv("$(FITSPATH)/$(FILENAME)",UNITVELOCITY ; check=false)
@@ -98,12 +99,12 @@ function convpca(VARFILEPATH)
         proj = Data_preparation.addblank(proj,missingplaces2D[:,1:HIGHESTPC],BLANK,(DATADIMENSION[1],DATADIMENSION[2],HIGHESTPC))
     end
     proj = reshape(proj,(DATADIMENSION[1],DATADIMENSION[2],HIGHESTPC))
-    Data_preparation.write_fits("$(FITSPATH)/$FILENAME","projectionmatrix","$(PATHTOSAVE)/Data/",proj,(DATADIMENSION_NOMISSING[1],DATADIMENSION_NOMISSING[2],HIGHESTPC),BLANK,finished=true,overwrite=true)
+    Data_preparation.write_fits("$(FITSPATH)/$FILENAME","$(SAVENAME)_projectionmatrix","$(PATHTOSAVE)/Data/",proj,(DATADIMENSION_NOMISSING[1],DATADIMENSION_NOMISSING[2],HIGHESTPC),BLANK,finished=true,overwrite=OVERWRITE)
     xvector = range(1,HIGHESTPC)#[1:HIGHESTPC]
     Graphic.distribcv_multipc(mom1[2:end-1],mom2[2:end-1],mom3[2:end-1],mom4[2:end-1],metric[2:end-1],xvector[2:end-1])
-    Plots.savefig("$(PATHTOSAVE)/pca_metric.pdf")
+    Plots.savefig("$(PATHTOSAVE)/pca_$(SAVENAME)_metric.pdf")
 
-    Data_preparation.write_dat([metric mom1 mom2 mom3 mom4 xvector],"$PATHTOSAVE","metricPCA",overwrite=true,more=["$FILENAME","Metric  Mom1   Mom2   Mom3   Mom4   PCs"])
+    Data_preparation.write_dat([metric mom1 mom2 mom3 mom4 xvector],"$PATHTOSAVE","$(SAVENAME)_metricPCA",overwrite=true,more=["$FILENAME","Metric  Mom1   Mom2   Mom3   Mom4   PCs"])
     minimetr = minimum(metric)
     minipc   = xvector[findall(x->x==minimetr,metric)]
     println("Metric minimum=$(minimetr)")
@@ -122,7 +123,7 @@ Use this script in a julia terminal with :
     julia>Unveil.convswo(VARFILEPATH)
 """
 function convswo(VARFILEPATH)
-    FITSPATH,FILENAME,PATHTOSAVE,UNITVELOCITY,RANGETXT,BLANK,NOISECANTXT = read_var_files(VARFILEPATH)
+    FITSPATH,FILENAME,PATHTOSAVE,SAVENAME,UNITVELOCITY,RANGETXT,BLANK,NOISECANTXT,OVERWRITE = read_var_files(VARFILEPATH)
     NOISECAN = [parse(Int, ss) for ss in split(NOISECANTXT,",")]
     RANGE = [parse(Int, ss) for ss in split(RANGETXT,",")]
     RANGE = [RANGE[1]:RANGE[2]]
@@ -154,12 +155,12 @@ function convswo(VARFILEPATH)
     muc,mus,sigc,sigs,gamc,gams,kapc,kaps,metc,mets,SIGMAT=Spectralwindowopti.convoptiwind(cube,DATADIMENSION_NOMISSING,DATADIMENSION,VELOCITYVECTOR,NOISECAN,BLANK,RANGE[1],PATHTOSAVE,missingplaces2D,ismiss=ismis)
 
     Graphic.distribcv_multiow(muc[1:end],sigc[1:end],gamc[1:end],kapc[1:end],metc[1:end],RANGE[1][1:end],"Parameters of the distribution of the differences \n of Tdv between source cube and window optimized cube",SIGMAT=SIGMAT)
-    Plots.savefig("$PATHTOSAVE/swo_difTDV.pdf")
+    Plots.savefig("$PATHTOSAVE/$(SAVENAME)_swo_difTDV.pdf")
 
     Graphic.distribcv_multiow(mus[1:end],sigs[1:end],gams[1:end],kaps[1:end],mets[1:end],RANGE[1][1:end],"Parameters of distribution of the percentage of flagged velocity canals",SIGMAT=0)
-    Plots.savefig("$PATHTOSAVE/swo_percFLAGGED.pdf")
+    Plots.savefig("$PATHTOSAVE/$(SAVENAME)_swo_percFLAGGED.pdf")
 
-    Data_preparation.write_dat([mets mus sigs gams kaps RANGE[1][:]],"$PATHTOSAVE","metricSWO",overwrite=true,more=["$FILENAME","Metric  Mom1   Mom2   Mom3   Mom4   RANGE"])
+    Data_preparation.write_dat([mets mus sigs gams kaps RANGE[1][:]],"$PATHTOSAVE","$(SAVENAME)_metricSWO",overwrite=OVERWRITE,more=["$FILENAME","Metric  Mom1   Mom2   Mom3   Mom4   RANGE"])
 
 end #convswo
 
@@ -175,8 +176,9 @@ Use this script in a julia terminal with :
     julia>Unveil.cv(VARFILEPATH)
 """
 function cv(VARFILEPATH)
-    FITSPATH,FITSNAME,PATHTOSAVE,UNITVELOCITY,NBPC,BLANK= read_var_files(VARFILEPATH)
-    LAG = [parse(Int, ss) for ss in split(LAG,",")]
+    FITSPATH,FITSNAME,PATHTOSAVE,SAVENAME,UNITVELOCITY,THRESHOLD,NOISECANTXT,NBPC,BLANK,OVERWRITE= read_var_files(VARFILEPATH)
+    NOISECAN = [parse(Int, ss) for ss in split(NOISECANTXT,",")]
+
     if NBPC == 0
         NBPC="raw"
     elseif NBPC == -1
@@ -192,9 +194,17 @@ function cv(VARFILEPATH)
     # Prepare directories where plots and data will be saved.
     Data_preparation.directory_prep(PATHTOSAVE)
 
+    # If no threshold, change it to the blank value and SIGMAT to 1, because function moment_one_field will blank every values lower than SIGMAT*THRESHOLD
+    if THRESHOLD==0
+        THRESHOLD = BLANK
+        SIGMAT = 1
+    else
+        SIGMAT = Data_analysis.rms_cube(cube,NOISECAN)[2]
+    end
 
     # Replace any NaN value into a missing value and deleted them (can't do PCA on missing values with that package).
     cube = Data_preparation.replace_nantomissing(cube)
+
     ismis = 0
     if any(ismissing,cube) 
         ismis = 1
@@ -207,9 +217,8 @@ function cv(VARFILEPATH)
         DATADIMENSION_NOMISSING              = (DATADIMENSION[1]*DATADIMENSION[2],DATADIMENSION[3])
     end
 
-
     println("------ CV CALCULATION ------")
-    cvmap = Functionforcvi.moment_one_field(cube,VELOCITYVECTOR,BLANK) # Calculate the first velocity moment order on data reconstructed
+    cvmap = Functionforcvi.moment_one_field(cube,SIGMAT,THRESHOLD,VELOCITYVECTOR,BLANK) # Calculate the first velocity moment order on data reconstructed
     cube  = 0.0 
     GC.gc()
 
@@ -219,10 +228,10 @@ function cv(VARFILEPATH)
     cvmap = reshape(cvmap,(DATADIMENSION[1],DATADIMENSION[2]))
 
 
-    Data_preparation.write_fits("$(FITSPATH)/$FITSNAME","cv_$(NBPC)","$(PATHTOSAVE)/Data/",cvmap,(DATADIMENSION_NOMISSING[1],DATADIMENSION_NOMISSING[2]),BLANK,finished=true)
+    Data_preparation.write_fits("$(FITSPATH)/$FITSNAME","CV_$(SAVENAME)_$(NBPC)","$(PATHTOSAVE)/Data/",cvmap,(DATADIMENSION_NOMISSING[1],DATADIMENSION_NOMISSING[2]),BLANK,finished=true,overwrite=OVERWRITE)
     #cvmap = 0.0
 
-    println("CV map saved in $(PATHTOSAVE)/Data/cv_$(NBPC)_NumberOfFilesWithTheSameNameAsPrefixe.fits as a fits.")
+    println("CV map saved in $(PATHTOSAVE)/Data/CV_$(SAVENAME)_$(NBPC)_NumberOfFilesWithTheSameNameAsPrefixe.fits as a fits.")
 
 
 end #cv
@@ -237,7 +246,9 @@ Use this script in a julia terminal with :
     julia>Unveil.cvcvi(VARFILEPATH)
 """
 function cvcvi(VARFILEPATH)
-    FITSPATH,FITSNAME,PATHTOSAVE,UNITVELOCITY,NBPC,BLANK,LAG,DIFFTYPE = read_var_files(VARFILEPATH)
+    FITSPATH,FITSNAME,PATHTOSAVE,SAVENAME,THRESHOLD,NOISECANTXT,UNITVELOCITY,NBPC,BLANK,LAG,DIFFTYPE,OVERWRITE = read_var_files(VARFILEPATH)
+    NOISECAN = [parse(Int, ss) for ss in split(NOISECANTXT,",")]
+
     LAG = [parse(Int, ss) for ss in split(LAG,",")]
     if NBPC == 0
         NBPC="raw"
@@ -254,9 +265,18 @@ function cvcvi(VARFILEPATH)
     # Prepare directories where plots and data will be saved.
     Data_preparation.directory_prep(PATHTOSAVE)
 
+    # If no threshold, change it to the blank value and SIGMAT to 1, because function moment_one_field will blank every values lower than SIGMAT*THRESHOLD
+    if THRESHOLD==0
+        THRESHOLD = BLANK
+        SIGMAT = 1
+    else
+        SIGMAT = Data_analysis.rms_cube(cube,NOISECAN)[2]
+    end
 
     # Replace any NaN value into a missing value and deleted them (can't do PCA on missing values with that package).
+    cube = Data_preparation.replace_blanktomissing(cube,BLANK)
     cube = Data_preparation.replace_nantomissing(cube)
+
     ismis = 0
     if any(ismissing,cube) 
         ismis = 1
@@ -271,7 +291,7 @@ function cvcvi(VARFILEPATH)
 
 
     println("------ CV CALCULATION ------")
-    cvmap = Functionforcvi.moment_one_field(cube,VELOCITYVECTOR,BLANK) # Calculate the first velocity moment order on data reconstructed
+    cvmap = Functionforcvi.moment_one_field(cube,SIGMAT,THRESHOLD,VELOCITYVECTOR,BLANK) # Calculate the first velocity moment order on data reconstructed
     cube  = 0.0 
     GC.gc()
 
@@ -281,11 +301,11 @@ function cvcvi(VARFILEPATH)
     cvmap = reshape(cvmap,(DATADIMENSION[1],DATADIMENSION[2]))
 
 
-    Data_preparation.write_fits("$(FITSPATH)/$FITSNAME","cv_$(NBPC)","$(PATHTOSAVE)/Data/",cvmap,(DATADIMENSION_NOMISSING[1],DATADIMENSION_NOMISSING[2]),BLANK,finished=true)
+    Data_preparation.write_fits("$(FITSPATH)/$FITSNAME","CV_$(SAVENAME)_$(NBPC)","$(PATHTOSAVE)/Data/",cvmap,(DATADIMENSION_NOMISSING[1],DATADIMENSION_NOMISSING[2]),BLANK,finished=true,overwrite=OVERWRITE)
     #cvmap = 0.0
 
     GC.gc()
-    println("CV map saved in $(PATHTOSAVE)/Data/cv_$(NBPC)_NumberOfFilesWithTheSameNameAsPrefixe.fits as a fits.")
+    println("CV map saved in $(PATHTOSAVE)/Data/cv_$(SAVENAME)_$(NBPC)_NumberOfFilesWithTheSameNameAsPrefixe.fits as a fits.")
 
     println("------ CVI CALCULATION ------")
     if DIFFTYPE=="relative" 
@@ -312,11 +332,11 @@ function cvcvi(VARFILEPATH)
     cviallangle = Data_preparation.blank_equal(cviallangle,0.0,BLANK)
     cviallangle = convert(Array{Float64},cviallangle)
 
-    Data_preparation.write_fits("$(FITSPATH)/$FITSNAME","cvi$(DIFFTYPE)_multlag_METH$(NBPC)","$(PATHTOSAVE)/Data/",cvimap_averaged,(DATADIMENSION[1],DATADIMENSION[2],size(LAG)[1]),BLANK,finished=true,cvi=true,lags=LAG)
-    println("CVI map reconstructed from PCA saved in $(PATHTOSAVE)/Data/cvi$(DIFFTYPE)_multlag_$(NBPC)PC_NumberOfFilesWithTheSameNameAsPrefixe.fits as a fits.")
+    Data_preparation.write_fits("$(FITSPATH)/$FITSNAME","cvi$(DIFFTYPE)_$(SAVENAME)_multlag_METH$(NBPC)","$(PATHTOSAVE)/Data/",cvimap_averaged,(DATADIMENSION[1],DATADIMENSION[2],size(LAG)[1]),BLANK,finished=true,cvi=true,lags=LAG,overwrite=OVERWRITE)
+    println("CVI map reconstructed from PCA saved in $(PATHTOSAVE)/Data/cvi$(DIFFTYPE)_$(SAVENAME)_multlag_$(NBPC)PC_NumberOfFilesWithTheSameNameAsPrefixe.fits as a fits.")
 
-    Data_preparation.write_fits("$(FITSPATH)/$FITSNAME","cvi$(DIFFTYPE)_multlag_allangle_METH$(NBPC)","$(PATHTOSAVE)/Data",cviallangle,(DATADIMENSION[1]*DATADIMENSION[2],maximum(NANGLE),size(LAG)[1]),BLANK,finished=true)
-    println("CVI map with all angles values reconstructed from PCA saved in the $(PATHTOSAVE)/Data/cvi$(DIFFTYPE)_multlag_allangle_METH$(NBPC)_NumberOfFilesWithTheSameNameAsPrefixe.fits as a fits.")
+    Data_preparation.write_fits("$(FITSPATH)/$FITSNAME","cvi$(DIFFTYPE)_$(SAVENAME)_multlag_allangle_METH$(NBPC)","$(PATHTOSAVE)/Data",cviallangle,(DATADIMENSION[1]*DATADIMENSION[2],maximum(NANGLE),size(LAG)[1]),BLANK,finished=true,overwrite=OVERWRITE)
+    println("CVI map with all angles values reconstructed from PCA saved in the $(PATHTOSAVE)/Data/cvi$(DIFFTYPE)_$(SAVENAME)_multlag_allangle_METH$(NBPC)_NumberOfFilesWithTheSameNameAsPrefixe.fits as a fits.")
 
 end #function cvcvi
 
@@ -335,7 +355,7 @@ Use this script in a julia terminal with :
     julia>Unveil.cvi(VARFILEPATH)
 """
 function cvi(VARFILEPATH)
-    FITSPATH,FITSNAME,PATHTOSAVE,UNITVELOCITY,NBPC,BLANK,LAG,DIFFTYPE = read_var_files(VARFILEPATH)
+    FITSPATH,FITSNAME,PATHTOSAVE,SAVENAME,UNITVELOCITY,NBPC,BLANK,LAG,DIFFTYPE,OVERWRITE = read_var_files(VARFILEPATH)
     LAG = [parse(Int, ss) for ss in split(LAG,",")]
     if NBPC == 0
         NBPC="raw"
@@ -376,11 +396,11 @@ function cvi(VARFILEPATH)
     cviallangle = Data_preparation.blank_equal(cviallangle,0.0,BLANK)
     cviallangle = convert(Array{Float64},cviallangle)
 
-    Data_preparation.write_fits("$(FITSPATH)/$FITSNAME","cvi$(DIFFTYPE)_multlag_METH$(NBPC)","$(PATHTOSAVE)/Data/",cvimap_averaged,(DATADIMENSION[1],DATADIMENSION[2],size(LAG)[1]),BLANK,finished=true,cvi=true,lags=LAG)
-    println("CVI map reconstructed from PCA saved in $(PATHTOSAVE)/Data/cvi$(DIFFTYPE)_multlag_$(NBPC)PC_NumberOfFilesWithTheSameNameAsPrefixe.fits as a fits.")
+    Data_preparation.write_fits("$(FITSPATH)/$FITSNAME","CVI$(DIFFTYPE)_$(SAVENAME)_multlag_METH$(NBPC)","$(PATHTOSAVE)/Data/",cvimap_averaged,(DATADIMENSION[1],DATADIMENSION[2],size(LAG)[1]),BLANK,finished=true,cvi=true,lags=LAG,overwrite=OVERWRITE)
+    println("CVI map reconstructed from PCA saved in $(PATHTOSAVE)/Data/CVI$(DIFFTYPE)_$(SAVENAME)_multlag_$(NBPC)PC_NumberOfFilesWithTheSameNameAsPrefixe.fits as a fits.")
 
-    Data_preparation.write_fits("$(FITSPATH)/$FITSNAME","cvi$(DIFFTYPE)_multlag_allangle_METH$(NBPC)","$(PATHTOSAVE)/Data",cviallangle,(DATADIMENSION[1]*DATADIMENSION[2],NANGLE,size(LAG)[1]),BLANK,finished=true)
-    println("CVI map with all angles values reconstructed from PCA saved in the $(PATHTOSAVE)/Data/cvi$(DIFFTYPE)_multlag_allangle_METH$(NBPC)_NumberOfFilesWithTheSameNameAsPrefixe.fits as a fits.")
+    Data_preparation.write_fits("$(FITSPATH)/$FITSNAME","CVI$(DIFFTYPE)_$(SAVENAME)_multlag_allangle_METH$(NBPC)","$(PATHTOSAVE)/Data",cviallangle,(DATADIMENSION[1]*DATADIMENSION[2],NANGLE,size(LAG)[1]),BLANK,finished=true,overwrite=OVERWRITE)
+    println("CVI map with all angles values reconstructed from PCA saved in the $(PATHTOSAVE)/Data/CVI$(DIFFTYPE)_$(SAVENAME)_multlag_allangle_METH$(NBPC)_NumberOfFilesWithTheSameNameAsPrefixe.fits as a fits.")
 end #function cvi
 
 
@@ -395,7 +415,7 @@ Use this script in a julia terminal with :
     julia>Unveil.multipca(VARFILEPATH)
 """
 function multipca(VARFILEPATH)
-    FITSPATH,FILENAME,PATHTOSAVE,UNITVELOCITY,NBPC,BLANK = read_var_files(VARFILEPATH)
+    FITSPATH,FILENAME,PATHTOSAVE,SAVENAME,UNITVELOCITY,NBPC,BLANK,OVERWRITE = read_var_files(VARFILEPATH)
     NBPC = [parse(Int, ss) for ss in split(NBPC,",")]
 
     # Read the fits from the path. Return the data, the VelocityVector, the dimension, the velocity_increment, and the header.
@@ -443,8 +463,8 @@ function multipca(VARFILEPATH)
 
 
         println("Saving Fits")
-        Data_preparation.write_fits("$FITSPATH/$FILENAME","RECONSTRUCTED_$(NBPC[ix])PC","$PATHTOSAVE/Data",cubereconstructed,DATADIMENSION,BLANK,overwrite=true,more=["NBPC",NBPC[ix],"VARPERCENT",VARPERCENT[NBPC[ix]]])
-        println("Data reconstructed from PCA saved in $(PATHTOSAVE)/Data/RECONSTRUCTED_$(NBPC[ix])PC_NumberOfFilesWithTheSameNameAsPrefixe.fits as a fits.")
+        Data_preparation.write_fits("$FITSPATH/$FILENAME","RECONSTRUCTED_$(SAVENAME)_$(NBPC[ix])PC","$PATHTOSAVE/Data",cubereconstructed,DATADIMENSION,BLANK,overwrite=true,more=["NBPC",NBPC[ix],"VARPERCENT",VARPERCENT[NBPC[ix]]],overwrite=OVERWRITE)
+        println("Data reconstructed from PCA saved in $(PATHTOSAVE)/Data/RECONSTRUCTED_$(SAVENAME)_$(NBPC[ix])PC_NumberOfFilesWithTheSameNameAsPrefixe.fits as a fits.")
 
     end
 
@@ -473,11 +493,11 @@ function pca(VARFILEPATH)
     #println(" Path to the variable file ? (txt file containing all the informations relevant to read and work on the data)") 
     ##VARFILEPATH = "varfiles/pca.txt"
     #GC.gc()
-    FITSPATH,FILENAME,PATHTOSAVE,UNITVELOCITY,NBPC,BLANK = read_var_files(VARFILEPATH)
+    FITSPATH,FILENAME,PATHTOSAVE,SAVENAME,UNITVELOCITY,NBPC,BLANK,OVERWRITE = read_var_files(VARFILEPATH)
     (NBPC == 0) && (NBPC="raw")
 
     # Read the fits from the path. Return the data, the VelocityVector, the dimension, the velocity_increment, and the header.
-    cube,VELOCITYVECTOR,DATADIMENSION,VELOCITYINCREMENT,HEAD = Data_preparation.read_fits_ppv("$(FITSPATH)/$(FILENAME)",UNITVELOCITY ; check=true)
+    cube,VELOCITYVECTOR,DATADIMENSION,VELOCITYINCREMENT,HEAD = Data_preparation.read_fits_ppv("$(FITSPATH)/$(FILENAME)",UNITVELOCITY ; check=false)
 
     # Prepare directories where plots and data will be saved.
     Data_preparation.directory_prep(PATHTOSAVE)
@@ -523,14 +543,14 @@ function pca(VARFILEPATH)
     cubereconstructed = reshape(cubereconstructed,DATADIMENSION)
 
     println("Saving Fits")
-    Data_preparation.write_pca_fits(NBPC,VARPERCENT[NBPC],"$(FITSPATH)/$(FILENAME)","RECONSTRUCTED_$(NBPC)PC","$PATHTOSAVE/Data/",cubereconstructed,DATADIMENSION,BLANK)
-    println("Data reconstructed from PCA saved in $(PATHTOSAVE)/Data/RECONSTRUCTED_$(NBPC)PC_NumberOfFilesWithTheSameNameAsPrefixe.fits as a fits.")
+    Data_preparation.write_fits("$(FITSPATH)/$(FILENAME)","RECONSTRUCTED_$(SAVENAME)_$(NBPC)PC","$PATHTOSAVE/Data/",cubereconstructed,DATADIMENSION,BLANK,overwrite=OVERWRITE,more=["NBPC",NBPC,"VARPERCENT",VARPERCENT[NBPC]])
+    println("Data reconstructed from PCA saved in $(PATHTOSAVE)/Data/RECONSTRUCTED_$(SAVENAME)_$(NBPC)PC_NumberOfFilesWithTheSameNameAsPrefixe.fits as a fits.")
 
     cubereconstructed = 0
     GC.gc()
 
-    Graphic.pratio(M,true,NBPC,"Variance reproduction with the number of PC used")
-    Plots.savefig("$(PATHTOSAVE)/Convergence_Criteria/TESTpratio_$(NBPC)PC.pdf")
+    #Graphic.pratio(M,true,NBPC,"Variance reproduction with the number of PC used")
+    #Plots.savefig("$(PATHTOSAVE)/Convergence_Criteria/TESTpratio_$(NBPC)PC.pdf")
 end   #pca
 
 
@@ -544,7 +564,7 @@ Use this function in a julia terminal with :
     julia> Unveil.swo(VARFILEPATH)
 """
 function swo(VARFILEPATH)   
-    FITSPATH,FILENAME,PATHTOSAVE,UNITVELOCITY,RANGE,BLANK,NOISECANTXT,EXAMPLES = read_var_files(VARFILEPATH)
+    FITSPATH,FILENAME,PATHTOSAVE,SAVENAME,UNITVELOCITY,RANGE,BLANK,NOISECANTXT,EXAMPLES,OVERWRITE = read_var_files(VARFILEPATH)
     NOISECAN = [parse(Int, ss) for ss in split(NOISECANTXT,",")]
     
     
@@ -586,9 +606,9 @@ function swo(VARFILEPATH)
         maskinterv = Data_preparation.addblank(maskinterv,missingplaces2D,BLANK,DATADIMENSION)
     end
     maskinterv = reshape(maskinterv,DATADIMENSION)
-
-    Data_preparation.write_fits("$(FITSPATH)/$FILENAME","RECONSTRUCTED_$(RANGE)SWO","$PATHTOSAVE/Data/",maskinterv,DATADIMENSION,BLANK,more=["RANGE","$range"])
-    println("Data reconstructed from SWO method saved in $(PATHTOSAVE)/Data/RECONSTRUCTED_$(RANGE)SWO_NumberOfFilesWithTheSameNameAsPrefixe.fits as a fits.")
+    maskinterv = Data_preparation.blank_equal(maskinterv,BLANK,0)
+    Data_preparation.write_fits("$(FITSPATH)/$FILENAME","RECONSTRUCTED_$(SAVENAME)_$(RANGE)SWO","$PATHTOSAVE/Data/",maskinterv,DATADIMENSION,BLANK,more=["RANGE","$range"],overwrite=OVERWRITE)
+    println("Data reconstructed from SWO method saved in $(PATHTOSAVE)/Data/RECONSTRUCTED_$(SAVENAME)_$(RANGE)SWO_NumberOfFilesWithTheSameNameAsPrefixe.fits as a fits.")
 
 
 

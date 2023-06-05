@@ -1,0 +1,19 @@
+(undo-tree-save-format-version . 1)
+"5874fdf9a510c7b588ea40d771c9653673acfa8c"
+[nil nil nil nil (25721 58963 172141 324000) 0 nil]
+([nil nil ((528 . 529) (t 25718 3882 87881 315000)) nil (25721 58963 172139 513000) 0 nil])
+([nil nil ((529 . 641)) nil (25721 58963 172137 706000) 0 nil])
+([nil nil (("
+" . -640) (undo-tree-id6 . -1) 641) nil (25721 58963 172135 878000) 0 nil])
+([nil nil (("
+# DIRECTORIES BRANCHES EXPLANATIONS
+#               [PATH TO SAVE]
+#               |             |
+#              /               \\
+#             /                 \\
+#   [Convergence_Criteria]      [DATA] 
+#
+" . 1023) (undo-tree-id3 . -209) (undo-tree-id4 . -209) (undo-tree-id5 . -209)) nil (25721 58963 172131 887000) 0 nil])
+([nil current (("
+" . -1022) (undo-tree-id0 . -1) (undo-tree-id1 . -1) (undo-tree-id2 . -1) 1023) nil (25721 58963 172123 579000) 0 nil])
+nil
