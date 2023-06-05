@@ -30,6 +30,8 @@ export generate_gaussian
 export integration_bysection
 export rms_analytic
 export rms_analytic_field
+export rms_cube
+
 export snr
 export snr_allfield
 
@@ -265,6 +267,24 @@ function rms_analytic_field(cube,xarr,noise_canals)
 end
 
 
+"""
+    rms_cube(cube,can)
+
+Compute the rms on velocity canal given as input of a cube. Return a 2D map with given rms on each pixel and the averaged rms accross the map.
+"""
+function rms_cube(cube,can)
+    map = Array{Float64}(undef,size(cube)[1],size(cube)[2])
+    for ix=1:size(cube)[2]
+        #for jx=1:size(cube)[1]
+            map[:,ix] .= moment((cube[:,ix,can]),2)
+        #end
+    end
+    rmsavr = mean(skipmissing(map))
+    return(map,rmsavr)
+    
+
+
+end
 
 """
     snr(yarr,noise_canals)

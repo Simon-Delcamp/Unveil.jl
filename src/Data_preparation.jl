@@ -930,6 +930,7 @@ end
 """
     write_pca_fits(pc,varpercent,fitstocopy::String,newname::String,data,datadim,blank)
 
+DEPRECATED, USE WRITE_FITS INSTEAD, WITH OPTION MORE, SEE THE DOC. 
 Create a fits used for pca reconstructed data. Contains on its header the number of pc used and the percentage of variance explained. Need a fits to copy its header entries.
 """
 function write_pca_fits(pc,varpercent,fitstocopy::String,newname::String,pathtosave::String,data,datadim,blank)

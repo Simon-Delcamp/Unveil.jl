@@ -105,18 +105,22 @@ function construct_cvimap(cvmap,Lag::Vector{Int64},mapdim; diff="relative",keepm
 
     cvi_allangle_alllag = Data_preparation.replace_nantomissing(cvi_allangle_alllag)   # Replace NaN into missing for the average
     cvi_allangle_alllag = Data_preparation.replace_blanktomissing(cvi_allangle_alllag,BLANK)   # Replace blank into missing for the average
-    cvi_averaged_alllag = Array{Union{Missing,Float64},2}(undef,size(cvi_allangle_alllag)[1],size(Lag)[1])
 
+    cvi_averaged_alllag = Array{Union{Missing,Float64},2}(undef,size(cvi_allangle_alllag)[1],size(Lag)[1])
+    cvi_averaged_alllag .= BLANK
     @inbounds @views for lagstep=1:size(Lag)[1]
         if keepmissing==true
             missing1D = findall(ismissing,cvi_allangle_alllag[:,:,lagstep])
             cvi_allangle_alllag[missing1D,lagstep] .= missing
         end
         @inbounds @views for pix=1:size(cvi_allangle_alllag)[1]
-            (cvi_averaged_alllag[pix,lagstep] = mean((cvi_allangle_alllag[pix,:,lagstep])))
+            #(ismissing(cvi_allangle_alllag[pix,1,lagstep])) || (cvi_averaged_alllag[pix,lagstep] = mean(skipmissing((cvi_allangle_alllag[pix,:,lagstep]))))
+            (cvi_averaged_alllag[pix,lagstep] = mean(skipmissing((cvi_allangle_alllag[pix,:,lagstep]))))
         end
-    end
+        #cvi_averaged_alllag = Data_preparation.addblank(cvi_averaged_alllag,missing1D,BLANK,(mapdim[1]*mapdim[2],size(Lag)[1]))
 
+    end
+    
     cvi_averaged_alllag = reshape(cvi_averaged_alllag,mapdim[1],mapdim[2],size(Lag)[1])
     return(cvi_allangle_alllag,cvi_averaged_alllag,nangle)
 end
@@ -213,6 +217,8 @@ end
 Compute the centroid velocity increment of xyarr at multiple Lag values. Nangle is the number of angle using to compute the differences (it's a value in the parameter file, equal to 192). Diff (default relative) is for differences between two pixels : absolute or relative. Periodic=true (default=false) is for working on periodic data (from simulations like fbm). The returned array will have the first dimension equal to the size of the map (pixel square), the second dimension is the cvi computed at each angle, and the third dimension is for each value of Lag.
 """
 function cv_increment(xyarr,Lag::Vector{Int64},nangle; diff="relative",periodic=false, BLANK=-1000) 
+
+
     cvi_allangle             = convert(Array{Union{Missing,Float64}},zeros(Float64,size(xyarr)[1],size(xyarr)[2],maximum(nangle)))
     cvi_allangle_alllag      = convert(Array{Union{Missing,Float64}},zeros(Float64,size(xyarr)[1]*size(xyarr)[2],maximum(nangle),size(Lag)[1]))
     cvi_allangle            .= BLANK
@@ -235,7 +241,7 @@ function cv_increment(xyarr,Lag::Vector{Int64},nangle; diff="relative",periodic=
                         # Second, if previous step is false, then check if it's a blank value. If not continue and do the difference.
                         
                         ((ismissing(xyarr_shifted[row,col]) || ismissing(xyarr[row,col])) || (xyarr_shifted[row,col] != BLANK || xyarr[row,col] != BLANK)) && (cvi_allangle[row,col,angl] = abs(xyarr_shifted[row,col]-xyarr[row,col]))
-                        ((ismissing(xyarr_shifted[row,col]) || ismissing(xyarr[row,col])) || (xyarr_shifted[row,col] == BLANK || xyarr[row,col] == BLANK)) && (cvi_allangle[row,col,angl] = -1000)
+                        ((ismissing(xyarr_shifted[row,col]) || ismissing(xyarr[row,col])) || (xyarr_shifted[row,col] == BLANK || xyarr[row,col] == BLANK)) && (cvi_allangle[row,col,angl] = BLANK)
                         #((diff == "relative") && (ismissing(xyarr_shifted[row,col]) || ismissing(xyarr[row,col])) || (xyarr_shifted[row,col] != BLANK || xyarr[row,col] != BLANK)) && (cvi_allangle[row,col,angl] = xyarr_shifted[row,col]-xyarr[row,col])
                         #cvi_allangle[row,col,angl] = xyarr_shifted[row,col]-xyarr[row,col]
                     end
@@ -249,7 +255,8 @@ function cv_increment(xyarr,Lag::Vector{Int64},nangle; diff="relative",periodic=
                 end
             end
         end
-        cvi_allangle_alllag[:,:,lagstep] = reshape(cvi_allangle,size(xyarr)[1]*size(xyarr)[2],maximum(nangle))
+        cvi_allangle = Data_preparation.replace_blanktomissing(cvi_allangle,BLANK)
+        cvi_allangle_alllag[:,:,lagstep] = reshape(cvi_allangle,size(xyarr)[1]*size(xyarr)[2],maximum(nangle))   # (P*P,ROT,Lag)  
     end
     #diff == "absolute" && return(abs.(cvi_allangle_alllag))
     return(cvi_allangle_alllag)
@@ -321,18 +328,23 @@ end
 """
     moment_one_field(arr,velvector)
 
-Return the first moment order of all pixels in an entire field, weighted by velvector. Arr can be a 3D array (ppv) or a 2D array (pv)
+Return the first moment order of all pixels in an entire field, weighted by velvector. Arr can be a 3D array (ppv) or a 2D array (pv). The function replace all missing values by 
 """
-function moment_one_field(arr,velvector,BLANK)
+function moment_one_field(arr,SIGMAT,THRESHOLD,velvector,BLANK)
+    arr = Data_preparation.blank_inf(arr,SIGMAT*THRESHOLD,0)
     typeof(size(arr)) == Tuple{Int64,Int64,Int64} && (arr = reshape(arr,size(arr)[1]*size(arr)[2],size(arr)[3]))
-    eltype(arr)       == Union{Missing,Float64}   && (arr = convert(Array{Float64,2},Data_preparation.replace_missingtoblank(arr,NaN)))
+    eltype(arr)       == Union{Missing,Float64}   && (arr = convert(Array{Float64,2},Data_preparation.replace_missingtoblank(arr,0)))
+    #arr = Data_preparation.replace_blanktomissing(arr,BLANK)
     arr         = Data_preparation.permcolrow(arr) # Allow to do the for loop per column (optimized in Julia)
     momentfield = zeros(Float64,size(arr)[2])
     momentfield .= BLANK
     maxvel = maximum(velvector)
     minvel = minimum(velvector)
     for ix=1:size(arr)[2] # For loop on the pixel number (column and row permuted two lines before)
-        (arr[1,ix]!=BLANK) && (momentfield[ix] = moment_one(arr[:,ix],velvector))
+        #println("DAH")
+        #println(maximum(arr[:,ix]))
+        #(maximum(arr[:,ix])!=BLANK) && (momentfield[ix] = moment_one(arr[:,ix],velvector))
+        (momentfield[ix] = moment_one(arr[:,ix],velvector))
         ((momentfield[ix]>maxvel) || (momentfield[ix]<minvel)) && (momentfield[ix]=BLANK)
     end
     return(momentfield)
