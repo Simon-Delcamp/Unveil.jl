@@ -15,6 +15,5 @@ NBPC              0                                                 # Number of 
 BLANK             -1000                                             # Blanking data
 LAG               2,3,5,7,10,20,50                                  # Values of the Lag used for CVI calculations
 DIFFTYPE          relative                                          # Type of differences computed during CVI calculation (relative or abs)
-OVERWRITE         False                                             # Would you like to overwrite output .fits files with the same name ? True or False 
-
+OVERWRITE         false                                             # Would you like to overwrite output files with the same name ? true or false 
 #---------------------------------------------------------------------------------------------------------------#

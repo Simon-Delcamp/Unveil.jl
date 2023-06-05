@@ -12,4 +12,4 @@ RANGE             6                                              # Number of vel
 BLANK             -1000                                          # Blanking data
 NOISECAN          1,30                                           # Positions of the noise channels
 EXAMPLES          YES                                            # YES or NO. If yes, will plot 3 figures of 16 randomly chosen spectra each of the new cube in front of the source cube.
-OVERWRITE         False                                             # Would you like to overwrite output files with the same name ? True or False 
+OVERWRITE         false                                             # Would you like to overwrite output files with the same name ? true or false 

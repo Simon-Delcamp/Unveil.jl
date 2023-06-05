@@ -1,10 +1,8 @@
 module Spectralwindowopti
 
 include("Data_preparation.jl") #Read and write fits
-include("Graphic.jl") #Read and write fits
 include("Data_analysis.jl")
 using .Data_preparation
-using .Graphic
 using .Data_analysis
 
 using StatsBase, Plots
