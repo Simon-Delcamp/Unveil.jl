@@ -7,7 +7,7 @@
 #       >output = Structure_fct.NameOfTheFunction(input)
 ###################################################################
 
-module Structure_fct
+module Structure_functions
 
 include("Functionforcvi.jl") #Calculations of CVI
 include("Data_preparation.jl") #Read and write fits
@@ -24,6 +24,25 @@ export fct_struct
 export fit_fctstruct
 export pdf_normed
 export xhi_fct_p
+
+
+
+
+function fct_sct(cvicube,LAG,ORDERS)
+    sct = Array{Float64}(undef,size(ORDERS)[1],size(LAG)[1])
+    for ord=1:size(ORDERS)[1]    
+        for lag=1:size(LAG)[1]
+            sct[ord,lag]=mean(skipmissing(abs.(cvicube[:,:,lag])).^ORDERS[ord])
+        end
+    end
+    return(sct)
+end
+
+
+
+
+
+
 
 
 """

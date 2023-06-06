@@ -27,7 +27,7 @@ import Documenter
 import Statistics
 import Colors
 import Profile
-using StatsBase
+import Plots
 
 include("Data_preparation.jl") # Read and write fits
 include("Data_analysis.jl") 
@@ -35,12 +35,14 @@ include("Functionforpca.jl")   # Functions for method PCA
 include("Spectralwindowopti.jl")  # Functions for method SWO
 include("Graphic.jl")   # Plotting 
 include("Functionforcvi.jl")   # Functions for CVI computations
+include("Structure_functions.jl")
 
 using .Data_preparation
 using .Functionforpca
 using .Spectralwindowopti
 using .Graphic
 using .Data_analysis
+using .Structure_functions
 
 export pca
 export swo
@@ -274,8 +276,13 @@ function cvcvi(VARFILEPATH)
     end
 
     # Replace any NaN value into a missing value and deleted them (can't do PCA on missing values with that package).
-    cube = Data_preparation.replace_blanktomissing(cube,BLANK)
+
+    SIGMAMAP= Data_analysis.rms_cube(cube,NOISECAN)[1]
     cube = Data_preparation.replace_nantomissing(cube)
+    cube = Data_preparation.replace_blanktomissing(cube,BLANK)
+    
+    cube = Data_preparation.replace_nosignal(cube,DATADIMENSION,VELOCITYVECTOR,BLANK,SIGMAMAP)
+
 
     ismis = 0
     if any(ismissing,cube) 
@@ -305,7 +312,7 @@ function cvcvi(VARFILEPATH)
     #cvmap = 0.0
 
     GC.gc()
-    println("CV map saved in $(PATHTOSAVE)/Data/cv_$(SAVENAME)_$(NBPC)_NumberOfFilesWithTheSameNameAsPrefixe.fits as a fits.")
+    println("CV map saved in $(PATHTOSAVE)/Data/CV_$(SAVENAME)_$(NBPC)_NumberOfFilesWithTheSameNameAsPrefixe.fits as a fits.")
 
     println("------ CVI CALCULATION ------")
     if DIFFTYPE=="relative" 
@@ -332,11 +339,11 @@ function cvcvi(VARFILEPATH)
     cviallangle = Data_preparation.blank_equal(cviallangle,0.0,BLANK)
     cviallangle = convert(Array{Float64},cviallangle)
 
-    Data_preparation.write_fits("$(FITSPATH)/$FITSNAME","cvi$(DIFFTYPE)_$(SAVENAME)_multlag_METH$(NBPC)","$(PATHTOSAVE)/Data/",cvimap_averaged,(DATADIMENSION[1],DATADIMENSION[2],size(LAG)[1]),BLANK,finished=true,cvi=true,lags=LAG,overwrite=OVERWRITE)
-    println("CVI map reconstructed from PCA saved in $(PATHTOSAVE)/Data/cvi$(DIFFTYPE)_$(SAVENAME)_multlag_$(NBPC)PC_NumberOfFilesWithTheSameNameAsPrefixe.fits as a fits.")
+    Data_preparation.write_fits("$(FITSPATH)/$FITSNAME","CVI$(DIFFTYPE)_$(SAVENAME)_METH$(NBPC)","$(PATHTOSAVE)/Data/",cvimap_averaged,(DATADIMENSION[1],DATADIMENSION[2],size(LAG)[1]),BLANK,finished=true,cvi=true,lags=LAG,overwrite=OVERWRITE)
+    println("CVI map reconstructed from PCA saved in $(PATHTOSAVE)/Data/CVI$(DIFFTYPE)_$(SAVENAME)_$(NBPC)PC_NumberOfFilesWithTheSameNameAsPrefixe.fits as a fits.")
 
-    Data_preparation.write_fits("$(FITSPATH)/$FITSNAME","cvi$(DIFFTYPE)_$(SAVENAME)_multlag_allangle_METH$(NBPC)","$(PATHTOSAVE)/Data",cviallangle,(DATADIMENSION[1]*DATADIMENSION[2],maximum(NANGLE),size(LAG)[1]),BLANK,finished=true,overwrite=OVERWRITE)
-    println("CVI map with all angles values reconstructed from PCA saved in the $(PATHTOSAVE)/Data/cvi$(DIFFTYPE)_$(SAVENAME)_multlag_allangle_METH$(NBPC)_NumberOfFilesWithTheSameNameAsPrefixe.fits as a fits.")
+    Data_preparation.write_fits("$(FITSPATH)/$FITSNAME","CVI$(DIFFTYPE)_$(SAVENAME)_allangle_METH$(NBPC)","$(PATHTOSAVE)/Data",cviallangle,(DATADIMENSION[1]*DATADIMENSION[2],maximum(NANGLE),size(LAG)[1]),BLANK,finished=true,overwrite=OVERWRITE)
+    println("CVI map with all angles values reconstructed from PCA saved in the $(PATHTOSAVE)/Data/CVI$(DIFFTYPE)_$(SAVENAME)_allangle_METH$(NBPC)_NumberOfFilesWithTheSameNameAsPrefixe.fits as a fits.")
 
 end #function cvcvi
 
@@ -355,14 +362,14 @@ Use this script in a julia terminal with :
     julia>Unveil.cvi(VARFILEPATH)
 """
 function cvi(VARFILEPATH)
-    FITSPATH,FITSNAME,PATHTOSAVE,SAVENAME,UNITVELOCITY,NBPC,BLANK,LAG,DIFFTYPE,OVERWRITE = read_var_files(VARFILEPATH)
+    FITSPATH,FITSNAME,PATHTOSAVE,SAVENAME,UNITVELOCITY,NBPCV,BLANK,LAG,DIFFTYPE,OVERWRITE = read_var_files(VARFILEPATH)
     LAG = [parse(Int, ss) for ss in split(LAG,",")]
-    if NBPC == 0
+    if NBPCV == 0
         NBPC="raw"
-    elseif NBPC == -1
+    elseif NBPCV == -1
         NBPC="SWO"
-    elseif NBPC > 0
-        NBPC="$(NBPC)PC"
+    elseif NBPCV > 0
+        NBPC="$(NBPCV)PC"
     end
 
     cvmap,HEAD,DATADIMENSION = Data_preparation.read_fits_pp("$FITSPATH/$FITSNAME")
@@ -406,11 +413,22 @@ function cvi(VARFILEPATH)
     cviallangle = Data_preparation.blank_equal(cviallangle,0.0,BLANK)
     cviallangle = convert(Array{Float64},cviallangle)
 
-    Data_preparation.write_fits("$(FITSPATH)/$FITSNAME","CVI$(DIFFTYPE)_$(SAVENAME)_multlag_METH$(NBPC)","$(PATHTOSAVE)/Data/",cvimap_averaged,(DATADIMENSION[1],DATADIMENSION[2],size(LAG)[1]),BLANK,finished=true,cvi=true,lags=LAG,overwrite=OVERWRITE)
-    println("CVI map reconstructed from PCA saved in $(PATHTOSAVE)/Data/CVI$(DIFFTYPE)_$(SAVENAME)_multlag_$(NBPC)PC_NumberOfFilesWithTheSameNameAsPrefixe.fits as a fits.")
+    if NBPCV > 0
+        Data_preparation.write_fits("$(FITSPATH)/$FITSNAME","CVI$(DIFFTYPE)_$(SAVENAME)_METH$(NBPC)","$(PATHTOSAVE)/Data/",cvimap_averaged,(DATADIMENSION[1],DATADIMENSION[2],size(LAG)[1]),BLANK,finished=true,overwrite=OVERWRITE,more=["NBPC",NBPC,"LAG",LAG])
+    else
+        Data_preparation.write_fits("$(FITSPATH)/$FITSNAME","CVI$(DIFFTYPE)_$(SAVENAME)_METH$(NBPC)","$(PATHTOSAVE)/Data/",cvimap_averaged,(DATADIMENSION[1],DATADIMENSION[2],size(LAG)[1]),BLANK,finished=true,overwrite=OVERWRITE,more=["LAG",LAG])
+    end
 
-    Data_preparation.write_fits("$(FITSPATH)/$FITSNAME","CVI$(DIFFTYPE)_$(SAVENAME)_multlag_allangle_METH$(NBPC)","$(PATHTOSAVE)/Data",cviallangle,(DATADIMENSION[1]*DATADIMENSION[2],maximum(NANGLE),size(LAG)[1]),BLANK,finished=true,overwrite=OVERWRITE)
-    println("CVI map with all angles values reconstructed from PCA saved in the $(PATHTOSAVE)/Data/CVI$(DIFFTYPE)_$(SAVENAME)_multlag_allangle_METH$(NBPC)_NumberOfFilesWithTheSameNameAsPrefixe.fits as a fits.")
+    println("CVI map reconstructed from PCA saved in $(PATHTOSAVE)/Data/CVI$(DIFFTYPE)_$(SAVENAME)_$(NBPC)PC_NumberOfFilesWithTheSameNameAsPrefixe.fits as a fits.")
+
+    if NBPCV > 0
+        Data_preparation.write_fits("$(FITSPATH)/$FITSNAME","CVI$(DIFFTYPE)_$(SAVENAME)_allangle_METH$(NBPC)","$(PATHTOSAVE)/Data",cviallangle,(DATADIMENSION[1]*DATADIMENSION[2],maximum(NANGLE),size(LAG)[1]),BLANK,finished=true,overwrite=OVERWRITE,more=["NBPC",NBPC,"LAG",LAG])
+
+    else
+        Data_preparation.write_fits("$(FITSPATH)/$FITSNAME","CVI$(DIFFTYPE)_$(SAVENAME)_allangle_METH$(NBPC)","$(PATHTOSAVE)/Data",cviallangle,(DATADIMENSION[1]*DATADIMENSION[2],maximum(NANGLE),size(LAG)[1]),BLANK,finished=true,overwrite=OVERWRITE,more=["LAG",LAG])
+    end
+
+    println("CVI map with all angles values reconstructed from PCA saved in the $(PATHTOSAVE)/Data/CVI$(DIFFTYPE)_$(SAVENAME)_allangle_METH$(NBPC)_NumberOfFilesWithTheSameNameAsPrefixe.fits as a fits.")
 end #function cvi
 
 
@@ -626,6 +644,55 @@ end  #swo
 
 
 
+
+"""
+Following Kritsuk+2007
+Input : CVI 3D cube : (Pixel positions,angles,lag)
+"""
+function structure_functions(VARFILEPATH)
+    FITSPATH,FILENAME,PATHTOSAVE,SAVENAME,UNITVELOCITY,NBPCV,ORDERSTXT,BLANK,OVERWRITE = read_var_files(VARFILEPATH)
+    ORDERS = [parse(Int, ss) for ss in split(ORDERSTXT,",")]
+
+    if NBPCV == 0
+        NBPC="raw"
+    elseif NBPCV == -1
+        NBPC="SWO"
+    elseif NBPCV > 0
+        NBPC="$(NBPCV)PC"
+    end
+
+    # Read the fits from the path. Return the data, the VelocityVector, the dimension, the velocity_increment, and the header.
+    cvicube,DATADIMENSION,HEAD = Data_preparation.read_fits_ppv("$(FITSPATH)/$(FILENAME)",UNITVELOCITY ; check=false)
+    LAG = [parse(Int,ss) for ss in split(HEAD["LAG"][2:end-1],",")]
+
+    # Prepare directories where plots and data will be saved.
+    Data_preparation.directory_prep(PATHTOSAVE)
+
+    cvicube = Data_preparation.replace_nantomissing(cvicube)
+    cvicube = Data_preparation.replace_blanktomissing(cvicube,BLANK)
+    cvicube = Data_preparation.replace_blanktomissing(cvicube,0)
+
+
+    sct = Structure_functions.fct_sct(cvicube,LAG,ORDERS)  # order,lag
+
+
+    zeta = Structure_functions.xhi_fct_p(ORDERS,sct,0,0)
+
+
+
+    Graphic.StcFctExponent(zeta,zeta[3,1],ORDERS,[0,9],[0,1.8],"Using $(NBPC)","blob",pcfinal=NBPC)
+    Plots.savefig("$(FITSPATH)/testrel.pdf")
+    #p = Plots.plot(LAG,sct[1,:])
+    #display(p)
+    #Plots.savefig("$(FITSPATH)/test1.pdf")
+    #p=Plots.plot(LAG,sct[2,:])
+    #display(p)
+    #Plots.savefig("$(FITSPATH)/test2.pdf")
+    #p =Plots.plot(LAG,sct[3,:])
+    #display(p)
+    #Plots.savefig("$(FITSPATH)/test3.pdf")
+
+end #function structure_function
 
 
 
