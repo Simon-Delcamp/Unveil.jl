@@ -338,7 +338,8 @@ Return the first moment order of all pixels in an entire field, weighted by velv
 function moment_one_field(arr,SIGMAT,THRESHOLD,velvector,BLANK)
     arr = Data_preparation.blank_inf(arr,SIGMAT*THRESHOLD,0)
     typeof(size(arr)) == Tuple{Int64,Int64,Int64} && (arr = reshape(arr,size(arr)[1]*size(arr)[2],size(arr)[3]))
-    eltype(arr)       == Union{Missing,Float64}   && (arr = convert(Array{Float64,2},Data_preparation.replace_missingtoblank(arr,0)))
+    #eltype(arr)       == Union{Missing,Float64}   && (arr = convert(Array{Float64,2},Data_preparation.replace_missingtoblank(arr,0)))
+    eltype(arr)       == Union{Missing,Float64}   && (arr = convert(Array{Float64,2},Data_preparation.replace_missingtoblank(arr,BLANK)))
     #arr = Data_preparation.replace_blanktomissing(arr,BLANK)
     arr         = Data_preparation.permcolrow(arr) # Allow to do the for loop per column (optimized in Julia)
     momentfield = zeros(Float64,size(arr)[2])
@@ -350,6 +351,7 @@ function moment_one_field(arr,SIGMAT,THRESHOLD,velvector,BLANK)
         #println(maximum(arr[:,ix]))
         #(maximum(arr[:,ix])!=BLANK) && (momentfield[ix] = moment_one(arr[:,ix],velvector))
         (momentfield[ix] = moment_one(arr[:,ix],velvector))
+        #(momentfield[ix] = moment_one(skipmissing(arr[:,ix]),velvector))  # MOMENTS can't works with skipmissing
         ((momentfield[ix]>maxvel) || (momentfield[ix]<minvel)) && (momentfield[ix]=BLANK)
     end
     return(momentfield)
