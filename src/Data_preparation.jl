@@ -351,6 +351,7 @@ function directory_prep(PATHTOSAVE)
     #(isdir("$(PATHTOSAVE)/Plots/$(DIRECTORYNAME)/convergence_criteria"))==0       && mkdir("$(PATHTOSAVE)/Plots/$(DIRECTORYNAME)/convergence_criteria")
 
     (isdir("$(PATHTOSAVE)/Data/"))==0                                            && mkdir("$(PATHTOSAVE)/Data/")
+    (isdir("$(PATHTOSAVE)/Figures/"))==0                                            && mkdir("$(PATHTOSAVE)/Figures/")
 
 
     #(isdir("$(PATHTOSAVE)/Data/$(DIRECTORYNAME)"))==0                            && mkdir("$(PATHTOSAVE)/Data/$(DIRECTORYNAME)")
@@ -481,6 +482,18 @@ end
 
 
 
+
+"""
+    read_dat(DATFILEPATH ; com='#')
+
+Return values of the .dat file given as input. By default, will consider as comment rows starting with a #. Can be changed.
+"""
+function read_dat(DATFILEPATH ; com='#')
+    return(readdlm("$DATFILEPATH",'\t',Float64,comments=true,comment_char=com))
+
+end
+
+
 """
     read_dim(arr)
 
@@ -489,6 +502,26 @@ Return a vector with dimensions of the data.
 function read_dim(arr)
     ndims(arr)<=3 && return(size(arr))
     return("Not valid dimensions (>3D)")
+end
+
+
+
+""" 
+    read_fits_cvi(path ; check = true)
+
+Return the cube, its dimension and its header. Use to read CVI cube, with this order : Pixel position, Rotation, LAG.
+"""
+function read_fits_cvi(path ; check = true)
+    fitname    =  FITS("$(path)")
+    header     =  read_header(fitname[1])
+    cube       =  permcolrow(read(fitname[1]))
+    cube       =  convert(Array{Float64,3},cube)
+    check == true && valid_header(header)
+    haskey(header,"BLANK")==1 && haskey(header,"BSCALE")==1 && haskey(header,"BZERO")==1 && (cube = replace_blanktomissing(cube,header["BLANK"]*header["BSCALE"]+header["BZERO"]))
+    dimens     =  read_dim(cube)
+    close(fitname)
+
+    return(cube,dimens,header)
 end
 
 
@@ -769,7 +802,7 @@ function replace_nosignal(cube,DATADIMENSION,VELOCITYVECTOR,BLANK,SIGMAMAP)
     for pixc=1:DATADIMENSION[2]
         for pixr=1:DATADIMENSION[1]
             integ = sum(skipmissing(cube[pixr,pixc,:]))*DELTAV
-            if integ<(2*SIGMAMAP[pixr,pixc]) 
+            if integ<(2*SIGMAMAP[pixr,pixc])   # if integ<(2*SIGMAMAP[pixr,pixc])
                 cube[pixr,pixc,:] .= missing
             end
         end

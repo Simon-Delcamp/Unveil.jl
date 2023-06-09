@@ -7,7 +7,7 @@
 #       >output = Structure_fct.NameOfTheFunction(input)
 ###################################################################
 
-module Structure_fct
+module Structure_functions
 
 include("Functionforcvi.jl") #Calculations of CVI
 include("Data_preparation.jl") #Read and write fits
@@ -24,6 +24,27 @@ export fct_struct
 export fit_fctstruct
 export pdf_normed
 export xhi_fct_p
+
+
+
+
+
+
+function fct_sct(cvicube,LAG,ORDERS)
+    sct = Array{Float64}(undef,size(ORDERS)[1],size(LAG)[1])
+    for ord=1:size(ORDERS)[1]    
+        for lag=1:size(LAG)[1]
+            sct[ord,lag]=mean(skipmissing(abs.(cvicube[:,:,lag])).^ORDERS[ord])
+        end
+    end
+    return(sct)
+end
+
+
+
+
+
+
 
 
 """
@@ -148,11 +169,11 @@ end
 
 
 """
-    fit_fctstruct(xdata,ydata,y0,confidinterv ; confinterv=true)
+    fit_fctstruct(xdata,ydata,y0,confidinterv)
 
-Fit the model ydata=A*(xdata)^B. Can return the confidence interval too of the model. Return in first B, then A.
+Fit the model ydata=A*(xdata)^B. Return in first B, then A.
 """
-function fit_fctstruct(xdata,ydata,confidinterv ; confinterv=true)
+function fit_fctstruct(xdata,ydata)
     #model(x,xhi) = xhi[2].*x.^xhi[1]
     fitted = curve_fit(PowerFit, ydata, xdata)
     #confid_interval = confidence_interval(fit, confidinterv)
@@ -199,21 +220,21 @@ end
 
 
 """
-    xhi_fct_p(pvec,struct_lag,lagvec,y0,confidinterv)   
+    xhi_fct_p(pvec,struct_lag,y0)   
 
 Fit the model y=A*(x)^B for multiple order and lag of structure functions.
 """
-function xhi_fct_p(pvec,struct_lag,lagvec,confidinterv)
+function xhi_fct_p(pvec,struct_lag)
     zeta = Array{Float64}(undef,size(pvec)[1],2)
     for ix=1:size(pvec)[1]
-        zeta[ix,:] .= fit_fctstruct(struct_lag[ix,:],struct_lag[3,:],confidinterv,confinterv=false)
+        zeta[ix,:] .= fit_fctstruct(struct_lag[ix,:],struct_lag[3,:])
     end
     return(zeta)
 end
 
 function xhi_fct_p!(pvec,struct_lag,lagvec,y0,confidinterv,zeta)
     for ix in eachindex(pvec)
-        zeta[ix,:] .= fit_fctstruct(struct_lag[ix,:],struct_lag[3,:],confidinterv,confinterv=false)
+        zeta[ix,:] .= fit_fctstruct(struct_lag[ix,:],struct_lag[3,:])
     end
     return(zeta)
 end

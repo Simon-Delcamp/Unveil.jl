@@ -10,5 +10,6 @@ SAVENAME	 "SAVENAME"					    # Generic name for the outputs. Extensions and attr
 UNITVELOCITY      m/s									         # Velocity units of the fits file
 NBPC              64                                              # Number of PC used for the reconstruction. 
 BLANK             -1000                                          # Blanking data
+NOISECAN	  1,25						 # Noise velocity canals
 OVERWRITE         false                                             # Would you like to overwrite output files with the same name ? true or false 
 #---------------------------------------------------------------------------------------------------------------#

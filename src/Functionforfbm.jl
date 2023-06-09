@@ -210,7 +210,7 @@ Compute a ppv cube, with three gaussian components of maxima equal to the values
 #end
 
 
-function ppv_from_fbm3(imsize,powerlaw,sig,stdev,tmax,fitspath,fitsname,T,xarray,xinc; more=[""])  # DO NOT ADD A RANDOM VALUE IN SUPPLEMENT OF THE POSITION GIVEN BY THE FBM.
+function ppv_from_fbm3(imsize,powerlaw,sig,stdev,tmax,fitspath,fitsname,T,xarray,xinc; more=[""],OVERWRITE=false)  # DO NOT ADD A RANDOM VALUE IN SUPPLEMENT OF THE POSITION GIVEN BY THE FBM.
     #xarray = -20:0.1:20
     xarray_inc = abs(xarray[2]-xarray[1])
 
@@ -245,7 +245,8 @@ function ppv_from_fbm3(imsize,powerlaw,sig,stdev,tmax,fitspath,fitsname,T,xarray
     end
     
     cube = reshape(cube,imsize,imsize,size(xarray)[1])
-    Data_preparation.write_fits("/home/delcamps/Data/Simulated/fBms_low/Construction/noisefree.fits","$(fitspath)/$(fitsname)",cube,(size(cube)[1],size(cube)[2],size(cube)[3]),-10000,finished=true,more=more)
+    Data_preparation.write_fits("/home/delcamps/Data/Simulated/fBms_low/Construction/noisefree.fits","$(fitsname)","$(fitspath)",cube,(size(cube)[1],size(cube)[2],size(cube)[3]),-10000,finished=true,more=more,overwrite=OVERWRITE)
+    #write_fits(fitstocopy::String,newname::String,pathtosave::String,datatosave,datadim,blank ; finished=true , cvi=false , lags=0 , more=[""], overwrite=false)
     return(cube)
 end
 

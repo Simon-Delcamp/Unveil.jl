@@ -9,12 +9,12 @@ module Graphic
 
 
 include("Data_preparation.jl") #Read and write fits
-include("Structure_fct.jl")
+include("Structure_functions.jl")
 include("Functionforpca.jl") #Calculations of PCA
 
 using .Functionforpca
 
-using .Structure_fct
+using .Structure_functions
 using .Data_preparation
 
 
@@ -994,14 +994,17 @@ end
 
 Plot the exponent of the structure function power-law fit in function of the order p of the structure function. If add is true, the plot will be added on the actual plot. Also add a y=1/3x line on the plot. The figure can be saved with the number of PC used during the process in the name by changing pcfinal.
 """
-function StcFctExponent(zeta,ThirdOrderZeta,OrderP,xlim,ylim,labs,DataNameTitle; add=false,save=true,pcfinal=0)
+function StcFctExponent(zeta,ThirdOrderZeta,OrderP,xlim,ylim,labs,DataNameTitle; add=false,save=true,pcfinal=0,markers=:circle)
     gr()
-    xar = Array{Float64}(xlim[1]:trunc(Int,abs(xlim[1]-xlim[end])/size(OrderP)[1]):xlim[end])
+    #xar = Array{Float64}(xlim[1]:trunc(Int,abs(xlim[1]-xlim[end])/size(OrderP)[1]):xlim[end])
     if add==true
-        p = plot!(OrderP,zeta[:,1]./ThirdOrderZeta,seriestype=:scatter,alpha=0.5,label=labs)
+        p = plot!(OrderP,zeta[:,1]./ThirdOrderZeta,seriestype=:scatter,alpha=0.5,label=labs,markershape = markers)
     else add=false
-        p = plot(OrderP,zeta[:,1]./ThirdOrderZeta,seriestype=:scatter,alpha=0.5,label=labs)
-        p = plot!(xar,xar./3,seriestype=:line,label="1/3",ylims=ylim,xlims=xlim,xlabel="p",ylabel=L"\zeta(p)/\zeta(3)",title="Power-law exponents of the structure function in function of the order p \n $(DataNameTitle)",titlefontsize=10,xaxis=OrderP,legend=:topleft)
+        p = plot(OrderP,zeta[:,1]./ThirdOrderZeta,seriestype=:scatter,alpha=0.5,label=labs,markershape = markers)
+        p = plot!(OrderP,OrderP./3,seriestype=:line,label="K41",ylims=ylim,xlims=xlim,xlabel="p",ylabel=L"\zeta(p)/\zeta(3)",title="Power-law exponents of the structure function in function of the order p \n $(DataNameTitle)",titlefontsize=10,xaxis=OrderP,legend=:topleft)
+        
+        p = plot!(OrderP,OrderP./9 .+2 .*(1 .-(2 ./3) .^(OrderP./3)),linestyle=:dash,label="SL94")
+        p = plot!(OrderP,OrderP./9 .+ 1 .-(1 ./3) .^(OrderP./3),linestyle=:dash,label="B02")
     end
     if save==false
         return

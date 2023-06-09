@@ -9,7 +9,6 @@ FITSNAME         "FITSNAME"                                                 # Na
 PATHTOSAVE       "PATH/FOR/SAVING"                                          # Path where Data and Plots will be saved
 SAVENAME	 "SAVENAME"					    # Generic name for the outputs. Extensions and attributes will be added by Unveil.
 UNITVELOCITY      m/s									                    # Velocity units of the fits file
-NBPC              0                                                         # Number of PC used for the reconstruction before the CV computation if PCA was used before. If method SWO used instead, enter -1, and if its the original cube without treatment, enter 0. 
 BLANK             -1000                                                     # Blanking data
 LAG               2,3,5,7,10,20,50                                          # Values of the Lag used for CVI calculations
 DIFFTYPE          relative                                                  # Type of differences computed during CVI calculation (relative or abs)

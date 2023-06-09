@@ -11,7 +11,6 @@ SAVENAME	 "SAVENAME"					    # Generic name for the outputs. Extensions and attr
 THREHSOLD         0.2                                                       # Values lower than this factor multiplied by the noise RMS will be blanked. 
 NOISECANTXT       1,25                                                      # Noise channels 
 UNITVELOCITY      m/s									            # Velocity units of the fits file
-NBPC              0                                                 # Number of PC used for the reconstruction. 
 BLANK             -1000                                             # Blanking data
 LAG               2,3,5,7,10,20,50                                  # Values of the Lag used for CVI calculations
 DIFFTYPE          relative                                          # Type of differences computed during CVI calculation (relative or abs)
