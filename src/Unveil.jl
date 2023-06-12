@@ -103,6 +103,7 @@ function convpca(VARFILEPATH)
     proj = reshape(proj,(DATADIMENSION[1],DATADIMENSION[2],HIGHESTPC))
     Data_preparation.write_fits("$(FITSPATH)/$FILENAME","$(SAVENAME)_projectionmatrix","$(PATHTOSAVE)/Data/",proj,(DATADIMENSION_NOMISSING[1],DATADIMENSION_NOMISSING[2],HIGHESTPC),BLANK,finished=true,overwrite=OVERWRITE)
     xvector = range(1,HIGHESTPC)#[1:HIGHESTPC]
+
     Graphic.distribcv_multipc(mom1[2:end-1],mom2[2:end-1],mom3[2:end-1],mom4[2:end-1],metric[2:end-1],xvector[2:end-1])
     Plots.savefig("$(PATHTOSAVE)/Figures/pca_$(SAVENAME)_metric.pdf")
 
@@ -160,7 +161,7 @@ function convswo(VARFILEPATH)
     Plots.savefig("$PATHTOSAVE/Figures/$(SAVENAME)_swo_difTDV.pdf")
 
     Graphic.distribcv_multiow(mus[1:end],sigs[1:end],gams[1:end],kaps[1:end],mets[1:end],RANGE[1][1:end],"Parameters of distribution of the percentage of flagged velocity canals",SIGMAT=0)
-    Plots.savefig("$PATHTOSAVE/FIgures/$(SAVENAME)_swo_percFLAGGED.pdf")
+    Plots.savefig("$PATHTOSAVE/Figures/$(SAVENAME)_swo_percFLAGGED.pdf")
 
     Data_preparation.write_dat([mets mus sigs gams kaps RANGE[1][:]],"$PATHTOSAVE","$(SAVENAME)_metricSWO",overwrite=OVERWRITE,more=["$FILENAME","Metric  Mom1   Mom2   Mom3   Mom4   RANGE"])
 
