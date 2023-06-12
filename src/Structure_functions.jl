@@ -178,7 +178,7 @@ function fit_fctstruct(xdata,ydata)
     fitted = curve_fit(PowerFit, ydata, xdata)
     #confid_interval = confidence_interval(fit, confidinterv)
     confinterv==false && return(fitted.coefs[2],fitted.coefs[1])
-    return(fitted.coefs[2],fitted.coefs[1],confid_interval)
+    return(fitted.coefs[2],fitted.coefs[1])
 end
 
 #function fit_fctstruct(xdata,ydata,y0,confidinterv ; confinterv=true)
