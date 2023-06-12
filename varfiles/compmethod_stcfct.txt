@@ -1,0 +1,13 @@
+# FILE USED TO RUN FUNCTION  "compmethod_stcfct"  
+# COMMENTS ARE #
+
+#---------------------------------------------------------------------------------------------------------------#
+
+DATPATH		"/PATH/TO/FITS"
+PCNAME		"PCDATA.dat"
+SWONAME 	"SWODATA.dat"
+NFNAME      "NOISEFREEDATA.dat"
+RAWNAME		"RAWDATA"
+PATHTOSAVE      "/home/delcamps/Data/Polaris/Petit_champ/"  
+SAVENAME	"12CO10"
+OVERWRITE	true

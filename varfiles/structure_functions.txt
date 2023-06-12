@@ -1,0 +1,13 @@
+
+# FILE USED TO RUN FUNCTION  "structure_function"  
+# COMMENTS ARE #
+
+#---------------------------------------------------------------------------------------------------------------#
+
+FITSPATH         "/PATH/TO/FITS"                  # Path of the fits. Its header will be used for the writting of the output fits file.
+FITSNAME         "FITSNAME.fits"                             # Name of the CVI fits at the FITSPATH
+PATHTOSAVE       "PATH/FOR/SAVING"                        # Path where Data and Plots will be saved
+SAVENAME	 "SAVENAME"					    # Generic name for the outputs. Extensions and attributes will be added by Unveil.
+ORDERS		  1,2,3,4,5,6
+BLANK             -1000                                                     # Blanking data
+OVERWRITE         false                                             # Would you like to overwrite output files with the same name ? true or false 
