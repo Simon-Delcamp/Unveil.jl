@@ -53,7 +53,8 @@ export cvi
 export multipca
 export combinecv
 
-
+p = Plots.plot(rand(2,2))
+display(p)
 
 """
     convpca(VARFILEPATH)
