@@ -12,7 +12,7 @@ using .Data_preparation
 using .Data_analysis
 using FITSIO, MultivariateStats, Plots,StatsBase
 using FFTW, AbstractFFTs, Random, LaTeXStrings
-using LsqFit
+#using LsqFit
 
 export fbm2D
 export power_spectra

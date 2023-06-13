@@ -10,7 +10,7 @@
 module Functionforsorting
 
 
-using FITSIO, MultivariateStats, StatsBase, StatsPlots
+using FITSIO, MultivariateStats, StatsBase
 
 export divide
 export integ

@@ -19,16 +19,17 @@ using .Data_preparation
 
 
 using Plots,MultivariateStats, Statistics, StatsBase, LinearAlgebra
-using Formatting, LaTeXStrings,LsqFit, Colors
+using Formatting, LaTeXStrings, Colors
 using Measures
-using StatsPlots,KernelDensity
+#=
+using StatsPlots,LsqFit,KernelDensity
 
 import StatsPlots.plot
 import StatsPlots.plot!
 import StatsPlots.text
 import StatsPlots.@recipe
 import StatsPlots.heatmap
-
+=#
 export animate_ppvcube
 export animate_spectra
 export checkwindowopti

@@ -5,14 +5,14 @@ import Plots
 import DelimitedFiles
 import FITSIO
 import StatsBase
-import Distributions
+#import Distributions
 import Measures
 import MultivariateStats
 #import Makie
 #import GLMakie
 import StaticArrays
 import LaTeXStrings
-import StatsPlots
+#import StatsPlots
 import ShiftedArrays
 #import KernelDensity
 #import LsqFit

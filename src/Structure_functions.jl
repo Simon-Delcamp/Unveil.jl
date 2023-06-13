@@ -16,7 +16,7 @@ using .Functionforcvi
 using .Data_preparation
 
 using Plots,MultivariateStats, Statistics, StatsBase, LinearAlgebra
-using CurveFit,LsqFit#,KernelDensity
+using CurveFit#,LsqFit#,KernelDensity
 
 export construct_fctstruct!
 export construct_fctstruct
