@@ -19,7 +19,7 @@ using .Functionforpca
 using .Data_preparation
 
 using MultivariateStats, Plots, Statistics, Format, Profile, StatsBase
-using StatsPlots, Measures, Interact
+using Measures, Interact
 
 export calcmetric
 export calcmetricOW

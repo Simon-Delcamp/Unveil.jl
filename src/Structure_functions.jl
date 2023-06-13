@@ -15,8 +15,8 @@ include("Data_preparation.jl") #Read and write fits
 using .Functionforcvi
 using .Data_preparation
 
-using Plots, StatsPlots,MultivariateStats, Statistics, StatsBase, LinearAlgebra
-using KernelDensity,CurveFit#,LsqFit
+using Plots,MultivariateStats, Statistics, StatsBase, LinearAlgebra
+using CurveFit,LsqFit#,KernelDensity
 
 export construct_fctstruct!
 export construct_fctstruct
@@ -81,7 +81,7 @@ end
 
 
 
-
+#=
 """
     construct_fctstruct
 
@@ -114,7 +114,7 @@ function construct_fctstruct(cube,struct_fct_order,Lag,bins,cvilim::Tuple{Int64,
     end
     return(struct_lag)
 end
-
+=#
 
 
 
@@ -189,7 +189,7 @@ end
 #end
 
 
-
+#=
 """
     pdf_normed(data,bin,bound::Tuple)
 
@@ -213,7 +213,7 @@ function pdf_normed(data,bin,bound::Tuple,blank)
     #dens_dat.density = normalize(dens_dat.density.*deltax,2)#./sig
     return dens_dat,sig,mu
 end
-
+=#
 
 
 

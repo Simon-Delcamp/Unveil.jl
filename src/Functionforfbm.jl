@@ -10,7 +10,7 @@ include("Data_analysis.jl")
 
 using .Data_preparation
 using .Data_analysis
-using FITSIO, MultivariateStats, StatsPlots, Plots,StatsBase
+using FITSIO, MultivariateStats, Plots,StatsBase
 using FFTW, AbstractFFTs, Random, LaTeXStrings
 using LsqFit
 

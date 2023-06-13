@@ -19,8 +19,9 @@ using .Data_preparation
 
 
 using Plots,MultivariateStats, Statistics, StatsBase, LinearAlgebra
-using Formatting, LaTeXStrings, KernelDensity, StatsPlots,LsqFit, Colors
+using Formatting, LaTeXStrings,LsqFit, Colors
 using Measures
+using StatsPlots,KernelDensity
 
 import StatsPlots.plot
 import StatsPlots.plot!
@@ -65,7 +66,7 @@ import Measures:mm
 import PyPlot
 
 
-
+#=
 """
     animate_ppvcube(cube,data_name)
 
@@ -107,6 +108,7 @@ function animate_spectra(arr,positionnumber,direction,frames,field)
     direction==1 && gif(anim, plotsdir("field","spectra_allcolumn_row$(positionnumber).gif"),fps=frames)
     direction==2 && gif(anim, plotsdir("field","spectra_$(positionnumber)columns_allrow.gif"),fps=frames)
 end
+=#
 
 
 """
@@ -167,7 +169,7 @@ function contourmap(arr,arraytocontour,lev,xvec,yvec)
 end
 
 
-
+#=
 """
     corner_cvimap(array1,array2,datadim,labelarray1,labelarray2)
 
@@ -189,7 +191,7 @@ function corner_cvimap(array1,array2,datadim,labelarray1,labelarray2)
     p = cornerplot(M,label = labelarray2,compact=false,markersize=3,color=:black)
     display(p)
 end
-
+=#
 
 
 """
@@ -216,7 +218,7 @@ function cvi_pdf(data,para0,bin,ylim1,ylim2,alph,Lag,data_name_title,title_sup,l
 end
 
 
-
+#=
 """
     cvi_pdf_norm(data,sigm,bin,ylim1,ylim2,alph,Lag,data_name_title,legend ; add=false)
 
@@ -232,7 +234,7 @@ function cvi_pdf_norm(dat::UnivariateKDE,xlim,ylim,alph,Lag,data_name_title,leg 
     end
     display(p) #,ylims=[0.0001,1000000000]
 end
-
+=#
 
 
 
@@ -286,7 +288,7 @@ function distribcv_multiow(mom1,mom2,mom3,mom4,metric,xvector,titl;SIGMAT=0)
 
 end #distribcv_multiow
 
-
+#=
 """
     compare_rawpc(xvec1,yvec1,array1,dimens,xvec2,yvec2,arraypc,title1::String,saveall::Bool,field)
 
@@ -297,7 +299,7 @@ function heatmap_compare_multiplepc(xvec1,yvec1,array1,dimens,xvec2,yvec2,arrayp
         graphe.heatmap_subplot_two(xvec1,yvec1,array1,xvec2,yvec2,reshape(arraypc[:,:,ix],dimens[1],dimens[2]),(minimum(x->isnan(x) ? -Inf : x,arraypc[:,:,ix]),maximum(x->isnan(x) ? -Inf : x,arraypc[:,:,ix])),(minimum(x->isnan(x) ? -Inf : x,arraypc[:,:,ix]),maximum(x->isnan(x) ? -Inf : x,arraypc[:,:,ix])),title1,"$(field) | $(steppca*ix-(steppca-1))pc",saveall,plotsdir("$(field)/moments","$(field)_$(ix)PC_raw_$(steppca*ix-(steppca-1))pc.pdf"),field)
     end
 end
-
+=#
 
 
 """
@@ -618,7 +620,7 @@ function moment_byintegration(momarray,pcnumb,velocity_vector,momendorder)
 end
 
 
-
+#=
 """
     moment_multiplepc(moment_multiplepc,pcnumb,nbrow,nbcol,titl,limx,limy;disp=false)
 
@@ -652,6 +654,9 @@ function moment_multiplepc(moment_multiplepc,pcnumb,nbrow,nbcol,titl,limx,limy;d
         display(p)
     end
 end
+=#
+
+
 
 
 """

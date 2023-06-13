@@ -53,8 +53,10 @@ export write_pca_fits
 
 
 using FITSIO, MultivariateStats, StatsBase, DelimitedFiles
-using Makie, GLMakie, StaticArrays, PolygonOps # For add mask funtcion
+using StaticArrays, PolygonOps # For add mask funtcion
 
+#=
+using Makie, GLMakie
 import GLMakie.heatmap!# For add mask funtcion
 import GLMakie.heatmap # For add mask funtcion
 import GLMakie.Scene
@@ -63,7 +65,7 @@ import GLMakie.scatter!
 import GLMakie.events
 import GLMakie.Mouse
 import GLMakie.mouseposition
-
+=#
 
 
 """
@@ -86,6 +88,7 @@ function addblank(data,missing_arr,blank,data_dimension)
 end
 
 
+#=
 """
 
     addmask(cube,colorscale,nbmask,data_dimension,delta_xvec,delta_yvec)
@@ -164,7 +167,7 @@ function addmask(cube,colorscale,nbmask,data_dimension,delta_xvec,delta_yvec,BLA
         return(reshape(pixelpos,data_dimension[1],data_dimension[2],data_dimension[3]))
     end
 end
-
+=#
 
 
 """

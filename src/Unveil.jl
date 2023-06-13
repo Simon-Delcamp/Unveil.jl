@@ -5,7 +5,7 @@ import Plots
 import DelimitedFiles
 import FITSIO
 import StatsBase
-#import Distributions
+import Distributions
 import Measures
 import MultivariateStats
 #import Makie
@@ -14,8 +14,8 @@ import StaticArrays
 import LaTeXStrings
 import StatsPlots
 import ShiftedArrays
-import KernelDensity
-import LsqFit
+#import KernelDensity
+#import LsqFit
 import Formatting
 import PyPlot
 import Format
