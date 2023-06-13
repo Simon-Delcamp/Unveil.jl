@@ -52,7 +52,7 @@ export write_fits
 export write_pca_fits
 
 
-using FITSIO, MultivariateStats, StatsBase, Distributions, DelimitedFiles
+using FITSIO, MultivariateStats, StatsBase, DelimitedFiles
 using Makie, GLMakie, StaticArrays, PolygonOps # For add mask funtcion
 
 import GLMakie.heatmap!# For add mask funtcion
@@ -820,9 +820,9 @@ end
 If not, return an error.
 """
 function valid_header(header)
-        haskey(header,"BLANK")==0  && (error("Not a valid header ; missing BLANK value"))
-        haskey(header,"BZERO")==0  && (error("Not a valid header ; missing BZERO value"))
-        haskey(header,"BSCALE")==0 && (error("Not a valid header ; missing BSCALE value"))
+    haskey(header,"BLANK")==0  && (error("Not a valid header ; missing BLANK value"))
+    haskey(header,"BZERO")==0  && (error("Not a valid header ; missing BZERO value"))
+    haskey(header,"BSCALE")==0 && (error("Not a valid header ; missing BSCALE value"))
 end
 
 

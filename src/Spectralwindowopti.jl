@@ -5,7 +5,7 @@ include("Data_analysis.jl")
 using .Data_preparation
 using .Data_analysis
 
-using StatsBase, Plots
+using StatsBase
 
 export convoptiwind
 export optiwind

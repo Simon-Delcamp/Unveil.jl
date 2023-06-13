@@ -15,7 +15,7 @@ include("Data_preparation.jl") #Read and write fits
 using .Functionforcvi
 using .Data_preparation
 
-using Plots, StatsPlots,MultivariateStats, Statistics, StatsBase, Distributions, LinearAlgebra
+using Plots, StatsPlots,MultivariateStats, Statistics, StatsBase, LinearAlgebra
 using KernelDensity,CurveFit#,LsqFit
 
 export construct_fctstruct!
@@ -177,7 +177,6 @@ function fit_fctstruct(xdata,ydata)
     #model(x,xhi) = xhi[2].*x.^xhi[1]
     fitted = curve_fit(PowerFit, ydata, xdata)
     #confid_interval = confidence_interval(fit, confidinterv)
-    confinterv==false && return(fitted.coefs[2],fitted.coefs[1])
     return(fitted.coefs[2],fitted.coefs[1])
 end
 

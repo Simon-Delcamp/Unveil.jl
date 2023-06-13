@@ -18,17 +18,14 @@ using .Structure_functions
 using .Data_preparation
 
 
-using Plots,MultivariateStats, Statistics, StatsBase, Distributions, LinearAlgebra
+using Plots,MultivariateStats, Statistics, StatsBase, LinearAlgebra
 using Formatting, LaTeXStrings, KernelDensity, StatsPlots,LsqFit, Colors
-using Makie
-using GLMakie
 using Measures
 
 import StatsPlots.plot
 import StatsPlots.plot!
 import StatsPlots.text
 import StatsPlots.@recipe
-import Makie.heatmap!
 import StatsPlots.heatmap
 
 export animate_ppvcube
@@ -254,7 +251,7 @@ function distribcv_multipc(mom1,mom2,mom3,mom4,metric,xvector)
     minipc   = xvector[findall(x->x==minimetr,metric)]
     metric = log10.(metric)
     p = plot!(p[5],xvector,metric,st=:scatter,shape=:cross,ms=1.5,c=:black,alpha=0.5,ylabel="Log(metric)",xlabel=L"Number\ of\ PC",tickfontsize=5,xaxis=(0:10:xvector[end]),minorgrid=true)
-    p = plot!(p[5],minipc,minimetr,st=:scatter,shape=:cross,ms=1.5,c=:red,alpha=0.5)
+    p = plot!(p[5],[minipc,minipc],[log10.(minimetr),log10.(minimetr)],st=:scatter,shape=:cross,ms=1.5,c=:red,alpha=0.5)
 
     display(p)
 
@@ -276,10 +273,14 @@ function distribcv_multiow(mom1,mom2,mom3,mom4,metric,xvector,titl;SIGMAT=0)
     p = plot!(p[4],xvector,mom3,st=:scatter,shape=:cross,ms=1.5,ylabel=L"\gamma",c=:black,tickfontsize=5,yguidefontrotation=-90)#,xlabel="Number of PC")#,yticks=(ytick,yticklabel))
     p = plot!(p[5],[xvector[1],xvector[end]],[3,3],ls=:dash,lc=:orange,lw=0.1,ylabel=L"\mu",c=:black,tickfontsize=5,yformatter=:scientific,yguidefontrotation=-90)
 
-    p = plot!(p[5],xvector,mom4,st=:scatter,shape=:cross,ms=1.5,ylabel=L"\kappa",c=:black,tickfontsize=5,yguidefontrotation=-90)#,xlabel="Number of PC")#,yticks=(ytick,yticklabel))
+    p = plot!(p[5],xvector,mom4,st=:scatter,shape=:cross,ms=1.5,ylabel=L"\kappa",c=:black,tickfontsize=5,yguidefontrotation=-90)#,xlabel="Number of PC")#,yticks=(ytick,yticklabel))    
+    minimetr = minimum(metric)
+    minipc   = xvector[findall(x->x==minimetr,metric)]
 
     metric = log10.(metric)
     p = plot!(p[6],xvector,metric,st=:scatter,shape=:cross,ms=1.5,c=:black,ylabel="Log(metric)",xlabel="Size of integration \n (number of velocity canal)",tickfontsize=5,minorgrid=true)
+    p = plot!(p[6],[minipc,minipc],[log10.(minimetr),log10.(minimetr)],st=:scatter,shape=:cross,ms=1.5,c=:red,alpha=0.5)
+
 
     display(p)
 
@@ -1060,7 +1061,8 @@ end
     end
     ()
 end
-@recipe function f(::Type{Val{:scatterhist}}, x, y, z) #, weights = plotattributes[:weights]
+
+@recipe function h(::Type{Val{:scatterhist}}, x, y, z) #, weights = plotattributes[:weights]
     h = Plots._make_hist((y,), plotattributes[:bins], normed = plotattributes[:normalize], weights = plotattributes[:weights] )
     edge = collect(h.edges[1])
     centers = Plots._bin_centers(edge)

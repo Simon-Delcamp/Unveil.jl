@@ -5,11 +5,11 @@ import Plots
 import DelimitedFiles
 import FITSIO
 import StatsBase
-import Distributions
+#import Distributions
 import Measures
 import MultivariateStats
-import Makie
-import GLMakie
+#import Makie
+#import GLMakie
 import StaticArrays
 import LaTeXStrings
 import StatsPlots
@@ -824,6 +824,15 @@ function combinecv(;VARFILEPATH = "varfiles/multipca.txt")
     Data_preparation.write_fits("$(FITSPATH)/Data/cv_30PC.fits","cv_comb","$(PATHTOSAVE)/Data/",cubeout,(size(cubeout)[1],size(cubeout)[2],size(cubeout)[3]),BLANK,finished=true,more=["NBPC",("30,40,50,60")])
 
 end#function combinecv
+
+
+
+
+function julia_main(VARFILE)::Cint
+    Unveil.convpca("$VARFILE")
+
+    return 0
+end
 
 
 

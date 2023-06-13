@@ -18,7 +18,7 @@ using .Functionforcvi
 using .Functionforpca
 using .Data_preparation
 
-using MultivariateStats, Plots, Statistics, Format, Profile, Distributions, StatsBase
+using MultivariateStats, Plots, Statistics, Format, Profile, StatsBase
 using StatsPlots, Measures, Interact
 
 export calcmetric
