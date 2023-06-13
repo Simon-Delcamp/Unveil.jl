@@ -8,14 +8,14 @@
 module GraphicAddition
 
 
-include("Data_preparation.jl") #Read and write fits
+include("Dataprep.jl") #Read and write fits
 include("Structure_functions.jl")
 include("Functionforpca.jl") #Calculations of PCA
 
 using .Functionforpca
 
 using .Structure_functions
-using .Data_preparation
+using .Dataprep
 
 
 using Plots,MultivariateStats, Statistics, StatsBase, LinearAlgebra

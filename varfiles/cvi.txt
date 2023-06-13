@@ -8,7 +8,6 @@ FITSPATH         "PATH/TO/FITS"                                             # Pa
 FITSNAME         "FITSNAME"                                                 # Name of the CV fits at the FITSPATH
 PATHTOSAVE       "PATH/FOR/SAVING"                                          # Path where Data and Plots will be saved
 SAVENAME	 "SAVENAME"					    # Generic name for the outputs. Extensions and attributes will be added by Unveil.
-UNITVELOCITY      m/s									                    # Velocity units of the fits file
 BLANK             -1000                                                     # Blanking data
 LAG               2,3,5,7,10,20,50                                          # Values of the Lag used for CVI calculations
 DIFFTYPE          relative                                                  # Type of differences computed during CVI calculation (relative or abs)

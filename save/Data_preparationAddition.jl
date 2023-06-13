@@ -6,7 +6,7 @@
 #       >output = Data_preparation.NameOfTheFunction(input)
 ###################################################################
 
-module Data_preparation
+module Data_preparationAddition
 
 export addblank
 export addmask
