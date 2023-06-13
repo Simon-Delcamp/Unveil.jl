@@ -62,7 +62,10 @@ After that, everything inside the gitlab repo will be saved in the directory you
 
 
 # Recommendations and rules
+## Recommandations
+For faster execution, we recommand to do a sysimage using package PackageCompiler.jl
 
+## Rules
 To be used correctly, few rules should be followed : 
 1. All files should be **.fits**
 2. For better results, it is highly recommanded to blank the maps edges, and/or the noisiest spectra. 

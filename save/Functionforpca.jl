@@ -9,9 +9,9 @@
 module Functionforpca
 
 include("Functionforcvi.jl") #Calculations of CVI
-include("Data_preparation.jl") #Read and write fits
+include("Dataprep.jl") #Read and write fits
 
-using .Data_preparation
+using .Dataprep
 using .Functionforcvi
 
 export cv_convergence

@@ -1,11 +1,11 @@
 module Spectralwindowopti
 
-include("Data_preparation.jl") #Read and write fits
-include("Data_analysis.jl")
-using .Data_preparation
-using .Data_analysis
+include("Dataprep.jl") #Read and write fits
+include("Analysis.jl")
+using .Dataprep
+using .Analysis
 
-using StatsBase, Plots
+using StatsBase
 
 export convoptiwind
 export optiwind

@@ -12,14 +12,14 @@ module Data_analysis
 
 include("Functionforpca.jl") #Calculations of PCA
 include("Functionforcvi.jl") #Calculations of CVI
-include("Data_preparation.jl") #Read and write fits
+include("Dataprep.jl") #Read and write fits
 
 using .Functionforcvi
 using .Functionforpca
-using .Data_preparation
+using .Dataprep
 
-using MultivariateStats, Plots, Statistics, Format, Profile, Distributions, StatsBase
-using StatsPlots, Measures, Interact
+using MultivariateStats, Plots, Statistics, Format, Profile, StatsBase
+using Measures, Interact
 
 export calcmetric
 export calcmetricOW

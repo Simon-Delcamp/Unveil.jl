@@ -9,12 +9,12 @@
 
 module Functionforcvi
 
-include("Data_preparation.jl") #Read and write fits
+include("Dataprep.jl") #Read and write fits
 
 
-using FITSIO, MultivariateStats, StatsPlots, Plots, ShiftedArrays, Distributions,StatsBase
+using FITSIO, MultivariateStats, Plots, ShiftedArrays,StatsBase
 using Mmap
-using .Data_preparation
+using .Dataprep
 
 export construct_cvmap
 export construct_cvimap

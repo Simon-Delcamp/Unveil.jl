@@ -6,7 +6,7 @@
 #       >output = Data_preparation.NameOfTheFunction(input)
 ###################################################################
 
-module Data_preparation
+module Data_preparationAddition
 
 export addblank
 export addmask
@@ -52,9 +52,11 @@ export write_fits
 export write_pca_fits
 
 
-using FITSIO, MultivariateStats, StatsBase, Distributions, DelimitedFiles
-using Makie, GLMakie, StaticArrays, PolygonOps # For add mask funtcion
+using FITSIO, MultivariateStats, StatsBase, DelimitedFiles
+using StaticArrays, PolygonOps # For add mask funtcion
 
+#=
+using Makie, GLMakie
 import GLMakie.heatmap!# For add mask funtcion
 import GLMakie.heatmap # For add mask funtcion
 import GLMakie.Scene
@@ -63,7 +65,7 @@ import GLMakie.scatter!
 import GLMakie.events
 import GLMakie.Mouse
 import GLMakie.mouseposition
-
+=#
 
 
 """
@@ -86,6 +88,7 @@ function addblank(data,missing_arr,blank,data_dimension)
 end
 
 
+#=
 """
 
     addmask(cube,colorscale,nbmask,data_dimension,delta_xvec,delta_yvec)
@@ -164,7 +167,7 @@ function addmask(cube,colorscale,nbmask,data_dimension,delta_xvec,delta_yvec,BLA
         return(reshape(pixelpos,data_dimension[1],data_dimension[2],data_dimension[3]))
     end
 end
-
+=#
 
 
 """
@@ -820,9 +823,9 @@ end
 If not, return an error.
 """
 function valid_header(header)
-        haskey(header,"BLANK")==0  && (error("Not a valid header ; missing BLANK value"))
-        haskey(header,"BZERO")==0  && (error("Not a valid header ; missing BZERO value"))
-        haskey(header,"BSCALE")==0 && (error("Not a valid header ; missing BSCALE value"))
+    haskey(header,"BLANK")==0  && (error("Not a valid header ; missing BLANK value"))
+    haskey(header,"BZERO")==0  && (error("Not a valid header ; missing BZERO value"))
+    haskey(header,"BSCALE")==0 && (error("Not a valid header ; missing BSCALE value"))
 end
 
 
