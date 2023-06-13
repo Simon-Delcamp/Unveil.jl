@@ -63,7 +63,22 @@ After that, everything inside the gitlab repo will be saved in the directory you
 
 # Recommendations and rules
 ## Recommandations
-For faster execution, we recommand to do a sysimage using package PackageCompiler.jl
+For faster execution on the first plot and on the compilation of Unveil, we recommand to do a sysimage using package PackageCompiler.jl. A sysimage is specific to the computer, thus follow these steps to do it.
+- After installation, run julia, then type : 
+```
+julia> using Pkg
+julia> Pkg.add("PackageCompiler.jl")
+julia> using PackageCompiler
+julia> PackageCompiler.create_sysimage(["Unveil"]; sysimage_path="PATH/SYSIMAGE.so")
+```
+The last command need to give a path where the sysimage will be stored. It took around 3m on my computer. 
+
+Then, next time you want to run Julia in a terminal, type :
+```
+julia --sysimage PATH/SYSIMAGE.so
+```
+You can also create an alias for julia on your .bashrc.
+
 
 ## Rules
 To be used correctly, few rules should be followed : 

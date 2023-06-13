@@ -1,33 +1,5 @@
 module Unveil
 
-#import Pkg
-#import Plots
-#import DelimitedFiles
-#import FITSIO
-#import StatsBase
-##import Distributions
-#import Measures
-#import MultivariateStats
-##import Makie
-##import GLMakie
-#import StaticArrays
-#import LaTeXStrings
-##import StatsPlots
-#import ShiftedArrays
-##import KernelDensity
-##import LsqFit
-#import Formatting
-#import PyPlot
-#import Format
-#import CSV
-#import DataFrames
-#import Interact
-#import CurveFit
-#import Documenter
-#import Statistics
-#import Colors
-#import Profile
-#import Plots
 
 include("Dataprep.jl") # Read and write fits
 include("Analysis.jl") 
@@ -57,8 +29,8 @@ export cvi
 export multipca
 export combinecv
 
-#p = Plots.plot(rand(2,2))
-#display(p)
+p = Plots.plot(rand(2,2))
+display(p)
 
 """
     convpca(VARFILEPATH)
