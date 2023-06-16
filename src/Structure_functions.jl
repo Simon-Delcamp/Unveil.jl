@@ -1,6 +1,6 @@
 module Structure_functions
 
-import StatsBase, CurveFit
+import StatsBase, CurveFit, LsqFit
 
 export fct_sct
 export fit_fctsct
@@ -22,22 +22,34 @@ end
 
 Fit the model ydata=A*(xdata)^B. Return in first B, then A.
 """
+function fit_fctsct(xdata,ydata,y0 ; confinterv=true)
+    model(x,xhi) = xhi[2].*x.^xhi[1]
+    fit = LsqFit.curve_fit(model, ydata, xdata, y0)
+    #confid_interval = LsqFit.standard_error(fit)
+    #confinterv==false && return(fit.param[1],fit.param[2])
+    return(fit.param[1],fit.param[2],fit.resid[1])
+end
+
+#= WORKING
 function fit_fctsct(xdata,ydata)
-    #model(x,xhi) = xhi[2].*x.^xhi[1]
     fitted = CurveFit.curve_fit(CurveFit.PowerFit, ydata, xdata)
     #confid_interval = confidence_interval(fit, confidinterv)
     return(fitted.coefs[2],fitted.coefs[1])
 end
-
+=#
 """
     xhi_fct_p(pvec,struct_lag,y0)   
 
 Fit the model y=A*(x)^B for multiple order and lag of structure functions.
 """
 function xhi_fct_p(pvec,struct_lag)
-    zeta = Array{Float64}(undef,size(pvec)[1],2)
+    zeta = Array{Float64}(undef,size(pvec)[1],3)
+    p0 = [[0.37,1],[0.7,1],[1,1],[1.27,1],[1.53,1],[1.77,1]]
     for ix=1:size(pvec)[1]
-        zeta[ix,:] .= fit_fctsct(struct_lag[ix,:],struct_lag[3,:])
+        
+        zeta[ix,:] .= fit_fctsct(struct_lag[ix,:],struct_lag[3,:],p0[ix])
+        # WORKED with other version fit_fctsct
+        #zeta[ix,:] .= fit_fctsct(struct_lag[ix,:],struct_lag[3,:])
     end
     return(zeta)
 end

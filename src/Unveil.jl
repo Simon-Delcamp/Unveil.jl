@@ -703,7 +703,6 @@ function structure_functions(VARFILEPATH)
     CANALTOFIT = CANALINF:CANALSUP
 
     zeta = Structure_functions.xhi_fct_p(ORDERS[:],sct[:,CANALTOFIT])
-
     Graphic.StcFctWithFit(sct,sct[3,:],ORDERS,zeta,CANALTOFIT,"$SAVENAME")
     if OVERWRITE==true
         Plots.savefig("$(PATHTOSAVE)/Figures/stc_fctfit_$(SAVENAME)_$(METH).pdf")
@@ -717,12 +716,14 @@ function structure_functions(VARFILEPATH)
         end
         newname = "stc_fctfit_$(SAVENAME)_$(METH)"
         Plots.savefig("$(PATHTOSAVE)/Figures/$(newname).pdf")
+    else
+        Plots.savefig("$(PATHTOSAVE)/Figures/stc_fctfit_$(SAVENAME)_$(METH).pdf")
     end
 
     Graphic.StcFctExponent(zeta,zeta[3,1],ORDERS,[0,ORDERS[end]+1],[0,1.8],"Using $(METH)","$SAVENAME")
     if OVERWRITE==true
         Plots.savefig("$(PATHTOSAVE)/Figures/zeta_$(SAVENAME)_$(METH).pdf")
-    elseif (OVERWRITE==false && isfile("$(PATHTOSAVE)/Figures/zeta_$(SAVENAME)_$(METH).pdf")==true)
+    elseif (OVERWRITE==false && isfile("$(PATHTOSAVE)/Figures/zeta_$(SAVENAME)_$(METH).pdf")==true) #Not sure this is working
         println("THE GIVEN FILE NAME ALREADY EXIST. AN INDICE WILL BE ADDED AT THE END OF THE GIVEN NAME, EQUAL TO THE NUMBER OF FILES WITH THE SAME NAME +1 ")
         count = 1
         for ix=1:size((findall.("zeta_$(SAVENAME)_$(METH).pdf",readdir("$(PATHTOSAVE)/Figures/"))))[1]
@@ -732,10 +733,12 @@ function structure_functions(VARFILEPATH)
         end
         newname = "zeta_$(SAVENAME)_$(METH)_$(count)"
         Plots.savefig("$(PATHTOSAVE)/Figures/$(newname).pdf")
+    else 
+        Plots.savefig("$(PATHTOSAVE)/Figures/zeta_$(SAVENAME)_$(METH).pdf")
     end
 
 
-    Dataprep.write_dat(cat([METHV 0 0],cat(zeta,ORDERS,dims=2),dims=1),"$(PATHTOSAVE)/Data/","$(SAVENAME)_stcfct_$(METH)", more=["METHOD $(METH) ; FILE : $(SAVENAME). ROW are results for differents orders which are given at the last column. First column is the exponant, second column is the factor A : Sp(l)=A*l^B. Also, at first row and first column is the method used : <0 for SWO, 0 for raw cube, >0 for PCA. The absolute value gives the parameter (RANGE for SWO, and PC for PCA)" ], overwrite=OVERWRITE)
+    Dataprep.write_dat(cat([METHV 0 0 0],cat(zeta,ORDERS,dims=2),dims=1),"$(PATHTOSAVE)/Data/","$(SAVENAME)_stcfct_$(METH)", more=["METHOD $(METH) ; FILE : $(SAVENAME). ROW are results for differents orders which are given at the last column. First column is the exponant, second column is the factor A : Sp(l)=A*l^B. Also, at first row and first column is the method used : <0 for SWO, 0 for raw cube, >0 for PCA. The absolute value gives the parameter (RANGE for SWO, and PC for PCA)" ], overwrite=OVERWRITE)
 
 
 end #function structure_function
@@ -758,17 +761,17 @@ function compmethod_stcfct(VARFILEPATH)
 
     NBPC = floor(Int,pcdat[1,1])   # FIRST ROW USED TO KNOW HOW MANY PCs WHERE USED FOR THE RECONSTRUCTION DURING PCA METHOD
     RANGE = floor(Int,swdat[1,1])  # FIRST ROW USED TO KNOW THE SIZE OF THE RANGE USED FOR THE RECONSTRUCTION DURING SWO METHOD
-    Graphic.StcFctExponent(pcdat[2:end,1:2],pcdat[4,1],pcdat[2:end,3],[0,pcdat[:,3][end]+1],[0,2],"Using $(NBPC)PC","$SAVENAME",markers=:rect)
-    Graphic.StcFctExponent(swdat[2:end,1:2],swdat[4,1],swdat[2:end,3],[0,swdat[:,3][end]+1],[0,2],"Using $(RANGE)SWO","$SAVENAME",add=true,markers=:diamond)
+    Graphic.StcFctExponent(pcdat[2:end,:],pcdat[4,1],pcdat[2:end,4],[0,pcdat[:,4][end]+1],[0,2],"Using $(NBPC)PC","$SAVENAME",markers=:rect)
+    Graphic.StcFctExponent(swdat[2:end,:],swdat[4,1],swdat[2:end,4],[0,swdat[:,4][end]+1],[0,2],"Using $(RANGE)SWO","$SAVENAME",add=true,markers=:diamond)
 
     if length(NFNAME)!=0
         nfdat = Dataprep.read_dat("$DATPATH/$NFNAME")
-        Graphic.StcFctExponent(nfdat[2:end,1:2],nfdat[4,1],nfdat[2:end,3],[0,nfdat[:,3][end]+1],[0,2],"Using NF","$SAVENAME",add=true)
+        Graphic.StcFctExponent(nfdat[2:end,:],nfdat[4,1],nfdat[2:end,4],[0,nfdat[:,4][end]+1],[0,2],"Using NF","$SAVENAME",add=true)
     end
 
     if length(RAWNAME)!=0
         raw = Dataprep.read_dat("$DATPATH/$RAWNAME")
-        Graphic.StcFctExponent(raw[2:end,1:2],raw[4,1],raw[2:end,3],[0,raw[:,3][end]+1],[0,2],"Using RAW","$SAVENAME",add=true)
+        Graphic.StcFctExponent(raw[2:end,:],raw[4,1],raw[2:end,3],[0,raw[:,4][end]+1],[0,2],"Using RAW","$SAVENAME",add=true)
     end
 
     if OVERWRITE==true
@@ -784,6 +787,9 @@ function compmethod_stcfct(VARFILEPATH)
         end
         newname = "zetacomp_$(SAVENAME)_$(count)"
         Plots.savefig("$(PATHTOSAVE)/Figures/$(newname).pdf")
+    else 
+        Plots.savefig("$(PATHTOSAVE)/Figures/zetacomp_$(SAVENAME).pdf")
+
     end
         
 end

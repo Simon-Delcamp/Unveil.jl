@@ -143,9 +143,11 @@ function StcFctExponent(zeta,ThirdOrderZeta,OrderP,xlim,ylim,labs,DataNameTitle;
     gr()
     #xar = Array{Float64}(xlim[1]:trunc(Int,abs(xlim[1]-xlim[end])/size(OrderP)[1]):xlim[end])
     if add==true
-        p = plot!(OrderP,zeta[:,1]./ThirdOrderZeta,seriestype=:scatter,alpha=0.5,label=labs,markershape = markers)
+        p = plot!(OrderP,zeta[:,1]./ThirdOrderZeta,ribbon=zeta[:,3],fillalpha=0.5,label=labs,markershape = markers) 
     else add=false
-        p = plot(OrderP,zeta[:,1]./ThirdOrderZeta,seriestype=:scatter,alpha=0.5,label=labs,markershape = markers)
+        println("yo")
+        p = plot(OrderP,zeta[:,1]./ThirdOrderZeta,ribbon=zeta[:,3],alpha=0.5,label=labs,markershape = markers,fillalpha=0.5)
+
         p = plot!(OrderP,OrderP./3,seriestype=:line,label="K41",ylims=ylim,xlims=xlim,xlabel="p",ylabel=L"\zeta(p)/\zeta(3)",title="Power-law exponents of the structure function in function of the order p \n $(DataNameTitle)",titlefontsize=10,xaxis=OrderP,legend=:topleft)
         
         p = plot!(OrderP,OrderP./9 .+2 .*(1 .-(2 ./3) .^(OrderP./3)),linestyle=:dash,label="SL94")
