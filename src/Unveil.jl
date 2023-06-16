@@ -680,7 +680,19 @@ function structure_functions(VARFILEPATH)
 
     sct = Structure_functions.fct_sct(cvicube,LAG,ORDERS)  # order,lag
     Graphic.StcFct(sct,sct[3,:],ORDERS,"$SAVENAME")
-
+    if OVERWRITE==true
+        Plots.savefig("$(PATHTOSAVE)/Figures/struct_fct_$(SAVENAME)_$(METH).pdf")
+    elseif (OVERWRITE==false && isfile("$(PATHTOSAVE)/Figures/struct_fct_$(SAVENAME)_$(METH).pdf")==true)
+        println("THE GIVEN FILE NAME ALREADY EXIST. AN INDICE WILL BE ADDED AT THE END OF THE GIVEN NAME, EQUAL TO THE NUMBER OF FILES WITH THE SAME NAME +1 ")
+        count = 1
+        for ix=1:size((findall.("struct_fct_$(SAVENAME)_$(METH).pdf",readdir("$(PATHTOSAVE)/Figures/"))))[1]
+            if size(findall("struct_fct_$(SAVENAME)_$(METH).pdf",readdir("$(PATHTOSAVE)/Figures/")[ix]))[1]!=0
+                count += 1
+            end
+        end
+        newname = "struct_fct_$(SAVENAME)_$(METH)"
+        Plots.savefig("$(PATHTOSAVE)/Figures/$(newname).pdf")
+    end
 
     println(" ")
     println("On which Lag to fit ? Give the indices in the array Lag of the var file (first indice=1). Size of the array : $(size(LAG)[1])")
