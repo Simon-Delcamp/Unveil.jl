@@ -282,6 +282,7 @@ end
 Return the first moment order of all pixels in an entire field, weighted by velvector. Arr can be a 3D array (ppv) or a 2D array (pv). The function replace all missing values by 
 """
 function moment_one_field(arr,SIGMAT,THRESHOLD,velvector,BLANK)
+
     arr = Dataprep.blank_inf(arr,SIGMAT*THRESHOLD,0)
     typeof(size(arr)) == Tuple{Int64,Int64,Int64} && (arr = reshape(arr,size(arr)[1]*size(arr)[2],size(arr)[3]))
     #eltype(arr)       == Union{Missing,Float64}   && (arr = convert(Array{Float64,2},Dataprep.replace_missingtoblank(arr,0)))

@@ -141,9 +141,10 @@ Compute the rms on velocity canal given as input of a cube. Return a 2D map with
 function rms_cube(cube,can)
     map = Array{Float64}(undef,size(cube)[1],size(cube)[2])
     for ix=1:size(cube)[2]
-        #for jx=1:size(cube)[1]
-            map[:,ix] .= StatsBase.moment((cube[:,ix,can]),2)
-        #end
+
+        for jx=1:size(cube)[1]
+            map[jx,ix] = StatsBase.moment((cube[jx,ix,can]),2)
+        end
     end
     rmsavr = StatsBase.mean(skipmissing(map))
     return(map,rmsavr)

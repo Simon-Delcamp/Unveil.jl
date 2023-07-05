@@ -4,6 +4,7 @@ module Dataprep
 export addblank
 export blank_equal 
 export blank_inf
+export boolmatrix_missing
 export directory_prep
 export flatiterator
 export pca_prep
@@ -74,6 +75,50 @@ function blank_inf(array,oldvalue,newvalue)
     return new_array
 end
 
+
+"""
+    boolmatrix_missing(array)
+
+Return a 1D and a 2D boolean matrices indicating the indexes of missing values in array. Array should be a 2 dimension data (pixels*spectra for example)
+"""
+function boolmatrix_missing(array)
+        missing2D = broadcast(isequal,array,missing)
+        missing1D = findall(ismissing,array[:])
+        return(missing1D, missing2D)
+end
+
+
+
+"""
+    deletemissing(data,missing1D)
+
+Delete all rows where there is at least one missing value using a boolean vector of the missing values.
+"""
+function deletemissing(data,missing1D)
+    DATASIZETYPE = eltype(size(data))
+    if typeof(size(data))==Tuple{DATASIZETYPE,DATASIZETYPE}
+        return(data[setdiff(1:end,missing1D),:])
+    else
+        error("Please send a 2D map (pixel*pixel,velocity)")
+    end
+end
+
+
+"""
+    delete_allnotvalue(data,blank)
+
+Delete from data all value which are not a valid value, e.g. missing, NaN and blank.
+"""
+function delete_allnotvalue(data,blank)
+    data = replace_nantomissing(data)
+    data = replace_blanktomissing(data,blank)
+    missing1D, missing2D = boolmatrix_missing(data)
+    data = convert(Array{Float64},deleteat!(data[:],missing1D))
+    return(data)
+end
+
+
+
 """
     directory_prep(PATHTOSAVE::String)
 
@@ -110,9 +155,9 @@ function pca_prep(arr,arraydimension)
         (typeof(size(arr))==Tuple{DATASIZETYPE,DATASIZETYPE,DATASIZETYPE}) && (arr = reshape(arr,arraydimension[1]*arraydimension[2],arraydimension[3])) #3D -> 2D
 
         #println("produce boolean matrix")
-        missing1D, missing2D = Data_preparation.boolmatrix_missing(arr) #Boolean matrix to catch missing values
+        missing1D, missing2D = Dataprep.boolmatrix_missing(arr) #Boolean matrix to catch missing values
         #println("convert and delete")
-        arr2D_nomissing     = Data_preparation.deletemissing(arr,missing1D) #Data without missing value
+        arr2D_nomissing     = Dataprep.deletemissing(arr,missing1D) #Data without missing value
         arr = 0.0
         #println("regular blanking")
         regular_blanking(arr2D_nomissing)

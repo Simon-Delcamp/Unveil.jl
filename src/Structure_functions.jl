@@ -1,6 +1,6 @@
 module Structure_functions
 
-import StatsBase, CurveFit, LsqFit
+import StatsBase, LsqFit
 
 export fct_sct
 export fit_fctsct

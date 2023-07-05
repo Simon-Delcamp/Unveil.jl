@@ -6,15 +6,20 @@ using Formatting, LaTeXStrings, Colors
 using Measures
 
 
-function checkwindowopti(sourcecube,cubewo,VELOCITYVECTOR,NBROW,NBCOL;limx=(minimum(VELOCITYVECTOR),maximum(VELOCITYVECTOR)))
+function checkwindowopti(sourcecube,cubewo,minimap,VELOCITYVECTOR,NBROW,NBCOL;limx=(minimum(VELOCITYVECTOR),maximum(VELOCITYVECTOR)))
     l = @layout [grid(NBROW,NBCOL)]
     p = plot(layout=l,legend = false, xformatter=_->"", yformatter=_->"", grid=:false,primary=false,link=:both )#,size=(1000,700),dpi=1000)
     xsize = size(sourcecube)[1]
     posx = []
     for ix = 1:NBROW*NBCOL
         append!(posx,rand(1:xsize))
-        p = plot!(p[ix],VELOCITYVECTOR,sourcecube[posx[ix],:],color=:navy,xlim=limx)
-        p = plot!(p[ix],VELOCITYVECTOR,cubewo[posx[ix],:],color=:red,title="$(posx[ix])",titlefontsize=5,xlim=limx)
+        #yy = Array{Float64}(undef,floor(Int,size(VELOCITYVECTOR)[1]/minimap[posx[ix]]))
+        #yy .= 0
+        #xx = (1:minimap[posx[ix]]:size(VELOCITYVECTOR)[1]) .|> Int
+        p = plot!(p[ix],VELOCITYVECTOR,sourcecube[posx[ix],:],color=:navy,xlim=limx,linewidth=0.5)
+        #p = plot!(p[ix],VELOCITYVECTOR,cubewo[posx[ix],:],color=:red,title="$(posx[ix])_$(minimap[posx[ix]])",titlefontsize=5,xlim=limx)
+        p = plot!(p[ix],VELOCITYVECTOR,cubewo[posx[ix],:],color=:red,title="$(posx[ix])",titlefontsize=5,xlim=limx,linewidth=0.5)
+        #p = plot!(p[ix],VELOCITYVECTOR[xx],yy,seriestype=:scatter,markershape=:+,xlim=limx)
     end
     #p = plot!(p[1],showaxis=:hide,foreground_color_text=:white,titlefontsize=1)
 
@@ -113,16 +118,16 @@ function StcFctWithFit(StcFct,ThirdOrderStcFct,OrderP,zeta,fitcan,DataNameTitle 
     my_cgrad = :blues#[:red, :yellow, :blue, :pink, :green, :brown]
     labs = string.(OrderP)
     labs = permutedims(labs)
-    cols = distinguishable_colors(length(StcFct), dropseed=true)
+    cols = distinguishable_colors(length(StcFct), [RGB(1,1,1), RGB(0,0,0)], dropseed=true)
     if add==true
-        p = plot!(ThirdOrderStcFct,[StcFct[ix,:] for ix=1:size(StcFct)[1]],seriestype=:scatter,yaxis=:log,xaxis=:log,title="Structure function Sp(l) plotted against S3(l) for $(DataNameTitle)",titlefontsize=10,labels=labs,xlabel=L"S_3(l)",ylabel=L"S_p(l)",legend=:bottomright)
+        p = plot!(ThirdOrderStcFct,[StcFct[ix,:] for ix=1:size(StcFct)[1]],seriestype=:scatter,titlefontsize=10,yaxis=:log,xaxis=:log,labels=labs,xlabel=L"S_3(l)",ylabel=L"S_p(l)",legend=:bottomright)#,title="Structure function Sp(l) plotted against S3(l) for $(DataNameTitle)",
     else add=false
-        p = plot(ThirdOrderStcFct,StcFct[1,:], c = cols[1],seriestype=:scatter,yaxis=:log,xaxis=:log,title="Structure function Sp(l) plotted against S3(l) for $(DataNameTitle)",titlefontsize=10,labels=labs[1],xlabel=L"S_3(l)",ylabel=L"S_p(l)",legend=:bottomright)
-        p = plot!(ThirdOrderStcFct[fitcan],zeta[1,2].*ThirdOrderStcFct[fitcan].^zeta[1,1] , c = cols[1],legendfontsize=7,yaxis=:log,xaxis=:log, label="",seriestype=:line)
+        p = plot(ThirdOrderStcFct,StcFct[1,:], c = cols[1],seriestype=:scatter,titlefontsize=10,labels="p=$(labs[1])",xlabel=L"S_3(l)",ylabel=L"S_p(l)",legend=:bottomright)
+        p = plot!(ThirdOrderStcFct[fitcan],zeta[1,2].*ThirdOrderStcFct[fitcan].^zeta[1,1] , c = cols[1],legendfontsize=7, label="",seriestype=:line)
         for ix=2:size(StcFct)[1]
-            p = plot!(ThirdOrderStcFct,StcFct[ix,:], c = cols[ix],seriestype=:scatter,yaxis=:log,xaxis=:log,title="Structure function Sp(l) plotted against S3(l) for $(DataNameTitle)",titlefontsize=10,labels=labs[ix])
-            p = plot!(ThirdOrderStcFct[fitcan],zeta[ix,2].*ThirdOrderStcFct[fitcan].^zeta[ix,1], c = cols[ix],legendfontsize=7,yaxis=:log,xaxis=:log, label="",seriestype=:line)
-        end
+            p = plot!(ThirdOrderStcFct,StcFct[ix,:], c = cols[ix],seriestype=:scatter,titlefontsize=10,labels="p=$(labs[ix])",markershape=Plots.supported_markers()[ix+2],yaxis=:log,xaxis=:log,) #title="Structure function Sp(l) plotted against S3(l) for $(DataNameTitle)",
+            p = plot!(ThirdOrderStcFct[fitcan],zeta[ix,2].*ThirdOrderStcFct[fitcan].^zeta[ix,1],yaxis=:log,xaxis=:log, c = cols[ix],legendfontsize=7,seriestype=:line,label="")
+        end#yaxis=:log,xaxis=:log,
     end
     if save==false
         return
@@ -145,10 +150,9 @@ function StcFctExponent(zeta,ThirdOrderZeta,OrderP,xlim,ylim,labs,DataNameTitle;
     if add==true
         p = plot!(OrderP,zeta[:,1]./ThirdOrderZeta,ribbon=zeta[:,3],fillalpha=0.5,label=labs,markershape = markers) 
     else add=false
-        println("yo")
         p = plot(OrderP,zeta[:,1]./ThirdOrderZeta,ribbon=zeta[:,3],alpha=0.5,label=labs,markershape = markers,fillalpha=0.5)
 
-        p = plot!(OrderP,OrderP./3,seriestype=:line,label="K41",ylims=ylim,xlims=xlim,xlabel="p",ylabel=L"\zeta(p)/\zeta(3)",title="Power-law exponents of the structure function in function of the order p \n $(DataNameTitle)",titlefontsize=10,xaxis=OrderP,legend=:topleft)
+        p = plot!(OrderP,OrderP./3,seriestype=:line,label="K41",ylims=ylim,xlims=xlim,xlabel="p",ylabel=L"\zeta(p)/\zeta(3)",titlefontsize=10,xaxis=OrderP,legend=:topleft) #,title="Power-law exponents of the structure function in function of the order p \n $(DataNameTitle)"
         
         p = plot!(OrderP,OrderP./9 .+2 .*(1 .-(2 ./3) .^(OrderP./3)),linestyle=:dash,label="SL94")
         p = plot!(OrderP,OrderP./9 .+ 1 .-(1 ./3) .^(OrderP./3),linestyle=:dash,label="B02")

@@ -162,15 +162,28 @@ function cv(VARFILEPATH)
 
     # Read the fits from the path. Return the data, the VelocityVector, the dimension, the velocity_increment, and the header.
     cube,VELOCITYVECTOR,DATADIMENSION,VELOCITYINCREMENT,HEAD = Dataprep.read_fits_ppv("$FITSPATH/$FITSNAME",UNITVELOCITY ; check=false)
-    if haskey(HEAD,"NBPC")==1 
-        METH = HEAD["NBPC"]
-        METH = "$(METH)PC"
-    elseif haskey(HEAD,"RANGESWO")==1
-        METH = HEAD["RANGESWO"]
-        METH = "$(METH)SWO"
+    if haskey(HEAD,"METHOD")==1 
+        if HEAD["METHOD"]=="PCA"
+            METH = HEAD["NBPC"]
+            METH = "$(METH)PC"
+        elseif HEAD["METHOD"]=="SWO"
+    #elseif haskey(HEAD,"RANGESWO")==1
+           # METH = HEAD["RANGESWO"]
+            #METH = "$(METH)SWO"
+            METH = "SWO"
+        end
     else
         METH = "raw"
     end
+    #if haskey(HEAD,"NBPC")==1 
+    #    METH = HEAD["NBPC"]
+    #    METH = "$(METH)PC"
+    #elseif haskey(HEAD,"RANGESWO")==1
+    #    METH = HEAD["RANGESWO"]
+    #    METH = "$(METH)SWO"
+    #else
+    #    METH = "raw"
+    #end
 
     # Prepare directories where plots and data will be saved.
     Dataprep.directory_prep(PATHTOSAVE)
@@ -234,15 +247,28 @@ function cvcvi(VARFILEPATH)
 
     # Read the fits from the path. Return the data, the VelocityVector, the dimension, the velocity_increment, and the header.
     cube,VELOCITYVECTOR,DATADIMENSION,VELOCITYINCREMENT,HEAD = Dataprep.read_fits_ppv("$FITSPATH/$FITSNAME",UNITVELOCITY ; check=false)
-    if haskey(HEAD,"NBPC")==1 
-        METH = HEAD["NBPC"]
-        METH = "$(METH)PC"
-    elseif haskey(HEAD,"RANGESWO")==1
-        METH = HEAD["RANGESWO"]
-        METH = "$(METH)SWO"
+    if haskey(HEAD,"METHOD")==1 
+        if HEAD["METHOD"]=="PCA"
+            METH = HEAD["NBPC"]
+            METH = "$(METH)PC"
+        elseif HEAD["METHOD"]=="SWO"
+    #elseif haskey(HEAD,"RANGESWO")==1
+           # METH = HEAD["RANGESWO"]
+            #METH = "$(METH)SWO"
+            METH = "SWO"
+        end
     else
         METH = "raw"
     end
+    #if haskey(HEAD,"NBPC")==1 
+    #    METH = HEAD["NBPC"]
+    #    METH = "$(METH)PC"
+    #elseif haskey(HEAD,"RANGESWO")==1
+    #    METH = HEAD["RANGESWO"]
+    #    METH = "$(METH)SWO"
+    #else
+    #    METH = "raw"
+    #end
 
     # Prepare directories where plots and data will be saved.
     Dataprep.directory_prep(PATHTOSAVE)
@@ -251,6 +277,7 @@ function cvcvi(VARFILEPATH)
     if THRESHOLD==0
         THRESHOLD = BLANK
         SIGMAT = 1
+        
     else
         SIGMAT = Analysis.rms_cube(cube,NOISECAN)[2]
     end
@@ -339,10 +366,10 @@ function cvcvi(VARFILEPATH)
 
 
     Dataprep.write_fits("$(FITSPATH)/$FITSNAME","CVI$(DIFFTYPE)_$(SAVENAME)_$(METH)","$(PATHTOSAVE)/Data/",cvimap_averaged,(DATADIMENSION[1],DATADIMENSION[2],size(LAG)[1]),BLANK,finished=true,overwrite=OVERWRITE,more=["LAG",LAG])
-    println("CVI map reconstructed from PCA saved in $(PATHTOSAVE)/Data/CVI$(DIFFTYPE)_$(SAVENAME)_$(METH)_NumberOfFilesWithTheSameNameAsPrefixe.fits as a fits.")
+    println("CVI map saved in $(PATHTOSAVE)/Data/CVI$(DIFFTYPE)_$(SAVENAME)_$(METH)_NumberOfFilesWithTheSameNameAsPrefixe.fits as a fits.")
 
     Dataprep.write_fits("$(FITSPATH)/$FITSNAME","CVI$(DIFFTYPE)_$(SAVENAME)_allangle_$(METH)","$(PATHTOSAVE)/Data",cviallangle,(DATADIMENSION[1]*DATADIMENSION[2],maximum(NANGLE),size(LAG)[1]),BLANK,finished=true,overwrite=OVERWRITE,more=["LAG",LAG])
-    println("CVI map with all angles values reconstructed from PCA saved in the $(PATHTOSAVE)/Data/CVI$(DIFFTYPE)_$(SAVENAME)_allangle_$(METH)_NumberOfFilesWithTheSameNameAsPrefixe.fits as a fits.")
+    println("CVI map with all angles values saved in the $(PATHTOSAVE)/Data/CVI$(DIFFTYPE)_$(SAVENAME)_allangle_$(METH)_NumberOfFilesWithTheSameNameAsPrefixe.fits as a fits.")
 
 end #function cvcvi
 
@@ -365,12 +392,16 @@ function cvi(VARFILEPATH)
     LAG = [parse(Int, ss) for ss in split(LAG,",")]
 
     cvmap,HEAD,DATADIMENSION = Dataprep.read_fits_pp("$FITSPATH/$FITSNAME")
-    if haskey(HEAD,"NBPC")==1 
-        METH = HEAD["NBPC"]
-        METH = "$(METH)PC"
-    elseif haskey(HEAD,"RANGESWO")==1
-        METH = HEAD["RANGESWO"]
-        METH = "$(METH)SWO"
+    if haskey(HEAD,"METHOD")==1 
+        if HEAD["METHOD"]=="PCA"
+            METH = HEAD["NBPC"]
+            METH = "$(METH)PC"
+        elseif HEAD["METHOD"]=="SWO"
+    #elseif haskey(HEAD,"RANGESWO")==1
+           # METH = HEAD["RANGESWO"]
+            #METH = "$(METH)SWO"
+            METH = "SWO"
+        end
     else
         METH = "raw"
     end
@@ -424,11 +455,11 @@ function cvi(VARFILEPATH)
     cviallangle = convert(Array{Float64},cviallangle)
 
     Dataprep.write_fits("$(FITSPATH)/$FITSNAME","CVI$(DIFFTYPE)_$(SAVENAME)_$(METH)","$(PATHTOSAVE)/Data/",cvimap_averaged,(DATADIMENSION[1],DATADIMENSION[2],size(LAG)[1]),BLANK,finished=true,overwrite=OVERWRITE,more=["LAG",LAG])
-    println("CVI map reconstructed from PCA saved in $(PATHTOSAVE)/Data/CVI$(DIFFTYPE)_$(SAVENAME)_$(METH)_NumberOfFilesWithTheSameNameAsPrefixe.fits as a fits.")
+    println("CVI map saved in $(PATHTOSAVE)/Data/CVI$(DIFFTYPE)_$(SAVENAME)_$(METH)_NumberOfFilesWithTheSameNameAsPrefixe.fits as a fits.")
 
 
     Dataprep.write_fits("$(FITSPATH)/$FITSNAME","CVI$(DIFFTYPE)_$(SAVENAME)_allangle_$(METH)","$(PATHTOSAVE)/Data",cviallangle,(DATADIMENSION[1]*DATADIMENSION[2],maximum(NANGLE),size(LAG)[1]),BLANK,finished=true,overwrite=OVERWRITE,more=["LAG",LAG])
-    println("CVI map with all angles values reconstructed from PCA saved in the $(PATHTOSAVE)/Data/CVI$(DIFFTYPE)_$(SAVENAME)_allangle_$(METH)_NumberOfFilesWithTheSameNameAsPrefixe.fits as a fits.")
+    println("CVI map with all angles values saved in the $(PATHTOSAVE)/Data/CVI$(DIFFTYPE)_$(SAVENAME)_allangle_$(METH)_NumberOfFilesWithTheSameNameAsPrefixe.fits as a fits.")
 
 end #function cvi
 
@@ -573,7 +604,7 @@ function pca(VARFILEPATH)
     cubereconstructed = reshape(cubereconstructed,DATADIMENSION)
 
     println("Saving Fits")
-    Dataprep.write_fits("$(FITSPATH)/$(FILENAME)","RECONSTRUCTED_$(SAVENAME)_$(NBPC)PC","$PATHTOSAVE/Data/",cubereconstructed,DATADIMENSION,BLANK,overwrite=OVERWRITE,more=["NBPC",NBPC,"VARPERC",VARPERCENT[NBPC]*100])
+    Dataprep.write_fits("$(FITSPATH)/$(FILENAME)","RECONSTRUCTED_$(SAVENAME)_$(NBPC)PC","$PATHTOSAVE/Data/",cubereconstructed,DATADIMENSION,BLANK,overwrite=OVERWRITE,more=["NBPC",NBPC,"VARPERC",VARPERCENT[NBPC]*100,"METHOD","PCA"])
     println("Data reconstructed from PCA saved in $(PATHTOSAVE)/Data/RECONSTRUCTED_$(SAVENAME)_$(NBPC)PC_NumberOfFilesWithTheSameNameAsPrefixe.fits as a fits.")
 
     cubereconstructed = 0
@@ -593,6 +624,117 @@ Use a SWO (Spectral Window Optimisation) process on a cube. A '.txt' file should
 Use this function in a julia terminal with :
     julia> Unveil.swo(VARFILEPATH)
 """
+function swo(VARFILEPATH)   
+    FITSPATH,FILENAME,PATHTOSAVE,SAVENAME,UNITVELOCITY,RANGETXT,BLANK,NOISECANTXT,EXAMPLES,OVERWRITE = Dataprep.read_var_files(VARFILEPATH)
+    NOISECAN = [parse(Int, ss) for ss in split(NOISECANTXT,",")]
+    RANGE = [parse(Int, ss) for ss in split(RANGETXT,",")]
+    RANGE = [RANGE[1]:RANGE[2]]
+    
+    # Read the fits from the path. Return the data, the VelocityVector, the dimension, the velocity_increment, and the header.
+    cube,VELOCITYVECTOR,DATADIMENSION,VELOCITYINCREMENT,HEAD = Dataprep.read_fits_ppv("$(FITSPATH)/$(FILENAME)",UNITVELOCITY ; check=false)
+    
+    # Prepare directories where plots and data will be saved.
+    Dataprep.directory_prep(PATHTOSAVE)
+    
+    # Replace any NaN value into a missing value and deleted them (can't do PCA on missing values with that package).
+    cube = Dataprep.replace_nantomissing(cube)
+    ismis = 0
+    if any(ismissing,cube) 
+        ismis = 1
+        cube,missingplaces1D,missingplaces2D  = Dataprep.pca_prep(cube,DATADIMENSION)
+        cube                                  = convert(Array{Float64},cube)
+        DATADIMENSION_NOMISSING               = Dataprep.read_dim(cube)
+    else
+        cube                                 = reshape(cube,DATADIMENSION[1]*DATADIMENSION[2],DATADIMENSION[3])
+        cube                                 = convert(Array{Float64},cube)
+        DATADIMENSION_NOMISSING              = (DATADIMENSION[1]*DATADIMENSION[2],DATADIMENSION[3])
+    end
+    
+    maskinterv,mask = SWO.bestsnr(cube,DATADIMENSION_NOMISSING,VELOCITYVECTOR,NOISECAN)
+
+    if EXAMPLES=="YES"
+        Graphic.checkwindowopti(cube,maskinterv,mask,VELOCITYVECTOR,6,6)
+        Plots.savefig("$(PATHTOSAVE)/Figures/checkswo1.pdf")
+
+        Graphic.checkwindowopti(cube,maskinterv,mask,VELOCITYVECTOR,6,6)
+        Plots.savefig("$(PATHTOSAVE)/Figures/checkswo2.pdf")
+
+        Graphic.checkwindowopti(cube,maskinterv,mask,VELOCITYVECTOR,6,6)
+        Plots.savefig("$(PATHTOSAVE)/Figures/checkswo3.pdf")
+    end
+
+    if ismis == 1
+        maskinterv = Dataprep.addblank(maskinterv,missingplaces2D,BLANK,DATADIMENSION)
+        #minimap = Dataprep.addblank(minimap,missingplaces2D,BLANK,DATADIMENSION)
+    end
+    maskinterv = reshape(maskinterv,DATADIMENSION)
+
+    #minimap = reshape(minimap,(DATADIMENSION[1],DATADIMENSION[2]))
+
+    maskinterv = Dataprep.blank_equal(maskinterv,BLANK,0)
+    #minimap = Dataprep.blank_equal(minimap,BLANK,0)
+
+    Dataprep.write_fits("$(FITSPATH)/$FILENAME","RECONSTRUCTED_$(SAVENAME)_SWO","$PATHTOSAVE/Data/",maskinterv,DATADIMENSION,BLANK,overwrite=OVERWRITE,more=["METHOD","SWO"])
+    #Dataprep.write_fits("$(FITSPATH)/$FILENAME","minimap_$(SAVENAME)_SWO","$PATHTOSAVE/Data/",minimap,(DATADIMENSION[1],DATADIMENSION[2]),BLANK,overwrite=OVERWRITE,)
+    println("Data reconstructed from SWO method saved in $(PATHTOSAVE)/Data/RECONSTRUCTED_$(SAVENAME)_SWO_NumberOfFilesWithTheSameNameAsPrefixe.fits as a fits.")
+end
+#= OLD ONE
+function swo(VARFILEPATH)   
+    FITSPATH,FILENAME,PATHTOSAVE,SAVENAME,UNITVELOCITY,RANGETXT,BLANK,NOISECANTXT,EXAMPLES,OVERWRITE = Dataprep.read_var_files(VARFILEPATH)
+    NOISECAN = [parse(Int, ss) for ss in split(NOISECANTXT,",")]
+    RANGE = [parse(Int, ss) for ss in split(RANGETXT,",")]
+    RANGE = [RANGE[1]:RANGE[2]]
+    
+    # Read the fits from the path. Return the data, the VelocityVector, the dimension, the velocity_increment, and the header.
+    cube,VELOCITYVECTOR,DATADIMENSION,VELOCITYINCREMENT,HEAD = Dataprep.read_fits_ppv("$(FITSPATH)/$(FILENAME)",UNITVELOCITY ; check=false)
+    
+    # Prepare directories where plots and data will be saved.
+    Dataprep.directory_prep(PATHTOSAVE)
+    
+    # Replace any NaN value into a missing value and deleted them (can't do PCA on missing values with that package).
+    cube = Dataprep.replace_nantomissing(cube)
+    ismis = 0
+    if any(ismissing,cube) 
+        ismis = 1
+        cube,missingplaces1D,missingplaces2D  = Dataprep.pca_prep(cube,DATADIMENSION)
+        cube                                  = convert(Array{Float64},cube)
+        DATADIMENSION_NOMISSING               = Dataprep.read_dim(cube)
+    else
+        cube                                 = reshape(cube,DATADIMENSION[1]*DATADIMENSION[2],DATADIMENSION[3])
+        cube                                 = convert(Array{Float64},cube)
+        DATADIMENSION_NOMISSING              = (DATADIMENSION[1]*DATADIMENSION[2],DATADIMENSION[3])
+    end
+    
+    maskinterv,minimap = SWO.autoconv(cube,DATADIMENSION_NOMISSING,VELOCITYVECTOR,NOISECAN,BLANK,RANGE[1])
+
+    if EXAMPLES=="YES"
+        Graphic.checkwindowopti(cube,maskinterv,minimap,VELOCITYVECTOR,4,4)
+        Plots.savefig("$(PATHTOSAVE)/Figures/checkswo1.pdf")
+
+        Graphic.checkwindowopti(cube,maskinterv,minimap,VELOCITYVECTOR,4,4)
+        Plots.savefig("$(PATHTOSAVE)/Figures/checkswo2.pdf")
+
+        Graphic.checkwindowopti(cube,maskinterv,minimap,VELOCITYVECTOR,4,4)
+        Plots.savefig("$(PATHTOSAVE)/Figures/checkswo3.pdf")
+    end
+
+    if ismis == 1
+        maskinterv = Dataprep.addblank(maskinterv,missingplaces2D,BLANK,DATADIMENSION)
+        #minimap = Dataprep.addblank(minimap,missingplaces2D,BLANK,DATADIMENSION)
+        end
+    maskinterv = reshape(maskinterv,DATADIMENSION)
+    #minimap = reshape(minimap,(DATADIMENSION[1],DATADIMENSION[2]))
+
+    maskinterv = Dataprep.blank_equal(maskinterv,BLANK,0)
+    #minimap = Dataprep.blank_equal(minimap,BLANK,0)
+
+    Dataprep.write_fits("$(FITSPATH)/$FILENAME","RECONSTRUCTED_$(SAVENAME)_SWO","$PATHTOSAVE/Data/",maskinterv,DATADIMENSION,BLANK,overwrite=OVERWRITE,more=["METHOD","SWO"])
+    #Dataprep.write_fits("$(FITSPATH)/$FILENAME","minimap_$(SAVENAME)_SWO","$PATHTOSAVE/Data/",minimap,(DATADIMENSION[1],DATADIMENSION[2]),BLANK,overwrite=OVERWRITE,)
+    println("Data reconstructed from SWO method saved in $(PATHTOSAVE)/Data/RECONSTRUCTED_$(SAVENAME)_SWO_NumberOfFilesWithTheSameNameAsPrefixe.fits as a fits.")
+end
+=#
+
+#= WORKED BUT TRY A NEW ONE
 function swo(VARFILEPATH)   
     FITSPATH,FILENAME,PATHTOSAVE,SAVENAME,UNITVELOCITY,RANGE,BLANK,NOISECANTXT,EXAMPLES,OVERWRITE = Dataprep.read_var_files(VARFILEPATH)
     NOISECAN = [parse(Int, ss) for ss in split(NOISECANTXT,",")]
@@ -643,8 +785,7 @@ function swo(VARFILEPATH)
 
 
 end  #swo
-
-
+=#
 
 
 """
@@ -658,16 +799,32 @@ function structure_functions(VARFILEPATH)
 
     # Read the fits from the path. Return the data, the VelocityVector, the dimension, the velocity_increment, and the header.
     cvicube,DATADIMENSION,HEAD = Dataprep.read_fits_cvi("$(FITSPATH)/$(FILENAME)" ; check=false)
-    if haskey(HEAD,"NBPC")==1 
-        METHV = HEAD["NBPC"]
-        METH = "$(METHV)PC"
-    elseif haskey(HEAD,"RANGESWO")==1
-        METHV = HEAD["RANGESWO"]
-        METH = "$(METHV)SWO"
-    else 
+    if haskey(HEAD,"METHOD")==1 
+        if HEAD["METHOD"]=="PCA"
+            METH = HEAD["NBPC"]
+            METH = "$(METH)PC"
+            METHV = HEAD["NBPC"]
+        elseif HEAD["METHOD"]=="SWO"
+    #elseif haskey(HEAD,"RANGESWO")==1
+           # METH = HEAD["RANGESWO"]
+            #METH = "$(METH)SWO"
+            METH = "SWO"
+            METHV = -1
+        end
+    else
         METHV = 0
         METH = "raw"
     end
+    #if haskey(HEAD,"NBPC")==1 
+    #    METHV = HEAD["NBPC"]
+    #    METH = "$(METHV)PC"
+    #elseif haskey(HEAD,"RANGESWO")==1
+    #    METHV = HEAD["RANGESWO"]
+    #    METH = "$(METHV)SWO"
+    #else 
+    #    METHV = 0
+    #    METH = "raw"
+    #end
     LAG = [parse(Int,ss) for ss in split(HEAD["LAG"][2:end-1],",")]
 
     # Prepare directories where plots and data will be saved.
@@ -762,7 +919,7 @@ function compmethod_stcfct(VARFILEPATH)
     NBPC = floor(Int,pcdat[1,1])   # FIRST ROW USED TO KNOW HOW MANY PCs WHERE USED FOR THE RECONSTRUCTION DURING PCA METHOD
     RANGE = floor(Int,swdat[1,1])  # FIRST ROW USED TO KNOW THE SIZE OF THE RANGE USED FOR THE RECONSTRUCTION DURING SWO METHOD
     Graphic.StcFctExponent(pcdat[2:end,:],pcdat[4,1],pcdat[2:end,4],[0,pcdat[:,4][end]+1],[0,2],"Using $(NBPC)PC","$SAVENAME",markers=:rect)
-    Graphic.StcFctExponent(swdat[2:end,:],swdat[4,1],swdat[2:end,4],[0,swdat[:,4][end]+1],[0,2],"Using $(RANGE)SWO","$SAVENAME",add=true,markers=:diamond)
+    Graphic.StcFctExponent(swdat[2:end,:],swdat[4,1],swdat[2:end,4],[0,swdat[:,4][end]+1],[0,2],"Using SWO","$SAVENAME",add=true,markers=:diamond)
 
     if length(NFNAME)!=0
         nfdat = Dataprep.read_dat("$DATPATH/$NFNAME")
@@ -771,24 +928,24 @@ function compmethod_stcfct(VARFILEPATH)
 
     if length(RAWNAME)!=0
         raw = Dataprep.read_dat("$DATPATH/$RAWNAME")
-        Graphic.StcFctExponent(raw[2:end,:],raw[4,1],raw[2:end,3],[0,raw[:,4][end]+1],[0,2],"Using RAW","$SAVENAME",add=true)
+        Graphic.StcFctExponent(raw[2:end,:],raw[4,1],raw[2:end,4],[0,raw[:,4][end]+1],[0,2],"Using RAW","$SAVENAME",add=true)
     end
 
     if OVERWRITE==true
 
-        Plots.savefig("$(PATHTOSAVE)/Figures/zetacomp_$(SAVENAME).pdf")
-    elseif (OVERWRITE==false && isfile("$(PATHTOSAVE)/Figures/zetacomp_$(SAVENAME).pdf")==true)
+        Plots.savefig("$(PATHTOSAVE)/Figures/zetacomp_$(SAVENAME)_$(NBPC)PC_SWO.pdf")
+    elseif (OVERWRITE==false && isfile("$(PATHTOSAVE)/Figures/zetacomp_$(SAVENAME)_$(NBPC)PC_SWO.pdf")==true)
         println("THE GIVEN FILE NAME ALREADY EXIST. AN INDICE WILL BE ADDED AT THE END OF THE GIVEN NAME, EQUAL TO THE NUMBER OF FILES WITH THE SAME NAME +1 ")
         count = 1
-        for ix=1:size((findall.("zetacomp_$(SAVENAME).pdf",readdir("$(PATHTOSAVE)/Figures/"))))[1]
-            if size(findall("zetacomp_$(SAVENAME).pdf",readdir("$(PATHTOSAVE)/Figures/")[ix]))[1]!=0
+        for ix=1:size((findall.("zetacomp_$(SAVENAME)_$(NBPC)PC_SWO.pdf",readdir("$(PATHTOSAVE)/Figures/"))))[1]
+            if size(findall("zetacomp_$(SAVENAME)_$(NBPC)PC_SWO.pdf",readdir("$(PATHTOSAVE)/Figures/")[ix]))[1]!=0
                 count += 1
             end
         end
-        newname = "zetacomp_$(SAVENAME)_$(count)"
+        newname = "zetacomp_$(SAVENAME)_$(NBPC)PC_SWO_$(count)"
         Plots.savefig("$(PATHTOSAVE)/Figures/$(newname).pdf")
     else 
-        Plots.savefig("$(PATHTOSAVE)/Figures/zetacomp_$(SAVENAME).pdf")
+        Plots.savefig("$(PATHTOSAVE)/Figures/zetacomp_$(SAVENAME)_$(NBPC)PC_SWO.pdf")
 
     end
         
