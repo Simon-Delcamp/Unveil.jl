@@ -4,26 +4,26 @@
 
 # Data Prep
 ```@index
-Modules = [Data_preparation]
+Modules = [Dataprep]
 Order   = [:constant, :type, :function, :macro]
 ```
 
 
 # PCA
 ```@index
-Modules = [Functionforpca]
+Modules = [PCA]
 Order   = [:constant, :type, :function, :macro]
 ```
 
 # SWO
 ```@index
-Modules = [Spectralwindowopti]
+Modules = [SWO]
 Order   = [:constant, :type, :function, :macro]
 ```
 
 # CVI
 ```@index
-Modules = [Functionforcvi]
+Modules = [CVI]
 Order   = [:constant, :type, :function, :macro]
 ```
 
@@ -33,22 +33,16 @@ Modules = [Graphic]
 Order   = [:constant, :type, :function, :macro]
 ```
 
-# Functions for fBms data based
-```@index
-Modules = [Functionforfbm]
-Order   = [:constant, :type, :function, :macro]
-```
-
 
 # Functions for Data analysis
 ```@index
-Modules = [Data_analysis]
+Modules = [Analysis]
 Order   = [:constant, :type, :function, :macro]
 ```
 
 
 # WORK IN PROGRESS : Functions for Structure functions computations
 ```@index
-Modules = [Structure_fct]
+Modules = [Structure_functions]
 Order   = [:constant, :type, :function, :macro]
 ```

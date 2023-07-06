@@ -4,4 +4,8 @@ Modules = [Unveil]
 Order   = [:constant, :type, :function, :macro]
 ```
 
+```@autodocs
+Modules = [Unveil]
+Order   = [:constant, :type, :function, :macro]
+```
 

@@ -9,29 +9,29 @@ Order   = [:constant, :type, :function, :macro]
 
 # Data_preparation
 ```@autodocs
-Modules = [Data_preparation]
-Pages = ["Data_preparation.jl"]
+Modules = [Dataprep]
+Pages = ["Dataprep.jl"]
 Order   = [:constant, :type, :function, :macro]
 ```
 
 # PCA 
 ```@autodocs
-Modules = [Functionforpca]
-Pages = ["Functionforpca.jl"]
+Modules = [PCA]
+Pages = ["PCA.jl"]
 Order   = [:constant, :type, :function, :macro]
 ```
 
 # SWO
 ```@autodocs
-Modules = [Spectralwindowopti]
-Pages = ["Spectralwindowopti.jl"]
+Modules = [SWO]
+Pages = ["SWO.jl"]
 Order   = [:constant, :type, :function, :macro]
 ```
 
 # CVI
 ```@autodocs
-Modules = [Functionforcvi]
-Pages = ["Functionforcvi.jl"]
+Modules = [CVI]
+Pages = ["CVI.jl"]
 Order   = [:constant, :type, :function, :macro]
 ```
 
@@ -42,23 +42,16 @@ Pages = ["Graphic.jl"]
 Order   = [:constant, :type, :function, :macro]
 ```
 
-# Function for fBms data based
-```@autodocs
-Modules = [Functionforfbm]
-Pages = ["Functionforfbm.jl"]
-Order   = [:constant, :type, :function, :macro]
-```
-
 # Functions for Data Analysis
 ```@autodocs
-Modules = [Data_analysis]
-Pages = ["Data_analysis.jl"]
+Modules = [Analysis]
+Pages = ["Analysis.jl"]
 Order   = [:constant, :type, :function, :macro]
 ```
 
 # WORK IN PROGRESS : Function for Structure functions computations
 ```@autodocs
-Modules = [Structure_fct]
-Pages = ["Structure_fct.jl"]
+Modules = [Structure_functions]
+Pages = [Structure_functions.jl"]
 Order   = [:constant, :type, :function, :macro]
 ```
