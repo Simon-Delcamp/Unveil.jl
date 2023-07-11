@@ -179,6 +179,165 @@ end
 
 
 """
+    prodvarfile(;PATH=".")
+
+Create the .txt varfiles needed as input of Unveil code. By default at the directory where Unveil is run. Can change the directory with option PATH.
+""" 
+function prodvarfile(;PATH=".")
+    open("$PATH/pca.txt","w") do io
+        towrite = ["# FILE USED TO RUN FUNCTION Unveil.pca(). Construct a cube by using N PCs with the Principal Component Analysis method (PCA) on a noisy PPV cube .",
+        "# COMMENTS ARE #",
+        "#---------------------------------------------------------------------------------------------------------------#",
+        "FITSPATH     \"PATH/TO/FITS\"   # Path of the fits. Its header will be used for the writting of the output fits file.",
+        "FITSNAME         \"FITSNAME\"                                                # Name of the fits at the FITSPATH",
+        "PATHTOSAVE       \"PATH/FOR/SAVING\"                                             # Path where Data and Plots will be saved",
+        "SAVENAME	 \"SAVENAME\"					    # Generic name for the outputs. Extensions and attributes will be added by Unveil.",
+        "UNITVELOCITY      m/s									         # Velocity units of the fits file",
+        "NBPC              64                                              # Number of PC used for the reconstruction. ",
+        "BLANK             -1000                                          # Blanking data",
+        "NOISECAN	      1,25						 # Noise velocity canals",
+        "OVERWRITE         false                                             # Would you like to overwrite output files with the same name ? true or false ",
+        "#---------------------------------------------------------------------------------------------------------------#",
+        ]
+        writedlm(io,towrite, quotes=false)
+    end #open io
+
+    open("$PATH/convpca.txt","w") do io
+        towrite = ["# FILE USED TO RUN FUNCTION Unveil.convpca(). Calculate the optimum number of PCs to used for the data reconstruction of a PPV cube (keeping most of the signals but removing  most of the noise)",
+        "# COMMENTS ARE #",
+        "#---------------------------------------------------------------------------------------------------------------#",
+        "FITSPATH     \"PATH/TO/FITS\"   # Path of the fits. Its header will be used for the writting of the output fits file.",
+        "FITSNAME         \"FITSNAME\"                                                # Name of the fits at the FITSPATH",
+        "PATHTOSAVE       \"PATH/FOR/SAVING\"                                             # Path where Data and Plots will be saved",
+        "SAVENAME	 \"SAVENAME\"					    # Generic name for the outputs. Extensions and attributes will be added by Unveil.",
+        "UNITVELOCITY      m/s									            # Velocity units of the fits file",
+        "HIGHESTPC          20                                                # Maximum number of PCs to test the convergence",
+        "BLANK             -1000                                             # Blanking data",
+        "OVERWRITE         false                                             # Would you like to overwrite output files with the same name ? true or false ",
+        "#---------------------------------------------------------------------------------------------------------------#",
+        ]
+        writedlm(io,towrite, quotes=false)
+    end #open io
+
+    open("$PATH/cv.txt","w") do io
+        towrite = ["# FILE USED TO RUN FUNCTION Unveil.cv(). Calculate the Centroid Velocities (CV) on a PPV cube.",
+        "# COMMENTS ARE #",
+        "#---------------------------------------------------------------------------------------------------------------#",
+        "FITSPATH     \"PATH/TO/FITS\"   # Path of the fits. Its header will be used for the writting of the output fits file.",
+        "FITSNAME         \"FITSNAME\"                                                # Name of the fits at the FITSPATH",
+        "PATHTOSAVE       \"PATH/FOR/SAVING\"                                             # Path where Data and Plots will be saved",
+        "SAVENAME	 \"SAVENAME\"					    # Generic name for the outputs. Extensions and attributes will be added by Unveil.",
+        "UNITVELOCITY      m/s									                    # Velocity units of the fits file",
+        "THREHSOLD         0.2                                                       # Values lower than this factor multiplied by the noise RMS will be blanked. ",
+        "NOISECANTXT       1,25                                                      # Noise channels ",
+        "BLANK             -1000                                                     # Blanking data",
+        "OVERWRITE         false                                             # Would you like to overwrite output files with the same name ? true or false ",
+        "#---------------------------------------------------------------------------------------------------------------#",
+        ]
+        writedlm(io,towrite, quotes=false)
+    end #open io
+
+    open("$PATH/cvi.txt","w") do io
+        towrite = ["# FILE USED TO RUN FUNCTION Unveil.cvi(). Compute the Centroid Velocity Increments (CVI) on a Cendroid Velocity (CV) map, at multiple lags.",
+        "# COMMENTS ARE #",
+        "#---------------------------------------------------------------------------------------------------------------#",
+        "FITSPATH     \"PATH/TO/FITS\"   # Path of the fits. Its header will be used for the writting of the output fits file.",
+        "FITSNAME         \"FITSNAME\"                                                # Name of the CVMAP at the FITSPATH",
+        "PATHTOSAVE       \"PATH/FOR/SAVING\"                                             # Path where Data and Plots will be saved",
+        "SAVENAME	 \"SAVENAME\"					    # Generic name for the outputs. Extensions and attributes will be added by Unveil.",
+        "BLANK             -1000                                                     # Blanking data",
+        "LAG               2,3,5,7,10,20,50                                          # Values of the Lags used for CVI calculations",
+        "DIFFTYPE          relative                                                  # Type of differences computed during CVI calculation (relative or abs)",
+        "OVERWRITE         false                                             # Would you like to overwrite output files with the same name ? true or false ",
+        "#---------------------------------------------------------------------------------------------------------------#",
+        ]
+        writedlm(io,towrite, quotes=false)
+    end #open io
+
+    open("$PATH/cvcvi.txt","w") do io
+        towrite = ["# FILE USED TO RUN FUNCTION Unveil.cvcvi(). Compute the Centroid Velocity (CV) of a PPV cube, and then the Centroid Velocity Increments (CVI) at multiple lags.",
+        "# COMMENTS ARE #",
+        "#---------------------------------------------------------------------------------------------------------------#",
+        "FITSPATH     \"PATH/TO/FITS\"   # Path of the fits. Its header will be used for the writting of the output fits file.",
+        "FITSNAME         \"FITSNAME\"                                                # Name of the fits at the FITSPATH",
+        "PATHTOSAVE       \"PATH/FOR/SAVING\"                                             # Path where Data and Plots will be saved",
+        "SAVENAME	 \"SAVENAME\"					    # Generic name for the outputs. Extensions and attributes will be added by Unveil.",
+        "THREHSOLD         0.2                                                       # Values lower than this factor multiplied by the noise RMS will be blanked. ",
+        "NOISECANTXT       1,25                                                      # Noise channels ",
+        "UNITVELOCITY      m/s									            # Velocity units of the fits file",
+        "REMOVE            false                                             # Remove spectra with very low intensity. ",
+        "BLANK             -1000                                             # Blanking data",
+        "LAG               2,3,5,7,10,20,50                                  # Values of the Lags used for CVI calculations",
+        "DIFFTYPE          relative                                          # Type of differences computed during CVI calculation (relative or abs)",
+        "OVERWRITE         false                                             # Would you like to overwrite output files with the same name ? true or false ",
+        "#---------------------------------------------------------------------------------------------------------------#",
+        ]
+        writedlm(io,towrite, quotes=false)
+
+        
+    end #open io
+
+    open("$PATH/swo.txt","w") do io
+        towrite = ["# FILE USED TO RUN FUNCTION Unveil.swo(). Construct a cube by using the Spectral Window Optimisation method (SWO) on a noisy cube.",
+        "# COMMENTS ARE #",
+        "#---------------------------------------------------------------------------------------------------------------#",
+        "FITSPATH     \"PATH/TO/FITS\"   # Path of the fits. Its header will be used for the writting of the output fits file.",
+        "FITSNAME         \"FITSNAME\"                                                # Name of the fits at the FITSPATH",
+        "PATHTOSAVE       \"PATH/FOR/SAVING\"                                             # Path where Data and Plots will be saved",
+        "SAVENAME	 \"SAVENAME\"					    # Generic name for the outputs. Extensions and attributes will be added by Unveil.",
+        "UNITVELOCITY      m/s									         # Velocity units of the fits file",
+        "BLANK             -1000                                          # Blanking data",
+        "NOISECAN          1,30                                           # Positions of the noise channels",
+        "EXAMPLES          YES                                            # YES or NO. If yes, will plot 3 figures of 16 randomly chosen spectra each of the new cube in front of the source cube.",
+        "OVERWRITE         false                                             # Would you like to overwrite output files with the same name ? true or false ",
+        
+        "#---------------------------------------------------------------------------------------------------------------#",
+        ]
+        writedlm(io,towrite, quotes=false)
+    end #open io
+
+
+    open("$PATH/compmethod_stcfct.txt","w") do io
+        towrite = ["# FILE USED TO RUN FUNCTION Unveil.compmethod_stcfct(). Plot exponents of the structures functions computed on cube treated by multiple methods : PCA, SWO, Noise Free (if coming from a simulation) and Raw (if without data pre-treatment).",
+        "# COMMENTS ARE #",
+        "#---------------------------------------------------------------------------------------------------------------#",
+        "DATPATH		\"/PATH/TO/FITS\" # Path to the FITS",
+        "PCNAME		\"PCDATA.dat\" #Name of the structure functions dat file computed from the cube reconstructed by PCA. Let blank if none.",
+        "SWONAME 	\"SWODATA.dat\" #Name of the structure functions dat file computed from the cube reconstructed by SWO. Let blank if none.",
+        "NFNAME      \"NOISEFREEDATA.dat\" #Name of the structure functions dat file computed from the cube without noise (from simulation). Let blank if none.",
+        "RAWNAME		\"RAWDATA\" #Name of the structure functions dat file computed from a cube reconstructed by PCA. Let blank if none.",
+        "PATHTOSAVE      \"PATH/FOR/SAVING\" # Path where Data and Plots will be saved",  
+        "SAVENAME	\"NAME\"  # Generic name for the outputs. Extensions and attributes will be added by Unveil.",
+        "OVERWRITE	true # Would you like to overwrite output files with the same name ? true or false ",
+        "#---------------------------------------------------------------------------------------------------------------#",
+        ]
+        writedlm(io,towrite, quotes=false)
+    end #open io
+
+    open("$PATH/structure_functions.txt","w") do io
+        towrite = ["# FILE USED TO RUN FUNCTION Unveil.structure_functions(). Compute structure functions and exponents from a CVI cube (better to consider all rotations, not an azimutal average)",
+        "# COMMENTS ARE #",
+        "#---------------------------------------------------------------------------------------------------------------#",
+        "FITSPATH     \"PATH/TO/FITS\"   # Path of the fits. Its header will be used for the writting of the output fits file.",
+        "FITSNAME         \"FITSNAME\"                                                # Name of the fits at the FITSPATH",
+        "PATHTOSAVE       \"PATH/FOR/SAVING\"                                             # Path where Data and Plots will be saved",
+        "SAVENAME	 \"SAVENAME\"					    # Generic name for the outputs. Extensions and attributes will be added by Unveil.",
+        "ORDERS		  1,2,3,4,5,6                   # Orders of the structures functions",
+        "BLANK             -1000                                                     # Blanking data",
+        "OVERWRITE         false                                             # Would you like to overwrite output files with the same name ? true or false ",
+        "#---------------------------------------------------------------------------------------------------------------#",
+        ]
+        writedlm(io,towrite, quotes=false)
+    end #open io
+
+
+
+
+end
+
+
+
+"""
     read_dat(DATFILEPATH ; com='#')
 
 Return values of the .dat file given as input. By default, will consider as comment rows starting with a #. Can be changed.
@@ -187,6 +346,7 @@ function read_dat(DATFILEPATH ; com='#')
     return(readdlm("$DATFILEPATH",'\t',Float64,comments=true,comment_char=com))
 
 end
+
 
 
 """
@@ -198,6 +358,8 @@ function read_dim(arr)
     ndims(arr)<=3 && return(size(arr))
     return("Not valid dimensions (>3D)")
 end
+
+
 
 """ 
     read_fits_cvi(path ; check = true)

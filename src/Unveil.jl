@@ -1,3 +1,4 @@
+
 module Unveil
 
 
@@ -23,24 +24,29 @@ import Plots
 export pca
 export swo
 export convpca
-export convswo
 export cvcvi
 export cvi 
 export multipca
 export combinecv
+export prodvarfile
+export structure_functions
+export compmethod_stcfct
 
 p = Plots.plot(rand(2,2))
 display(p)
 
+
+
+
 """
     convpca(VARFILEPATH)
 
-Produce calculations to find the PCA convergence criteria based on the matrix projection from PCA. No PCA reconstructed cube will be saved. A '.txt' file should be used accordingly as an input (see models inside folders '/varfiles/convpca.txt').
+Compute the PCA convergence criteria based on the matrix projection from PCA. No PCA reconstructed cube will be saved. A '.txt' file should be used accordingly as an input (see models inside folders '/varfiles/convpca.txt').
 
 OUTPUTS : A plots with every moments of the projection matrix + the metric (see the doc). Also add a .dat file with moments, metric and number of PC used for each.
 
 Use this script in a julia terminal with :
-    julia>Unveil.convpca(VARFILEPATH)
+    julia>Unveil.convpca("VARFILEPATH")
 """
 function convpca(VARFILEPATH)
     FITSPATH,FILENAME,PATHTOSAVE,SAVENAME,UNITVELOCITY,HIGHESTPC,BLANK,OVERWRITE = Dataprep.read_var_files(VARFILEPATH)
@@ -70,6 +76,7 @@ function convpca(VARFILEPATH)
     println("Perform PCA")
     M, Yt, VARPERCENT,cubereconstructed = PCA.pca(cube,HIGHESTPC)
 
+    # Projection matrix
     proj = PCA.proj(M)
     mom1,mom2,mom3,mom4 = Analysis.fourmoments(proj,dim=2)
     metric = Analysis.metricPCA(mom1,mom2,mom3,mom4,abs(VELOCITYINCREMENT))
@@ -572,7 +579,7 @@ function swo(VARFILEPATH)
         DATADIMENSION_NOMISSING              = (DATADIMENSION[1]*DATADIMENSION[2],DATADIMENSION[3])
     end
     
-    maskinterv = SWO.bestsnr(cube,DATADIMENSION_NOMISSING,VELOCITYVECTOR,NOISECAN)[1]
+    maskinterv,mask = SWO.bestsnr(cube,DATADIMENSION_NOMISSING,VELOCITYVECTOR,NOISECAN)
 
     if EXAMPLES=="YES"
         Graphic.checkwindowopti(cube,maskinterv,mask,VELOCITYVECTOR,6,6)
@@ -757,6 +764,10 @@ end
 
 
 
+
+function prodallvarfile(;PATH=".")
+    Dataprep.prodvarfile(PATH="$PATH")
+end
 
 
 
