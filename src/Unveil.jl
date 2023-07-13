@@ -519,7 +519,6 @@ function pca(VARFILEPATH)
     s = open("$(PATHTOSAVE)/Data/Yt_$(NBPC)PC.bin", "w+")
     write(s,Yt)
     close(s)
-    Yt = 0.0
     Ytpath = "$(PATHTOSAVE)/Data/Yt_$(NBPC)PC.bin"
 
     # Cleaning memory
@@ -527,10 +526,12 @@ function pca(VARFILEPATH)
     Yt   = 0.0
     head = 0.0
     GC.gc()
-
+    #println(size(PCA.proj(M)))
+    #println(size(missingplaces2D))
+    #println(PCA.proj(M)[:,2])
     if ismis == 1
         cubereconstructed = Dataprep.addblank(cubereconstructed,missingplaces2D,BLANK,DATADIMENSION)
-        projec            = Dataprep.addblank(PCA.proj(M),missingplaces2D[:,1],BLANK,DATADIMENSION) 
+        projec            = Dataprep.addblank(PCA.proj(M),missingplaces2D[:,1:NBPC],BLANK,DATADIMENSION) 
     end
     cubereconstructed = reshape(cubereconstructed,DATADIMENSION)
     projec            = reshape(projec,DATADIMENSION)
