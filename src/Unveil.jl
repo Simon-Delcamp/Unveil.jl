@@ -530,13 +530,17 @@ function pca(VARFILEPATH)
 
     if ismis == 1
         cubereconstructed = Dataprep.addblank(cubereconstructed,missingplaces2D,BLANK,DATADIMENSION)
+        projec            = Dataprep.addblank(PCA.proj(M),missingplaces2D[:,1],BLANK,DATADIMENSION) 
     end
     cubereconstructed = reshape(cubereconstructed,DATADIMENSION)
+    projec            = reshape(projec,DATADIMENSION)
 
     println("Saving Fits")
     Dataprep.write_fits("$(FITSPATH)/$(FILENAME)","RECONSTRUCTED_$(SAVENAME)_$(NBPC)PC","$PATHTOSAVE/Data/",cubereconstructed,DATADIMENSION,BLANK,overwrite=OVERWRITE,more=["NBPC",NBPC,"VARPERC",VARPERCENT[NBPC]*100,"METHOD","PCA"])
     println("Data reconstructed from PCA saved in $(PATHTOSAVE)/Data/RECONSTRUCTED_$(SAVENAME)_$(NBPC)PC_NumberOfFilesWithTheSameNameAsPrefixe.fits as a fits.")
 
+    Dataprep.write_fits("$(FITSPATH)/$(FILENAME)","PROJMATRIX_$(SAVENAME)_$(NBPC)PC","$PATHTOSAVE/Data/",projec,DATADIMENSION,BLANK,overwrite=OVERWRITE,more=["NBPC",NBPC,"VARPERC",VARPERCENT[NBPC]*100,"METHOD","PCA"])
+    println("Projection matrix from PCA saved in $(PATHTOSAVE)/Data/PROJMATRIX_$(SAVENAME)_$(NBPC)PC_NumberOfFilesWithTheSameNameAsPrefixe.fits as a fits.")
     cubereconstructed = 0
     GC.gc()
 
