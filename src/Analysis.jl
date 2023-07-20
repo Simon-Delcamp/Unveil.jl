@@ -4,7 +4,7 @@ include("Dataprep.jl") #Read and write fits
 using .Dataprep
 
 import MultivariateStats, StatsBase, Statistics
-
+using  FFTW, AbstractFFTs
 
 export fourmoments
 export metricOW
@@ -129,6 +129,39 @@ end#metric
 
 
 
+"""
+    power_spectra(arr,imsize ; fitted=true)
+
+Compute the power spectrum of arr, and return it with the Fourier domain vector.
+"""
+function power_spectra(arr,imsize ;BLANK=-1000)
+    Np   = trunc(Int,imsize/2)
+    karr =  rfftfreq(imsize)
+
+    arr = Dataprep.replace_nantomissing(arr)   
+    arr  = Dataprep.replace_blanktomissing(arr,BLANK)
+    arr  = Dataprep.replace_missingtoblank(arr,0)
+    arr = convert(Matrix{Float64},arr)
+    arr  = abs.(fft(arr)).^2
+
+    sumi = Array{Float64}(undef,size(arr)[2])
+    mea  = similar(sumi)
+    many = similar(sumi)
+    many .= 0
+    for px = 1:size(arr)[2]
+        sumi[px] = sum(skipmissing(arr[:,px]))
+        for py=1:size(arr)[1]
+            if ismissing(arr[py,px])==false
+                many[px] += 1
+            end 
+        end
+    end
+    mea .= sumi./many
+    return(mea, karr)
+
+
+   # return(coeff)
+end
 
 
 

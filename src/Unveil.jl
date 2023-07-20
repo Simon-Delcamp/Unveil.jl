@@ -257,6 +257,10 @@ function cvcvi(VARFILEPATH)
 
     cvmap = Dataprep.replace_nantomissing(cvmap)
     cvmap = Dataprep.replace_blanktomissing(cvmap,BLANK)
+
+    powerspec,karr = Analysis.power_spectra(cvmap,DATADIMENSION[1])
+    #Graphic.energyspec(powerspec,karr,DATADIMENSION[1],PATHTOSAVE,SAVENAME="$(SAVENAME)")
+
     println("------ CVI CALCULATION ------")
     if DIFFTYPE=="relative" 
         cviallangle,cvimap_averaged,NANGLE = CVI.construct_cvimap(cvmap,LAG,(DATADIMENSION[1],DATADIMENSION[2]),diff="relative")
@@ -493,7 +497,7 @@ function pca(VARFILEPATH)
     cube = Dataprep.replace_nantomissing(cube)
     cube = Dataprep.replace_blanktomissing(cube,BLANK)
     
-    cube = Dataprep.replace_nosignal(cube,DATADIMENSION,VELOCITYVECTOR,BLANK,SIGMAMAP)
+    #cube = Dataprep.replace_nosignal(cube,DATADIMENSION,VELOCITYVECTOR,BLANK,SIGMAMAP)
 
 
     ismis = 0
@@ -514,7 +518,7 @@ function pca(VARFILEPATH)
     # Perform the first PCA analysis (same notation as in the MultivariateStats doc)
     println("Perform PCA")
     M, Yt, VARPERCENT,cubereconstructed = PCA.pca(cube,NBPC)
-    println(VARPERCENT[NBPC])
+    #println(VARPERCENT[NBPC])
 
     s = open("$(PATHTOSAVE)/Data/Yt_$(NBPC)PC.bin", "w+")
     write(s,Yt)
@@ -531,17 +535,17 @@ function pca(VARFILEPATH)
     #println(PCA.proj(M)[:,2])
     if ismis == 1
         cubereconstructed = Dataprep.addblank(cubereconstructed,missingplaces2D,BLANK,DATADIMENSION)
-        projec            = Dataprep.addblank(PCA.proj(M),missingplaces2D[:,1:NBPC],BLANK,DATADIMENSION) 
+        #projec            = Dataprep.addblank(PCA.proj(M),missingplaces2D[:,1:NBPC],BLANK,DATADIMENSION) 
     end
     cubereconstructed = reshape(cubereconstructed,DATADIMENSION)
-    projec            = reshape(projec,DATADIMENSION)
+    #projec            = reshape(PCA.proj(M),DATADIMENSION)
 
     println("Saving Fits")
     Dataprep.write_fits("$(FITSPATH)/$(FILENAME)","RECONSTRUCTED_$(SAVENAME)_$(NBPC)PC","$PATHTOSAVE/Data/",cubereconstructed,DATADIMENSION,BLANK,overwrite=OVERWRITE,more=["NBPC",NBPC,"VARPERC",VARPERCENT[NBPC]*100,"METHOD","PCA"])
     println("Data reconstructed from PCA saved in $(PATHTOSAVE)/Data/RECONSTRUCTED_$(SAVENAME)_$(NBPC)PC_NumberOfFilesWithTheSameNameAsPrefixe.fits as a fits.")
 
-    Dataprep.write_fits("$(FITSPATH)/$(FILENAME)","PROJMATRIX_$(SAVENAME)_$(NBPC)PC","$PATHTOSAVE/Data/",projec,DATADIMENSION,BLANK,overwrite=OVERWRITE,more=["NBPC",NBPC,"VARPERC",VARPERCENT[NBPC]*100,"METHOD","PCA"])
-    println("Projection matrix from PCA saved in $(PATHTOSAVE)/Data/PROJMATRIX_$(SAVENAME)_$(NBPC)PC_NumberOfFilesWithTheSameNameAsPrefixe.fits as a fits.")
+    #Dataprep.write_fits("$(FITSPATH)/$(FILENAME)","PROJMATRIX_$(SAVENAME)_$(NBPC)PC","$PATHTOSAVE/Data/",projec,DATADIMENSION,BLANK,overwrite=OVERWRITE,more=["NBPC",NBPC,"VARPERC",VARPERCENT[NBPC]*100,"METHOD","PCA"])
+    #println("Projection matrix from PCA saved in $(PATHTOSAVE)/Data/PROJMATRIX_$(SAVENAME)_$(NBPC)PC_NumberOfFilesWithTheSameNameAsPrefixe.fits as a fits.")
     cubereconstructed = 0
     GC.gc()
 
@@ -652,6 +656,11 @@ function structure_functions(VARFILEPATH)
 
 
     sct = Structure_functions.fct_sct(cvicube,LAG,ORDERS)  # order,lag
+    nl = cat(0,LAG ; dims=1)
+    nsct = cat(reshape(nl,(1,size(nl)[1])),cat(ORDERS,sct ; dims=2);dims=1)
+    Dataprep.write_dat(nsct,"$(PATHTOSAVE)/Data/","$(SAVENAME)_Sp(l)_$(METH)", more=["METHOD $(METH) ; FILE : $(SAVENAME). Each column is a lag, each row an order. First column give the orders, first row the lags. For information : p=$(ORDERS), and l=$(LAG)" ], overwrite=OVERWRITE)
+
+
     Graphic.StcFct(sct,sct[3,:],ORDERS,"$SAVENAME")
     if OVERWRITE==true
         Plots.savefig("$(PATHTOSAVE)/Figures/stc_fct_$(SAVENAME)_$(METH).pdf")
