@@ -777,10 +777,13 @@ function compmethod_stcfct(VARFILEPATH)
 end
 
 
-
-
-function prodallvarfile(;PATH=".")
-    Dataprep.prodvarfile(PATH="$PATH")
+"""
+Produces all .txt varfile needed to run Unveil.jl. Can choose the path (local by default), and the explanation for each variable (default is true, variable name is com).
+Use this script in a julia terminal with :
+    julia>Unveil.prodallvarfile(PATH="",com=false/true)
+"""
+function prodallvarfile(;PATH=".",com=true)
+    Dataprep.prodvarfile(PATH="$PATH",com=com)
 end
 
 
