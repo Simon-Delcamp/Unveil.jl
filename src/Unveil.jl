@@ -39,6 +39,56 @@ display(p)
 
 
 """
+Comparing PCA and SWO method by printing exponant of the structure functions with the order on the same figure
+"""
+function compmethod_stcfct(VARFILEPATH)
+    DATPATH,PCNAME,SWONAME,NFNAME,RAWNAME,PATHTOSAVE,SAVENAME,OVERWRITE = Dataprep.read_var_files(VARFILEPATH)
+
+    # Prepare directories where plots and data will be saved.
+    Dataprep.directory_prep(PATHTOSAVE)
+
+    pcdat  = Dataprep.read_dat("$DATPATH/$PCNAME")
+    swdat  = Dataprep.read_dat("$DATPATH/$SWONAME")
+
+    NBPC = floor(Int,pcdat[1,1])   # FIRST ROW USED TO KNOW HOW MANY PCs WHERE USED FOR THE RECONSTRUCTION DURING PCA METHOD
+    RANGE = floor(Int,swdat[1,1])  # FIRST ROW USED TO KNOW THE SIZE OF THE RANGE USED FOR THE RECONSTRUCTION DURING SWO METHOD
+    Graphic.StcFctExponent(pcdat[2:end,:],pcdat[4,1],pcdat[2:end,4],[0,pcdat[:,4][end]+1],[0,2],"Using $(NBPC)PC","$SAVENAME",markers=:rect)
+    Graphic.StcFctExponent(swdat[2:end,:],swdat[4,1],swdat[2:end,4],[0,swdat[:,4][end]+1],[0,2],"Using SWO","$SAVENAME",add=true,markers=:diamond)
+
+    if length(NFNAME)!=0
+        nfdat = Dataprep.read_dat("$DATPATH/$NFNAME")
+        Graphic.StcFctExponent(nfdat[2:end,:],nfdat[4,1],nfdat[2:end,4],[0,nfdat[:,4][end]+1],[0,2],"Using NF","$SAVENAME",add=true)
+    end
+
+    if length(RAWNAME)!=0
+        raw = Dataprep.read_dat("$DATPATH/$RAWNAME")
+        Graphic.StcFctExponent(raw[2:end,:],raw[4,1],raw[2:end,4],[0,raw[:,4][end]+1],[0,2],"Using RAW","$SAVENAME",add=true)
+    end
+
+    if OVERWRITE==true
+
+        Plots.savefig("$(PATHTOSAVE)/Figures/zetacomp_$(SAVENAME)_$(NBPC)PC_SWO.pdf")
+    elseif (OVERWRITE==false && isfile("$(PATHTOSAVE)/Figures/zetacomp_$(SAVENAME)_$(NBPC)PC_SWO.pdf")==true)
+        println("THE GIVEN FILE NAME ALREADY EXIST. AN INDICE WILL BE ADDED AT THE END OF THE GIVEN NAME, EQUAL TO THE NUMBER OF FILES WITH THE SAME NAME +1 ")
+        count = 1
+        for ix=1:size((findall.("zetacomp_$(SAVENAME)_$(NBPC)PC_SWO.pdf",readdir("$(PATHTOSAVE)/Figures/"))))[1]
+            if size(findall("zetacomp_$(SAVENAME)_$(NBPC)PC_SWO.pdf",readdir("$(PATHTOSAVE)/Figures/")[ix]))[1]!=0
+                count += 1
+            end
+        end
+        newname = "zetacomp_$(SAVENAME)_$(NBPC)PC_SWO_$(count)"
+        Plots.savefig("$(PATHTOSAVE)/Figures/$(newname).pdf")
+    else 
+        Plots.savefig("$(PATHTOSAVE)/Figures/zetacomp_$(SAVENAME)_$(NBPC)PC_SWO.pdf")
+
+    end
+        
+end
+
+
+
+
+"""
     convpca(VARFILEPATH)
 
 Compute the PCA convergence criteria based on the matrix projection from PCA. No PCA reconstructed cube will be saved. A '.txt' file should be used accordingly as an input (see models inside folders '/varfiles/convpca.txt').
@@ -555,62 +605,17 @@ end   #pca
 
 
 
-"""
-    swo(VARFILEPATH)
 
-Use a SWO (Spectral Window Optimisation) process on a cube. A '.txt' file should be used accordingly as an input (see models inside folders '/varfiles/swo.txt').
-
-Use this function in a julia terminal with :
-    julia> Unveil.swo(VARFILEPATH)
 
 """
-function swo(VARFILEPATH)   
-    FITSPATH,FILENAME,PATHTOSAVE,SAVENAME,UNITVELOCITY,BLANK,NOISECANTXT,EXAMPLES,OVERWRITE = Dataprep.read_var_files(VARFILEPATH)
-    NOISECAN = [parse(Int, ss) for ss in split(NOISECANTXT,",")]
-
-    # Read the fits from the path. Return the data, the VelocityVector, the dimension, the velocity_increment, and the header.
-    cube,VELOCITYVECTOR,DATADIMENSION,VELOCITYINCREMENT,HEAD = Dataprep.read_fits_ppv("$(FITSPATH)/$(FILENAME)",UNITVELOCITY ; check=false)
-    
-    # Prepare directories where plots and data will be saved.
-    Dataprep.directory_prep(PATHTOSAVE)
-    
-    # Replace any NaN value into a missing value and deleted them (can't do PCA on missing values with that package).
-    cube = Dataprep.replace_nantomissing(cube)
-    ismis = 0
-    if any(ismissing,cube) 
-        ismis = 1
-        cube,missingplaces1D,missingplaces2D  = Dataprep.pca_prep(cube,DATADIMENSION)
-        cube                                  = convert(Array{Float64},cube)
-        DATADIMENSION_NOMISSING               = Dataprep.read_dim(cube)
-    else
-        cube                                 = reshape(cube,DATADIMENSION[1]*DATADIMENSION[2],DATADIMENSION[3])
-        cube                                 = convert(Array{Float64},cube)
-        DATADIMENSION_NOMISSING              = (DATADIMENSION[1]*DATADIMENSION[2],DATADIMENSION[3])
-    end
-    
-    maskinterv,mask = SWO.bestsnr(cube,DATADIMENSION_NOMISSING,VELOCITYVECTOR,NOISECAN)
-
-    if EXAMPLES=="YES"
-        Graphic.checkwindowopti(cube,maskinterv,mask,VELOCITYVECTOR,6,6)
-        Plots.savefig("$(PATHTOSAVE)/Figures/checkswo1.pdf")
-
-        Graphic.checkwindowopti(cube,maskinterv,mask,VELOCITYVECTOR,6,6)
-        Plots.savefig("$(PATHTOSAVE)/Figures/checkswo2.pdf")
-
-        Graphic.checkwindowopti(cube,maskinterv,mask,VELOCITYVECTOR,6,6)
-        Plots.savefig("$(PATHTOSAVE)/Figures/checkswo3.pdf")
-    end
-
-    if ismis == 1
-        maskinterv = Dataprep.addblank(maskinterv,missingplaces2D,BLANK,DATADIMENSION)
-    end
-    maskinterv = reshape(maskinterv,DATADIMENSION)
-
-    maskinterv = Dataprep.blank_equal(maskinterv,BLANK,0)
-
-    Dataprep.write_fits("$(FITSPATH)/$FILENAME","RECONSTRUCTED_$(SAVENAME)_SWO","$PATHTOSAVE/Data/",maskinterv,DATADIMENSION,BLANK,overwrite=OVERWRITE,more=["METHOD","SWO"])
-    println("Data reconstructed from SWO method saved in $(PATHTOSAVE)/Data/RECONSTRUCTED_$(SAVENAME)_SWO_NumberOfFilesWithTheSameNameAsPrefixe.fits as a fits.")
+Produces all .txt varfile needed to run Unveil.jl. Can choose the path (local by default), and the explanation for each variable (default is true, variable name is com).
+Use this script in a julia terminal with :
+    julia>Unveil.prodallvarfile(PATH="",com=false/true)
+"""
+function prodallvarfile(;PATH=".",com=true)
+    Dataprep.prodvarfile(PATH="$PATH",com=com)
 end
+
 
 
 
@@ -728,63 +733,74 @@ end #function structure_function
 
 
 
+"""
+    swo(VARFILEPATH)
+
+Use a SWO (Spectral Window Optimisation) process on a cube. A '.txt' file should be used accordingly as an input (see models inside folders '/varfiles/swo.txt').
+
+Use this function in a julia terminal with :
+    julia> Unveil.swo(VARFILEPATH)
 
 """
-Comparing PCA and SWO method by printing exponant of the structure functions with the order on the same figure
-"""
-function compmethod_stcfct(VARFILEPATH)
-    DATPATH,PCNAME,SWONAME,NFNAME,RAWNAME,PATHTOSAVE,SAVENAME,OVERWRITE = Dataprep.read_var_files(VARFILEPATH)
+function swo(VARFILEPATH)   
+    FITSPATH,FILENAME,PATHTOSAVE,SAVENAME,UNITVELOCITY,BLANK,NOISECANTXT,EXAMPLES,OVERWRITE = Dataprep.read_var_files(VARFILEPATH)
+    NOISECAN = [parse(Int, ss) for ss in split(NOISECANTXT,",")]
 
+    # Read the fits from the path. Return the data, the VelocityVector, the dimension, the velocity_increment, and the header.
+    cube,VELOCITYVECTOR,DATADIMENSION,VELOCITYINCREMENT,HEAD = Dataprep.read_fits_ppv("$(FITSPATH)/$(FILENAME)",UNITVELOCITY ; check=false)
+    
     # Prepare directories where plots and data will be saved.
     Dataprep.directory_prep(PATHTOSAVE)
+    
+    # Replace any NaN value into a missing value and deleted them (can't do PCA on missing values with that package).
+    cube = Dataprep.replace_nantomissing(cube)
+    ismis = 0
+    if any(ismissing,cube) 
+        ismis = 1
+        cube,missingplaces1D,missingplaces2D  = Dataprep.pca_prep(cube,DATADIMENSION)
+        cube                                  = convert(Array{Float64},cube)
+        DATADIMENSION_NOMISSING               = Dataprep.read_dim(cube)
+    else
+        cube                                 = reshape(cube,DATADIMENSION[1]*DATADIMENSION[2],DATADIMENSION[3])
+        cube                                 = convert(Array{Float64},cube)
+        DATADIMENSION_NOMISSING              = (DATADIMENSION[1]*DATADIMENSION[2],DATADIMENSION[3])
+    end
+    
+    maskinterv,mask = SWO.bestsnr(cube,DATADIMENSION_NOMISSING,VELOCITYVECTOR,NOISECAN)
+    #maskintervpety,maskpety = SWO.petysnr(cube,DATADIMENSION_NOMISSING,VELOCITYVECTOR,NOISECAN)
 
-    pcdat  = Dataprep.read_dat("$DATPATH/$PCNAME")
-    swdat  = Dataprep.read_dat("$DATPATH/$SWONAME")
+    if EXAMPLES=="YES"
+        Graphic.checkwindowopti(cube,maskinterv,mask,VELOCITYVECTOR,6,6)
+        Plots.savefig("$(PATHTOSAVE)/Figures/checkswo1.pdf")
 
-    NBPC = floor(Int,pcdat[1,1])   # FIRST ROW USED TO KNOW HOW MANY PCs WHERE USED FOR THE RECONSTRUCTION DURING PCA METHOD
-    RANGE = floor(Int,swdat[1,1])  # FIRST ROW USED TO KNOW THE SIZE OF THE RANGE USED FOR THE RECONSTRUCTION DURING SWO METHOD
-    Graphic.StcFctExponent(pcdat[2:end,:],pcdat[4,1],pcdat[2:end,4],[0,pcdat[:,4][end]+1],[0,2],"Using $(NBPC)PC","$SAVENAME",markers=:rect)
-    Graphic.StcFctExponent(swdat[2:end,:],swdat[4,1],swdat[2:end,4],[0,swdat[:,4][end]+1],[0,2],"Using SWO","$SAVENAME",add=true,markers=:diamond)
+        Graphic.checkwindowopti(cube,maskinterv,mask,VELOCITYVECTOR,6,6)
+        Plots.savefig("$(PATHTOSAVE)/Figures/checkswo2.pdf")
 
-    if length(NFNAME)!=0
-        nfdat = Dataprep.read_dat("$DATPATH/$NFNAME")
-        Graphic.StcFctExponent(nfdat[2:end,:],nfdat[4,1],nfdat[2:end,4],[0,nfdat[:,4][end]+1],[0,2],"Using NF","$SAVENAME",add=true)
+        Graphic.checkwindowopti(cube,maskinterv,mask,VELOCITYVECTOR,6,6)
+        Plots.savefig("$(PATHTOSAVE)/Figures/checkswo3.pdf")
     end
 
-    if length(RAWNAME)!=0
-        raw = Dataprep.read_dat("$DATPATH/$RAWNAME")
-        Graphic.StcFctExponent(raw[2:end,:],raw[4,1],raw[2:end,4],[0,raw[:,4][end]+1],[0,2],"Using RAW","$SAVENAME",add=true)
+    if ismis == 1
+        maskinterv = Dataprep.addblank(maskinterv,missingplaces2D,BLANK,DATADIMENSION)
+        #maskintervpety = Dataprep.addblank(maskintervpety,missingplaces2D,BLANK,DATADIMENSION)
     end
+    maskinterv = reshape(maskinterv,DATADIMENSION)
+    maskinterv = Dataprep.blank_equal(maskinterv,BLANK,0)
 
-    if OVERWRITE==true
+    #maskintervpety = reshape(maskintervpety,DATADIMENSION)
+    #maskintervpety = Dataprep.blank_equal(maskintervpety,BLANK,0)
 
-        Plots.savefig("$(PATHTOSAVE)/Figures/zetacomp_$(SAVENAME)_$(NBPC)PC_SWO.pdf")
-    elseif (OVERWRITE==false && isfile("$(PATHTOSAVE)/Figures/zetacomp_$(SAVENAME)_$(NBPC)PC_SWO.pdf")==true)
-        println("THE GIVEN FILE NAME ALREADY EXIST. AN INDICE WILL BE ADDED AT THE END OF THE GIVEN NAME, EQUAL TO THE NUMBER OF FILES WITH THE SAME NAME +1 ")
-        count = 1
-        for ix=1:size((findall.("zetacomp_$(SAVENAME)_$(NBPC)PC_SWO.pdf",readdir("$(PATHTOSAVE)/Figures/"))))[1]
-            if size(findall("zetacomp_$(SAVENAME)_$(NBPC)PC_SWO.pdf",readdir("$(PATHTOSAVE)/Figures/")[ix]))[1]!=0
-                count += 1
-            end
-        end
-        newname = "zetacomp_$(SAVENAME)_$(NBPC)PC_SWO_$(count)"
-        Plots.savefig("$(PATHTOSAVE)/Figures/$(newname).pdf")
-    else 
-        Plots.savefig("$(PATHTOSAVE)/Figures/zetacomp_$(SAVENAME)_$(NBPC)PC_SWO.pdf")
+    Dataprep.write_fits("$(FITSPATH)/$FILENAME","RECONSTRUCTED_$(SAVENAME)_SWO","$PATHTOSAVE/Data/",maskinterv,DATADIMENSION,BLANK,overwrite=OVERWRITE,more=["METHOD","SWO"])
+    println("Data reconstructed from SWO method saved in $(PATHTOSAVE)/Data/RECONSTRUCTED_$(SAVENAME)_SWO_NumberOfFilesWithTheSameNameAsPrefixe.fits as a fits.")
+    #Dataprep.write_fits("$(FITSPATH)/$FILENAME","RECONSTRUCTED_$(SAVENAME)_SWOpety","$PATHTOSAVE/Data/",maskintervpety,DATADIMENSION,BLANK,overwrite=OVERWRITE,more=["METHOD","SWO"])
 
-    end
-        
 end
 
 
-"""
-Produces all .txt varfile needed to run Unveil.jl. Can choose the path (local by default), and the explanation for each variable (default is true, variable name is com).
-Use this script in a julia terminal with :
-    julia>Unveil.prodallvarfile(PATH="",com=false/true)
-"""
-function prodallvarfile(;PATH=".",com=true)
-    Dataprep.prodvarfile(PATH="$PATH",com=com)
-end
+
+
+
+
 
 
 
