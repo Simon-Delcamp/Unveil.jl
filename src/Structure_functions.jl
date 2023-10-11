@@ -1,12 +1,19 @@
 module Structure_functions
 
-import StatsBase, LsqFit
+import StatsBase, LsqFit, Distributions, Plots
 
+using StatsBase, Distributions, LsqFit
 export fct_sct
 export fit_fctsct
 export xhi_fct_p
 export xhi_fct_p!
 
+
+"""
+   fct_sct(cvicube,LAG,ORDERS)
+
+Compute the structure functions from Monin & Yaglom+75 method.
+"""
 function fct_sct(cvicube,LAG,ORDERS)
     sct = Array{Float64}(undef,size(ORDERS)[1],size(LAG)[1])
     for ord=1:size(ORDERS)[1]    
@@ -15,6 +22,42 @@ function fct_sct(cvicube,LAG,ORDERS)
         end
     end
     return(sct)
+end
+
+
+"""
+   fct_sct_int(cvicube,LAG,ORDERS)
+
+Compute the structure functions from Hily-Blant+08 method.
+"""
+function fct_sct_int(cvicube,LAG,ORDERS)
+    spl = Array{Float64}(undef,size(ORDERS)[1],size(LAG)[1])
+    for lx=1:size(LAG)[1]
+        cvire = reshape(cvicube[:,:,lx],size(cvicube)[1]*size(cvicube)[2])
+
+        # Histogram
+        hist = StatsBase.fit(Histogram,cvire,-30:0.01:30)
+        deltax = abs(hist.edges[1][2]-hist.edges[1][1])
+        xhist = hist.edges[1][1]+abs(hist.edges[1][2]-hist.edges[1][1])/2:abs(hist.edges[1][2]-hist.edges[1][1]):hist.edges[1][end]
+
+        # Normalisation of the histogram (mean 0 and dispersion unity)
+        sumi = sum(hist.weights)
+        temp = hist.weights/(sumi*deltax)
+        tx = xhist
+        ty = temp
+        model(x,xhi) = exp.(.-(x.-xhi[1]).^2 ./2 ./xhi[2].^2)./sqrt.(2pi)./xhi[2]
+        fitted = LsqFit.curve_fit(model, tx, ty, [0.0,1.0])
+        tx = (xhist.-fitted.param[1])./fitted.param[2]
+        ty = temp.*fitted.param[2]
+        deltatx = abs(tx[1]-tx[2])
+
+        #Sp(l) computation
+        s(p) = sum(abs.(xhist).^(p).*ty.*deltatx)
+        for po = 1:size(ORDERS)[1]
+            spl[po,lx] = s(po)
+        end
+    end
+    return(spl)
 end
 
 """

@@ -179,9 +179,9 @@ end
 
 
 """
-    prodvarfile(;PATH=".")
+    prodvarfile(;PATH=".",com=true)
 
-Create the .txt varfiles needed as input of Unveil code. By default at the directory where Unveil is run. Can change the directory with option PATH.
+Create the .txt varfiles needed as input of Unveil code. By default at the directory where Unveil is run. Can change the directory with option PATH. Comments can be removed with option 'com' set to false.
 """ 
 function prodvarfile(;PATH=".",com=true)
     if com==true
@@ -211,6 +211,7 @@ function prodvarfile(;PATH=".",com=true)
             "FITSNAME         \"FITSNAME\"                                                # Name of the fits at the FITSPATH",
             "PATHTOSAVE       \"PATH/FOR/SAVING\"                                             # Path where Data and Plots will be saved",
             "SAVENAME	 \"SAVENAME\"					    # Generic name for the outputs. Extensions and attributes will be added by Unveil.",
+            "NOISECAN          1,30                                           # Positions of the noise channels",
             "UNITVELOCITY      m/s									            # Velocity units of the fits file",
             "HIGHESTPC          20                                                # Maximum number of PCs to test the convergence",
             "BLANK             -1000                                             # Blanking data",
@@ -227,6 +228,7 @@ function prodvarfile(;PATH=".",com=true)
             "FITSPATH     \"PATH/TO/FITS\"   # Path of the fits. Its header will be used for the writting of the output fits file.",
             "FITSNAME         \"FITSNAME\"                                                # Name of the fits at the FITSPATH",
             "PATHTOSAVE       \"PATH/FOR/SAVING\"                                             # Path where Data and Plots will be saved",
+            "FITSOURCE       \"PATH/OF/FITS\"              # Path to the original fits. This is the cube without PCA nor SWO treatment, so with full noise.",
             "SAVENAME	 \"SAVENAME\"					    # Generic name for the outputs. Extensions and attributes will be added by Unveil.",
             "UNITVELOCITY      m/s									                    # Velocity units of the fits file",
             "THREHSOLD         0.2                                                       # Values lower than this factor multiplied by the noise RMS will be blanked. ",
@@ -262,6 +264,7 @@ function prodvarfile(;PATH=".",com=true)
             "FITSPATH     \"PATH/TO/FITS\"   # Path of the fits. Its header will be used for the writting of the output fits file.",
             "FITSNAME         \"FITSNAME\"                                                # Name of the fits at the FITSPATH",
             "PATHTOSAVE       \"PATH/FOR/SAVING\"                                             # Path where Data and Plots will be saved",
+            "FITSOURCE       \"PATH/OF/FITS\"              # Path to the original fits. This is the cube without PCA nor SWO treatment, so with full noise.",
             "SAVENAME	 \"SAVENAME\"					    # Generic name for the outputs. Extensions and attributes will be added by Unveil.",
             "THREHSOLD         0.2                                                       # Values lower than this factor multiplied by the noise RMS will be blanked. ",
             "NOISECANTXT       1,25                                                      # Noise channels ",
@@ -354,6 +357,7 @@ function prodvarfile(;PATH=".",com=true)
             "FITSNAME         \"FITSNAME\"   ",
             "PATHTOSAVE       \"PATH/FOR/SAVING\"     ",
             "SAVENAME	 \"SAVENAME\"				",
+            "NOISECANTXT       1,25         ",
             "UNITVELOCITY      m/s				",
             "HIGHESTPC          20              ",
             "BLANK             -1000            ",
@@ -367,6 +371,7 @@ function prodvarfile(;PATH=".",com=true)
             "FITSPATH     \"PATH/TO/FITS\"   ",
             "FITSNAME         \"FITSNAME\"    ",
             "PATHTOSAVE       \"PATH/FOR/SAVING\"     ",
+            "FITSOURCE       \"PATH/OF/FITS\"       ",
             "SAVENAME	 \"SAVENAME\"	",
             "UNITVELOCITY      m/s		",
             "THREHSOLD         0.2    ",
@@ -396,6 +401,7 @@ function prodvarfile(;PATH=".",com=true)
             "FITSPATH     \"PATH/TO/FITS\" ",
             "FITSNAME         \"FITSNAME\"  ",
             "PATHTOSAVE       \"PATH/FOR/SAVING\"    ",
+            "FITSOURCE       \"PATH/OF/FITS\"       ",
             "SAVENAME	 \"SAVENAME\"			",
             "THREHSOLD         0.2         ",
             "NOISECANTXT       1,25         ",

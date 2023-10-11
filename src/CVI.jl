@@ -67,6 +67,7 @@ end
 Construct a Centroid Velocity Increment map based on a 'cvmap'. The cvi map is constructed by taking the mean of all rotations of the Centroid Velocity Increment calculation at each pixel. The Lag is the increment. xyarr have to be in 2D (pixel*pixel). Mapdim is the dimension of your 2Dmap. The differences can be absolute or relative. 
 """
 function construct_cvimap(cvmap,Lag::Vector{Int64},mapdim; diff="relative",keepmissing=true,BLANK=-1000)
+   # nangle = fill(floor.(Int,2pi ./atan(1)),size(Lag)[1]) #Array{Float64}(undef,size(Lag)[1]).*0 .+floor.(Int,2pi ./atan(1))    #floor.(Int,2pi ./(atan.(1 ./Lag)) )
     nangle = floor.(Int,2pi ./(atan.(1 ./Lag)) )
     cvi_allangle_alllag = cv_increment(cvmap,Lag,nangle,diff=diff)
     #println("CV inc done") 
@@ -121,7 +122,7 @@ function construct_cvimap(cvmap,Lag::Int64,mapdim; diff="relative",keepmissing=t
     end
     cvi_averaged = reshape(cvi_averaged,mapdim[1],mapdim[2])
     #return(cvi_averaged,cvi_allangle)
-    return(cvi_averaged,nangle)
+    return(cvi_allangle,cvi_averaged,nangle)
 
 end
 
@@ -189,8 +190,6 @@ end
 Compute the centroid velocity increment of xyarr at multiple Lag values. Nangle is the number of angle using to compute the differences (it's a value in the parameter file, equal to 192). Diff (default relative) is for differences between two pixels : absolute or relative. Periodic=true (default=false) is for working on periodic data (from simulations like fbm). The returned array will have the first dimension equal to the size of the map (pixel square), the second dimension is the cvi computed at each angle, and the third dimension is for each value of Lag.
 """
 function cv_increment(xyarr,Lag::Vector{Int64},nangle; diff="relative",periodic=false, BLANK=-1000) 
-
-
     cvi_allangle             = convert(Array{Union{Missing,Float64}},zeros(Float64,size(xyarr)[1],size(xyarr)[2],maximum(nangle)))
     cvi_allangle_alllag      = convert(Array{Union{Missing,Float64}},zeros(Float64,size(xyarr)[1]*size(xyarr)[2],maximum(nangle),size(Lag)[1]))
     cvi_allangle            .= BLANK
@@ -242,10 +241,10 @@ end
 Compute the centroid velocity increment of xyarr at one Lag. Nangle is the number of angle using to compute the differences (it's a value in the parameter file, equal to 192). Diff (default relative) is for differences between two pixels : absolute or relative. Periodic=true (default=false) is for working on periodic data (from simulations like fbm). The returned array will have the first two dimensions equal to the size of the map, and the third dimension is the cvi computed at each angle.
 """
 function cv_increment(xyarr,Lag::Int64,nangle,DataDimension; diff="relative",periodic=false)
-    cvi_allangle  = convert(Array{Union{Missing,Float64}},zeros(Float64,size(xyarr)[1],size(xyarr)[2],size(nangle)[1]))
+    cvi_allangle  = convert(Array{Union{Missing,Float64}},zeros(Float64,size(xyarr)[1],size(xyarr)[2],nangle))
     # Iteration for angles
-    @inbounds @views for angl=1:nangle[lagstep]
-        alpha = angl*2.0*pi/nangle[lagstep]
+    @inbounds @views for angl=1:nangle#[lagstep]
+        alpha = angl*2.0*pi/nangle#[lagstep]
         periodic==false && (xyarr_shifted = ShiftedArray(xyarr,(trunc(Int,Lag*cos(alpha)),trunc(Int,Lag*sin(alpha)))))
         periodic==true  && (xyarr_shifted = circshift(xyarr,(trunc(Int,Lag*cos(alpha)),trunc(Int,Lag*sin(alpha)))))
         # Iteration in columns
@@ -282,7 +281,6 @@ end
 Return the first moment order of all pixels in an entire field, weighted by velvector. Arr can be a 3D array (ppv) or a 2D array (pv). The function replace all missing values by 
 """
 function moment_one_field(arr,SIGMAT,THRESHOLD,velvector,BLANK)
-
     arr = Dataprep.blank_inf(arr,SIGMAT*THRESHOLD,0)
     typeof(size(arr)) == Tuple{Int64,Int64,Int64} && (arr = reshape(arr,size(arr)[1]*size(arr)[2],size(arr)[3]))
     #eltype(arr)       == Union{Missing,Float64}   && (arr = convert(Array{Float64,2},Dataprep.replace_missingtoblank(arr,0)))

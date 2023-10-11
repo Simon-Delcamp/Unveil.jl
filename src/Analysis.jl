@@ -25,74 +25,17 @@ function fourmoments(cube;dim=2,bin=50)
         mom3 = similar(mom1)
         mom4 = similar(mom1)
         for dx=1:size(cube)[2]
+            mom1[dx] = StatsBase.moment(cube[:,dx],1,0)
+            mom2[dx] = sqrt(StatsBase.moment(cube[:,dx,],2))
 
-            hist  = StatsBase.fit(StatsBase.Histogram,cube[:,dx],nbins=bin)
-            histnall = StatsBase.normalize(hist,mode=:pdf)
-            histn = histnall.weights
-            edges = Dataprep.flatiterator(histnall.edges)[1,:]
-            mudiftemp = Array{Float64}(undef,size(histn)[1])
-            sigdiftemp = similar(mudiftemp)
-            skediftemp = similar(mudiftemp)
-            kurdiftemp = similar(mudiftemp)
-            for nx=1:size(histn)[1]
-                mudiftemp[nx] = histn[nx]*edges[nx]
-            end
-            mudif= sum(mudiftemp)
-            mudiftempp = sum(histn) 
-            mom1[dx] = mudif/mudiftempp
 
-            for nx=1:size(histn)[1]
-                sigdiftemp[nx] = histn[nx]*(edges[nx]-mom1[dx])^2
-                skediftemp[nx] = histn[nx]*(edges[nx]-mom1[dx])^3
-                kurdiftemp[nx] = histn[nx]*(edges[nx]-mom1[dx])^4
-            end
-            sigdif = sum(sigdiftemp)
-            mom2[dx] = sqrt(sigdif/mudiftempp)
+            mom3[dx] = StatsBase.moment(((cube[:,dx].-mom1[dx])./mom2[dx]).^3,1,0)
+            mom4[dx] = StatsBase.moment(((cube[:,dx].-mom1[dx])./mom2[dx]).^4,1,0)
 
-            skedif = sum(skediftemp)
-            mom3[dx] = skedif/mudiftempp/mom2[dx].^3
-
-            kurdif = sum(kurdiftemp)
-            mom4[dx] = kurdif/mudiftempp/mom2[dx].^4
         end #for dx
-    elseif dim==1
-        #mom1 = Array{Float64}(undef,size(cube)[1])
-        #mom2 = similar(mom1)
-        #mom3 = similar(mom1)
-        #mom4 = similar(mom1)
-        hist  = StatsBase.fit(StatsBase.Histogram,cube,nbins=bin)
-        histnall = StatsBase.normalize(hist,mode=:pdf)
-        histn = histnall.weights
-        edges = Dataprep.flatiterator(histnall.edges)[1,:]
-        mudiftemp = Array{Float64}(undef,size(histn)[1])
-        sigdiftemp = similar(mudiftemp)
-        skediftemp = similar(mudiftemp)
-        kurdiftemp = similar(mudiftemp)
-        for nx=1:size(histn)[1]
-            mudiftemp[nx] = histn[nx]*edges[nx]
-        end
-        mudif= sum(mudiftemp)
-        mudiftempp = sum(histn) 
-        mom1 = mudif/mudiftempp
-
-        for nx=1:size(histn)[1]
-            sigdiftemp[nx] = histn[nx]*(edges[nx]-mom1)^2
-            skediftemp[nx] = histn[nx]*(edges[nx]-mom1)^3
-            kurdiftemp[nx] = histn[nx]*(edges[nx]-mom1)^4
-        end
-        sigdif = sum(sigdiftemp)
-        mom2 = sqrt(sigdif/mudiftempp)
-
-        skedif = sum(skediftemp)
-        mom3 = skedif/mudiftempp/mom2.^3
-
-        kurdif = sum(kurdiftemp)
-        mom4 = kurdif/mudiftempp/mom2.^4
     end #if dim
     return(mom1,mom2,mom3,mom4)
 end
-
-
 
 """
     metricOW(mom1,mom2,mom3,mom4,dv,SIGMAT)
@@ -111,16 +54,32 @@ end#metricOW
 
 
 """
-    metricPCA(mom1,mom2,mom3,mom4,dv)
+    metricPCA(mom1,mom2,mom3,mom4)
 
 
 Calculate the following metric on each values of mom1,2,3 and 4: sqrt((mom1/dv)**2+(mom2/dv)**2+(mom3)**2+(mom4-3)**2)
 """
-function metricPCA(mom1,mom2,mom3,mom4,dv)
+function metricPCA(mom1,mom2,mom3,mom4,PCOPT,dv)
     metric = similar(mom1)
-    for ix=1:size(metric)[1]
-        metric[ix] = sqrt((mom1[ix]/dv)^2 + (mom2[ix]/dv)^2+(mom3[ix])^2+(mom4[ix]-3)^2)
-    end
+
+    #norm(i) = ((i-moment(i[PCOPT:end]),1,0)/moment(i[PCOPT:end],2))^2
+    a = (mom1.-StatsBase.moment(mom1[PCOPT:end],1,0))./StatsBase.moment(mom1[PCOPT:end],2)
+    b = (mom2.-StatsBase.moment(mom2[PCOPT:end],1,0))./StatsBase.moment(mom2[PCOPT:end],2)
+    c = (mom3.-StatsBase.moment(mom3[PCOPT:end],1,0))./StatsBase.moment(mom3[PCOPT:end],2)
+    d = (mom4.-StatsBase.moment(mom4[PCOPT:end],1,0))./StatsBase.moment(mom4[PCOPT:end],2)
+    #metric .= sqrt.(a.^2+b.^2+c.^2+d.^2)
+    a = (mom1./0.05)#.-StatsBase.moment(mom1[PCOPT:end],1,0))./StatsBase.moment(mom1[PCOPT:end],2)
+    b = (mom2)#.-StatsBase.moment(mom2[PCOPT:end],1,0))./StatsBase.moment(mom2[PCOPT:end],2)
+    c = (mom3)#.-StatsBase.moment(mom3[PCOPT:end],1,0))./StatsBase.moment(mom3[PCOPT:end],2)
+    d = (mom4.-3)#.-StatsBase.moment(mom4[PCOPT:end],1,0))./StatsBase.moment(mom4[PCOPT:end],2)
+
+    metric .= sqrt.(a.^2+b.^2+c.^2+d.^2)
+    #metric .= sqrt(norm.(mom1)+norm.(mom2)+norm.(mom3)+norm.(mom4))
+    #for ix=1:size(metric)[1]
+    #    metric[ix] = sqrt((mom1[ix]/dv)^2 + (mom2[ix]/dv)^2+(mom3[ix])^2+(mom4[ix]-3)^2)
+       # metric[ix] = sqrt((mom1[ix]/dv)^2 + (mom2[ix]/dv)^2+(mom3[ix]/dv^3)^2+((mom4[ix]-3)/dv^4)^2)
+       # metric[ix] = sqrt(norm(1)+norm(2)+norm(3)+norm(4))
+    #end
     return(metric)
 
 end#metric
@@ -169,23 +128,39 @@ end
 """
     rms_cube(cube,can)
 
-Compute the rms on velocity canal given as input of a cube. Return a 2D map with given rms on each pixel and the averaged rms accross the map.
+Compute the dispersion (e.g. sqrt(moment order 2)) on velocity canal given as input of a cube. Return a 2D map with given dispersion on each pixel and the averaged dispersion accross the map.
 """
-function rms_cube(cube,can)
+function rms_cube(cube::Array{Float64,3},can)
     map = Array{Float64}(undef,size(cube)[1],size(cube)[2])
     for ix=1:size(cube)[2]
 
         for jx=1:size(cube)[1]
-            map[jx,ix] = StatsBase.moment((cube[jx,ix,can]),2)
+            map[jx,ix] = sqrt(StatsBase.moment(cube[jx,ix,can],2))
         end
     end
     rmsavr = StatsBase.mean(skipmissing(map))
     return(map,rmsavr)
 
-
 end
 
 
+
+
+
+"""
+    rms_cube(cube,can)
+
+Compute the dispersion (e.g. sqrt(second moment order)) on velocity canal given as input of a cube. Return a 2D map with given dispersion on each pixel and the averaged variance accross the map.
+"""
+function rms_cube(cube::Array{Float64,2},can)
+    map = Array{Float64}(undef,size(cube)[1])
+    for jx=1:size(cube)[1]
+        map[jx] = sqrt(StatsBase.moment(cube[jx,can],2))
+    end
+    rmsavr = StatsBase.mean(skipmissing(map))
+    return(map,rmsavr)
+
+end
 
 
 

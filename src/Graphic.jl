@@ -49,7 +49,7 @@ function distribcv_multipc(mom1,mom2,mom3,mom4,metric,xvector)
     minimetr = minimum(metric)
     minipc   = xvector[findall(x->x==minimetr,metric)]
     metric = log10.(metric)
-    p = plot!(p[5],xvector,metric,st=:scatter,shape=:cross,ms=1.5,c=:black,alpha=0.5,ylabel="Log(metric)",xlabel=L"Number\ of\ PC",tickfontsize=5,xaxis=(0:10:xvector[end]),minorgrid=true)
+    p = plot!(p[5],xvector,metric,st=:scatter,shape=:cross,ms=1.5,c=:black,alpha=0.5,ylabel="Log(metric)",xlabel=L"PC number",tickfontsize=5,xaxis=(0:10:xvector[end]),minorgrid=true)
     p = plot!(p[5],[minipc,minipc],[log10.(minimetr),log10.(minimetr)],st=:scatter,shape=:cross,ms=1.5,c=:red,alpha=0.5)
 
     display(p)
@@ -86,8 +86,31 @@ function distribcv_multiow(mom1,mom2,mom3,mom4,metric,xvector,titl;SIGMAT=0)
 end #distribcv_multiow
 
 
+
+
+function distribmom_multipc(mom1,mom2,mom3,mom4,xvector)
+    gr()
+    l = @layout [grid(2,2)]
+    p = plot(layout=l,legend = false,  grid=:true,link=:x,leftmargins=0.3cm,labelfontsize=7)#,primary=false)#,link=:y )#,size=(1000,700),dpi=1000)
+
+    #ytick = collect((minimum(mom1):size(mom1)[1]/10*(maximum(mom1)-minimum(mom1))/size(mom1)[1]:maximum(mom1)))
+    #yticklabel = [sci_not(x,2) for x in ytick]
+    p = plot!(p[1],xvector,mom1,st=:scatter,shape=:cross,ms=1.5,ylabel=L"\mu",c=:black,alpha=0.5,tickfontsize=5,yformatter=:scientific,xaxis=(0:20:xvector[end]),yguidefontrotation=-90)
+    p = plot!(p[2],xvector,mom2,st=:scatter,shape=:cross,ms=1.5,ylabel=L"\sigma",c=:black,alpha=0.5,tickfontsize=5,yformatter=:scientific,xaxis=(0:20:xvector[end]),yguidefontrotation=-90)#,yticks=(ytick,yticklabel))
+    p = plot!(p[3],xvector,mom3,st=:scatter,shape=:cross,ms=1.5,ylabel=L"\gamma",c=:black,alpha=0.5,tickfontsize=5,xaxis=(0:20:xvector[end]),yguidefontrotation=-90)#,xlabel="Number of PC")#,yticks=(ytick,yticklabel))
+    p = plot!(p[4],xvector,mom4,st=:scatter,shape=:cross,ms=1.5,ylabel=L"\kappa",c=:black,alpha=0.5,tickfontsize=5,xaxis=(0:20:xvector[end]),yguidefontrotation=-90)#,xlabel="Number of PC")#,yticks=(ytick,yticklabel))
+
+    display(p)
+
+end #distribcv_multipc
+
+
+
+
 """
-Plot it energy power spectra. karr is the frequencies array (pixel^-1). Also add a powerlaw fit by default.
+   energyspec(powerspec,karr,imsize,PATHTOSAVE;fitted=true,SAVENAME="")
+
+Plot an energy power spectra. karr is the frequencies array (pixel^-1). Also add a powerlaw fit by default.
 """
 function energyspec(powerspec,karr,imsize,PATHTOSAVE;fitted=true,SAVENAME="")
     Np   = trunc(Int,imsize/2)
@@ -113,6 +136,32 @@ function energyspec(powerspec,karr,imsize,PATHTOSAVE;fitted=true,SAVENAME="")
       display(p)
     end
     Plots.savefig("$PATHTOSAVE/Figures/powerspectra_$(SAVENAME).pdf")
+end
+
+
+
+"""
+    pratio(M::PCA,ylog::Bool,pc,titl)
+
+Plot the explained percentage of the data per principal component. If ylog is True,
+the yaxis will be plotted in log.
+Pc arguments are used to name the plot.
+"""
+function pratio(M,ylog::Bool,pc,titl)
+    explained_percentage = (principalvars(M)./tvar(M))[1:pc] # each variance from each PC is divided by the sum of all pc variances. tvar(M) is the total variance of the observation. principalvars(M) gives the variance of principal components
+    tot = cumsum(explained_percentage)
+    if ylog==1
+        loga=:log
+        leg=:bottomleft
+    else
+        loga=:none
+        leg = :right
+    end
+    p = plot([1:1:size(explained_percentage)[1]],explained_percentage*100, label="p",title=titl,titlefontsize=10)
+    p = plot!([1:1:size(explained_percentage)[1]],explained_percentage*100, markercolor=:blue, seriestype=:scatter, markershape=:+,label=false,markersize=2)
+    p = plot!([1:1:(size(explained_percentage)[1])],100 .-cumsum(explained_percentage).*100,linestyle=:solid, linewidth=2,yaxis=loga, label="1-CumulSum(p)",xlabel="Number of Principal Components",ylabel = "Variance percentage explained", framestyle=:box)
+    p = plot!(xaxis=(0:10:pc),xrotation=45,ylims=(1e-4,2e2),yminorticks=10) #ylim=[minimum(explained_percentage*100),110],,yminorticks=10,yticks=5
+    display(p)
 end
 
 
