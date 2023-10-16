@@ -29,7 +29,7 @@ However, the centroid velocity computations is very dependant to the noise of th
 The reader should be comfortable with the notions of **Principal Components Analysis** and the **Data Reconstruction with PCA**. For reference, see for example Kendall (1957), Jeffer (1967). A more detailled description can be found in Delcamp PhD's thesis (2023) (in French). In our code, the idea is to use PCA to enhance the signal-to-noise ratio of our spectra without removing the signals. Its a compression mecanism, where we only use the variance associated to signal, and remove all variance associated to noise. This procedure is based on the fact that each PC add a part of the variance of the data. Thus, the signal count for the highest variance, and the noise for the lowest variance. 
 
 The main concern with the use of this code is to decide how many PCs should be used. To do so, we suggest the use of a metric based on the first 4 moments orders of the data projected on each PC. Indeed, the projection of a noise-only data cube on every PC will give a Gaussian, while a noise-free cube will give non-Gaussian distributions. For a cube with noise and signal, projection on the first PCs will give non-Gaussian distribution, ressembling to a Gaussian when we enhance the number of PCs. The metric then computed is as follow :
-  $$  m_\text{PCA} =  \sqrt{\left(\frac{\mu_\text{PCA}}{\delta v}\right)^2 + \left(\frac{\sigma_\text{PCA}}{\delta v}\right)^2+\gamma_\text{PCA}^2+(\kappa_\text{PCA}-3)^2}$$
+  $$  m_\text{PCA} =  \sqrt{\left(\mu_\text{PCA}\right)^2 + \left(\frac{\sigma_\text{PCA}}{\delta v}\right)^2+\gamma_\text{PCA}^2+(\kappa_\text{PCA}-3)^2}$$
 
 
 

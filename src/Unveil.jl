@@ -17,7 +17,7 @@ using .Analysis
 using .Structure_functions
 using .CVI
 using .PCA
-
+using Plots
 
 export pca
 export swo
@@ -92,19 +92,17 @@ end
 
 
 """
-    convpca(VARFILEPATH ; PCOPT=0)
+    convpca(VARFILEPATH)
 
-Compute the PCA convergence criteria based on the matrix projection from PCA. No PCA reconstructed cube will be saved. A '.txt' file should be used accordingly as an input : use the function 'Unveil.prodallvarfile' to produce it. To be computed, the convergence criteria need to know where the 4 moments are converging : this can be given as an option calling the function if you already know it, or the function will asking a user input. 
+Compute the PCA convergence criteria based on the matrix projection from PCA. No PCA reconstructed cube will be saved. A '.txt' file should be used accordingly as an input : use the function 'Unveil.prodallvarfile' to produce it. 
 
 OUTPUTS : A plots with every moments of the projection matrix + a plot of the convergence criteria (see the doc). Also add a .dat file with moments, metric and number of PC used for each.
 
 Use this script in a julia terminal with :
     julia>Unveil.convpca("VARFILEPATH")
-If option needed :
-    julia>Unveil.convpca("VARFILEPATH", PCOPT='N')
 
 """
-function convpca(VARFILEPATH ; PCOPT=0)
+function convpca(VARFILEPATH)
     FITSPATH,FILENAME,PATHTOSAVE,SAVENAME,NOISECAN,UNITVELOCITY,HIGHESTPC,BLANK,OVERWRITE = Dataprep.read_var_files(VARFILEPATH)
 
 
@@ -167,14 +165,14 @@ function convpca(VARFILEPATH ; PCOPT=0)
     Plots.savefig("$(PATHTOSAVE)/Figures/$(newname).pdf")
 
 
-    if PCOPT==0
-        println(" ")
-        println("From which PC number moments are converging ?")
-        println("First indice : ")
-        PCOPT   = parse(Int64,readline())
-    end
+    #if PCOPT==0
+    #    println(" ")
+    #    println("From which PC number moments are converging ?")
+    #    println("First indice : ")
+    #    PCOPT   = parse(Int64,readline())
+    #end
 
-    metric = Analysis.metricPCA(mom1,mom2,mom3,mom4,PCOPT,abs(VELOCITYINCREMENT))#,SIGMAT)#abs(VELOCITYINCREMENT))
+    metric = Analysis.metricPCA(mom1,mom2,mom3,mom4,abs(VELOCITYINCREMENT))#,SIGMAT)#abs(VELOCITYINCREMENT))
     #metric = Analysis.metricPCA(mom1,mom2,mom3,mom4)#,SIGMAT)#abs(VELOCITYINCREMENT))
     #metric = Analysis.metricPCA(mom1,mom2,mom3,mom4,abs(VELOCITYINCREMENT))
     #println(metric)
@@ -738,7 +736,7 @@ OUTPUTS : One figure with ``S_p(l)`` vs ``S_3(l)``, same with fit, and exponants
 Use this function in a julia terminal with :
     julia> Unveil.structure_functions(VARFILEPATH)
 """
-function structure_functions(VARFILEPATH ; meth="krit", limi=0,limf=0)
+function structure_functions(VARFILEPATH ; meth="moninyaglom", limi=0,limf=0)
     FITSPATH,FILENAME,PATHTOSAVE,SAVENAME,ORDERSTXT,BLANK,OVERWRITE = Dataprep.read_var_files(VARFILEPATH)
     ORDERS = [parse(Int, ss) for ss in split(ORDERSTXT,",")]
 
@@ -774,7 +772,7 @@ function structure_functions(VARFILEPATH ; meth="krit", limi=0,limf=0)
     elseif meth=="hily"
         sct = Structure_functions.fct_sct_int(cvicube,LAG,ORDERS) 
     else
-        error("The method given as an option when calling the structure_functions function is not correct. Please, use 'krit' or 'hily'")
+        error("The method given as an option when calling the structure_functions function is not correct. Please, use 'moninyaglom' or 'hily'")
     end
     nl = cat(0,LAG ; dims=1)
     nsct = cat(reshape(nl,(1,size(nl)[1])),cat(ORDERS,sct ; dims=2);dims=1)

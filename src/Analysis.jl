@@ -59,16 +59,16 @@ end#metricOW
 
 Calculate the following metric on each values of mom1,2,3 and 4: sqrt((mom1/dv)**2+(mom2/dv)**2+(mom3)**2+(mom4-3)**2)
 """
-function metricPCA(mom1,mom2,mom3,mom4,PCOPT,dv)
+function metricPCA(mom1,mom2,mom3,mom4,dv)
     metric = similar(mom1)
 
     #norm(i) = ((i-moment(i[PCOPT:end]),1,0)/moment(i[PCOPT:end],2))^2
-    a = (mom1.-StatsBase.moment(mom1[PCOPT:end],1,0))./StatsBase.moment(mom1[PCOPT:end],2)
-    b = (mom2.-StatsBase.moment(mom2[PCOPT:end],1,0))./StatsBase.moment(mom2[PCOPT:end],2)
-    c = (mom3.-StatsBase.moment(mom3[PCOPT:end],1,0))./StatsBase.moment(mom3[PCOPT:end],2)
-    d = (mom4.-StatsBase.moment(mom4[PCOPT:end],1,0))./StatsBase.moment(mom4[PCOPT:end],2)
+    #a = (mom1.-StatsBase.moment(mom1[PCOPT:end],1,0))./StatsBase.moment(mom1[PCOPT:end],2)
+    #b = (mom2.-StatsBase.moment(mom2[PCOPT:end],1,0))./StatsBase.moment(mom2[PCOPT:end],2)
+    #c = (mom3.-StatsBase.moment(mom3[PCOPT:end],1,0))./StatsBase.moment(mom3[PCOPT:end],2)
+    #d = (mom4.-StatsBase.moment(mom4[PCOPT:end],1,0))./StatsBase.moment(mom4[PCOPT:end],2)
     #metric .= sqrt.(a.^2+b.^2+c.^2+d.^2)
-    a = (mom1./0.05)#.-StatsBase.moment(mom1[PCOPT:end],1,0))./StatsBase.moment(mom1[PCOPT:end],2)
+    a = (mom1)#.-StatsBase.moment(mom1[PCOPT:end],1,0))./StatsBase.moment(mom1[PCOPT:end],2)
     b = (mom2)#.-StatsBase.moment(mom2[PCOPT:end],1,0))./StatsBase.moment(mom2[PCOPT:end],2)
     c = (mom3)#.-StatsBase.moment(mom3[PCOPT:end],1,0))./StatsBase.moment(mom3[PCOPT:end],2)
     d = (mom4.-3)#.-StatsBase.moment(mom4[PCOPT:end],1,0))./StatsBase.moment(mom4[PCOPT:end],2)
