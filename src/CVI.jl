@@ -73,7 +73,6 @@ function construct_cvimap(cvmap,Lag::Vector{Int64},mapdim; diff="relative",keepm
     #println("CV inc done") 
     cvmap = 0.0
     GC.gc()  # CLEANING MEMORY
-
     cvi_allangle_alllag = Dataprep.replace_nantomissing(cvi_allangle_alllag)   # Replace NaN into missing for the average
     cvi_allangle_alllag = Dataprep.replace_blanktomissing(cvi_allangle_alllag,BLANK)   # Replace blank into missing for the average
 
@@ -191,9 +190,12 @@ Compute the centroid velocity increment of xyarr at multiple Lag values. Nangle 
 """
 function cv_increment(xyarr,Lag::Vector{Int64},nangle; diff="relative",periodic=false, BLANK=-1000) 
     cvi_allangle             = convert(Array{Union{Missing,Float64}},zeros(Float64,size(xyarr)[1],size(xyarr)[2],maximum(nangle)))
+    println("what ?")
+
     cvi_allangle_alllag      = convert(Array{Union{Missing,Float64}},zeros(Float64,size(xyarr)[1]*size(xyarr)[2],maximum(nangle),size(Lag)[1]))
     cvi_allangle            .= BLANK
     cvi_allangle_alllag     .= BLANK 
+    println("deja ?")
     for lagstep=1:size(Lag)[1]
     # Iteration for angles
         for angl=1:nangle[lagstep]
@@ -218,9 +220,9 @@ function cv_increment(xyarr,Lag::Vector{Int64},nangle; diff="relative",periodic=
                     end
                 end
             else
-                 for col=1:size(xyarr)[2]
+                @inbounds @views for col=1:size(xyarr)[2]
                     # Iteration in rows
-                    for row=1:size(xyarr)[1]
+                    @inbounds @views for row=1:size(xyarr)[1]
                         ((ismissing(xyarr_shifted[row,col])) || ismissing(xyarr[row,col]) || (xyarr_shifted[row,col] != BLANK || xyarr[row,col] != BLANK)) && (cvi_allangle[row,col,angl] = xyarr_shifted[row,col]-xyarr[row,col])
                     end
                 end

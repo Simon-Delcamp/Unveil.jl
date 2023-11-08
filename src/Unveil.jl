@@ -150,7 +150,18 @@ function convpca(VARFILEPATH)
     Dataprep.write_fits("$(FITSPATH)/$FILENAME","$(SAVENAME)_projectionmatrix","$(PATHTOSAVE)/Data/",proj,(DATADIMENSION_NOMISSING[1],DATADIMENSION_NOMISSING[2],HIGHESTPC),BLANK,finished=true,overwrite=OVERWRITE)
     xvector = range(1,HIGHESTPC)#[1:HIGHESTPC]
 
-    Graphic.distribmom_multipc(mom1[2:end-1],mom2[2:end-1],mom3[2:end-1],mom4[2:end-1],xvector[2:end-1])
+
+
+    proj = 0
+    cubereconstructed = 0
+    cube = 0
+    missingplaces1D = 0.0 
+    missingplaces2D = 0
+    M = 0
+    Yt = 0
+    GC.gc()   # CLEANING MEMORY, NECESSARY FOR LARGE DATASET
+    println("cleaned")
+    #BL#Graphic.distribmom_multipc(mom1[2:end-1],mom2[2:end-1],mom3[2:end-1],mom4[2:end-1],xvector[2:end-1])
     newname = "$(SAVENAME)_mom"
     if (OVERWRITE==false && isfile("$(PATHTOSAVE)/Figures/$(SAVENAME)_mom.pdf")==true)
         println("THE GIVEN FILE NAME ALREADY EXIST. AN INDICE WILL BE ADDED AT THE END OF THE GIVEN NAME, EQUAL TO THE NUMBER OF FILES WITH THE SAME NAME +1 ")
@@ -162,7 +173,7 @@ function convpca(VARFILEPATH)
         end
         newname = "$(newname)_$(count)"
     end #if
-    Plots.savefig("$(PATHTOSAVE)/Figures/$(newname).pdf")
+    #BL#Plots.savefig("$(PATHTOSAVE)/Figures/$(newname).pdf")
 
 
     #if PCOPT==0
@@ -176,8 +187,8 @@ function convpca(VARFILEPATH)
     #metric = Analysis.metricPCA(mom1,mom2,mom3,mom4)#,SIGMAT)#abs(VELOCITYINCREMENT))
     #metric = Analysis.metricPCA(mom1,mom2,mom3,mom4,abs(VELOCITYINCREMENT))
     #println(metric)
-
-    Graphic.distribcv_multipc(mom1[2:end-1],mom2[2:end-1],mom3[2:end-1],mom4[2:end-1],metric[2:end-1],xvector[2:end-1])
+    println("Metric calculated")
+    #BL#Graphic.distribcv_multipc(mom1[2:end-1],mom2[2:end-1],mom3[2:end-1],mom4[2:end-1],metric[2:end-1],xvector[2:end-1])
     newname = "$(SAVENAME)_metric"
     if (OVERWRITE==false && isfile("$(PATHTOSAVE)/Figures/$(SAVENAME)_metric.pdf")==true)
         println("THE GIVEN FILE NAME ALREADY EXIST. AN INDICE WILL BE ADDED AT THE END OF THE GIVEN NAME, EQUAL TO THE NUMBER OF FILES WITH THE SAME NAME +1 ")
@@ -190,7 +201,7 @@ function convpca(VARFILEPATH)
         newname = "$(newname)_$(count)"
 
     end #if
-    Plots.savefig("$(PATHTOSAVE)/Figures/$(newname).pdf")
+    #BL#Plots.savefig("$(PATHTOSAVE)/Figures/$(newname).pdf")
 
     Dataprep.write_dat([metric mom1./0.05 mom2 mom3 mom4.-3 xvector],"$PATHTOSAVE/Data/","$(SAVENAME)_metricPCA",overwrite=OVERWRITE,more=["$FILENAME","Metric  Mom1   Mom2   Mom3   Mom4   PCs"])
     #minimetr = minimum(metric)
@@ -301,7 +312,7 @@ OUTPUT : CV map, CVI map with azimutal average, CVI cube with all lags and rotat
 Use this script in a julia terminal with :
     julia>Unveil.cvcvi(VARFILEPATH)
 """
-function cvcvi(VARFILEPATH)    #  ; thresh=0, add="0")  #<- OPTION used to benchmark intensity threshold easiest
+function cvcvi(VARFILEPATH)    #  ; thresh=0, add="0")  #<- OPTION used to benchmark intensity threshold easiest    
     FITSPATH,FITSNAME,PATHTOSAVE,FITSOURCE,SAVENAME,THRESHOLD,NOISECANTXT,UNITVELOCITY,REMOVE,BLANK,LAG,DIFFTYPE,OVERWRITE = Dataprep.read_var_files(VARFILEPATH)
     NOISECAN = [parse(Int, ss) for ss in split(NOISECANTXT,",")]
     if length(LAG)!=1
@@ -415,9 +426,13 @@ function cvcvi(VARFILEPATH)    #  ; thresh=0, add="0")  #<- OPTION used to bench
     cvmap = Dataprep.replace_nantomissing(cvmap)
     cvmap = Dataprep.replace_blanktomissing(cvmap,BLANK)
 
-    powerspec,karr = Analysis.power_spectra(cvmap,DATADIMENSION[1])
+    #powerspec,karr = Analysis.power_spectra(cvmap,DATADIMENSION[1])
     #Graphic.energyspec(powerspec,karr,DATADIMENSION[1],PATHTOSAVE,SAVENAME="$(SAVENAME)")
+    cube = 0
+    missingplaces1D=0
+    missingplaces2D=0
 
+    GC.gc()
     println("------ CVI CALCULATION ------")
     if DIFFTYPE=="relative" 
         cviallangle,cvimap_averaged,NANGLE = CVI.construct_cvimap(cvmap,LAG,(DATADIMENSION[1],DATADIMENSION[2]),diff="relative")
@@ -430,7 +445,8 @@ function cvcvi(VARFILEPATH)    #  ; thresh=0, add="0")  #<- OPTION used to bench
     else
         error("Not good argument in DIFFTYPE (should be abs or relative)")
     end
-
+    cvmap = 0
+    GC.gc()
     if  mult==true
         cvimap_averaged = reshape(cvimap_averaged,DATADIMENSION[1],DATADIMENSION[2],size(LAG)[1])
         for lag=1:size(LAG)[1]
@@ -456,9 +472,24 @@ function cvcvi(VARFILEPATH)    #  ; thresh=0, add="0")  #<- OPTION used to bench
         cviallangle = Dataprep.blank_equal(cviallangle,0.0,BLANK)
         cviallangle = convert(Array{Float64},cviallangle)
 
+        # REDUCING THE SIZE OF THE ALLANGLE CVI FITS BY REMOVING SOME BLANKING VALUES AND CREATING A 2D ARRAY INSTEAD OF A 3D
+        sizee = Array{Float64}(undef,size(LAG)[1])
+        for lx=1:size(LAG)[1]
+            temp     = size(Dataprep.delete_allnotvalue(cviallangle[:,:,lx],BLANK))[1] |> Int64 #Data without missing value
+            sizee[lx]=temp
+        end 
+        maxi = maximum(sizee) |> Int64
+        cviallanglereduced = Array{Float64}(undef,maxi,size(LAG)[1])
+        cviallanglereduced .= BLANK
+        for lx=1:size(LAG)[1]
+            tr = sizee[lx] |> Int64
+            cviallanglereduced[1:tr,lx] .= Dataprep.delete_allnotvalue(cviallangle[:,:,lx],BLANK)
+        end
+        println("Start saving")
         Dataprep.write_fits("$(FITSPATH)/$FITSNAME","CVI$(DIFFTYPE)_$(SAVENAME)_$(METH)","$(PATHTOSAVE)/Data/",cvimap_averaged,(DATADIMENSION[1],DATADIMENSION[2],size(LAG)[1]),BLANK,finished=true,overwrite=OVERWRITE,more=["LAG",LAG])
         println("CVI map saved in $(PATHTOSAVE)/Data/CVI$(DIFFTYPE)_$(SAVENAME)_$(METH)_NumberOfFilesWithTheSameNameAsPrefixe.fits as a fits.")
-        Dataprep.write_fits("$(FITSPATH)/$FITSNAME","CVI$(DIFFTYPE)_$(SAVENAME)_allangle_$(METH)","$(PATHTOSAVE)/Data",cviallangle,(DATADIMENSION[1]*DATADIMENSION[2],maximum(NANGLE),size(LAG)[1]),BLANK,finished=true,overwrite=OVERWRITE,more=["LAG",LAG])
+       #Dataprep.write_fits("$(FITSPATH)/$FITSNAME","CVI$(DIFFTYPE)_$(SAVENAME)_allangle_$(METH)","$(PATHTOSAVE)/Data",cviallangle,(DATADIMENSION[1]*DATADIMENSION[2],maximum(NANGLE),size(LAG)[1]),BLANK,finished=true,overwrite=OVERWRITE,more=["LAG",LAG],cvi=true)
+        Dataprep.write_fits("$(FITSPATH)/$FITSNAME","CVI$(DIFFTYPE)_$(SAVENAME)_allangle_$(METH)","$(PATHTOSAVE)/Data",cviallanglereduced,(maxi,size(LAG)[1]),BLANK,finished=true,overwrite=OVERWRITE,more=["LAG",LAG],cvi=true)
         println("CVI map with all angles values saved in the $(PATHTOSAVE)/Data/CVI$(DIFFTYPE)_$(SAVENAME)_allangle_$(METH)_NumberOfFilesWithTheSameNameAsPrefixe.fits as a fits.")
     
     else
@@ -482,9 +513,11 @@ function cvcvi(VARFILEPATH)    #  ; thresh=0, add="0")  #<- OPTION used to bench
         cviallangle = Dataprep.replace_missingtoblank(cviallangle,BLANK)
         cviallangle = Dataprep.blank_equal(cviallangle,0.0,BLANK)
         cviallangle = convert(Array{Float64},cviallangle)
+        cviallangle = Dataprep.delete_allnotvalue(cviallangle,BLANK)
+
         Dataprep.write_fits("$(FITSPATH)/$FITSNAME","CVI$(DIFFTYPE)_$(SAVENAME)_$(METH)","$(PATHTOSAVE)/Data/",cvimap_averaged,(DATADIMENSION[1],DATADIMENSION[2]),BLANK,finished=true,overwrite=OVERWRITE,more=["LAG",LAG])
         println("CVI map saved in $(PATHTOSAVE)/Data/CVI$(DIFFTYPE)_$(SAVENAME)_$(METH)_NumberOfFilesWithTheSameNameAsPrefixe.fits as a fits.")
-        Dataprep.write_fits("$(FITSPATH)/$FITSNAME","CVI$(DIFFTYPE)_$(SAVENAME)_allangle_$(METH)","$(PATHTOSAVE)/Data",cviallangle,(DATADIMENSION[1]*DATADIMENSION[2],maximum(NANGLE)),BLANK,finished=true,overwrite=OVERWRITE,more=["LAG",LAG])
+        Dataprep.write_fits("$(FITSPATH)/$FITSNAME","CVI$(DIFFTYPE)_$(SAVENAME)_allangle_$(METH)","$(PATHTOSAVE)/Data",cviallangle,(DATADIMENSION[1]*DATADIMENSION[2],maximum(NANGLE)),BLANK,finished=true,overwrite=OVERWRITE,more=["LAG",LAG],cvi=true)
         println("CVI map with all angles values saved in the $(PATHTOSAVE)/Data/CVI$(DIFFTYPE)_$(SAVENAME)_allangle_$(METH)_NumberOfFilesWithTheSameNameAsPrefixe.fits as a fits.")
     end
 
@@ -572,7 +605,7 @@ function cvi(VARFILEPATH)
 
         Dataprep.write_fits("$(FITSPATH)/$FITSNAME","CVI$(DIFFTYPE)_$(SAVENAME)_$(METH)","$(PATHTOSAVE)/Data/",cvimap_averaged,(DATADIMENSION[1],DATADIMENSION[2],size(LAG)[1]),BLANK,finished=true,overwrite=OVERWRITE,more=["LAG",LAG])
         println("CVI map saved in $(PATHTOSAVE)/Data/CVI$(DIFFTYPE)_$(SAVENAME)_$(METH)_NumberOfFilesWithTheSameNameAsPrefixe.fits as a fits.")
-        Dataprep.write_fits("$(FITSPATH)/$FITSNAME","CVI$(DIFFTYPE)_$(SAVENAME)_allangle_$(METH)","$(PATHTOSAVE)/Data",cviallangle,(DATADIMENSION[1]*DATADIMENSION[2],maximum(NANGLE),size(LAG)[1]),BLANK,finished=true,overwrite=OVERWRITE,more=["LAG",LAG])
+        Dataprep.write_fits("$(FITSPATH)/$FITSNAME","CVI$(DIFFTYPE)_$(SAVENAME)_allangle_$(METH)","$(PATHTOSAVE)/Data",cviallangle,(DATADIMENSION[1]*DATADIMENSION[2],maximum(NANGLE),size(LAG)[1]),BLANK,finished=true,overwrite=OVERWRITE,more=["LAG",LAG],cvi=true)
         println("CVI map with all angles values saved in the $(PATHTOSAVE)/Data/CVI$(DIFFTYPE)_$(SAVENAME)_allangle_$(METH)_NumberOfFilesWithTheSameNameAsPrefixe.fits as a fits.")
     
     else
@@ -598,7 +631,7 @@ function cvi(VARFILEPATH)
         cviallangle = convert(Array{Float64},cviallangle)
         Dataprep.write_fits("$(FITSPATH)/$FITSNAME","CVI$(DIFFTYPE)_$(SAVENAME)_$(METH)","$(PATHTOSAVE)/Data/",cvimap_averaged,(DATADIMENSION[1],DATADIMENSION[2]),BLANK,finished=true,overwrite=OVERWRITE,more=["LAG",LAG])
         println("CVI map saved in $(PATHTOSAVE)/Data/CVI$(DIFFTYPE)_$(SAVENAME)_$(METH)_NumberOfFilesWithTheSameNameAsPrefixe.fits as a fits.")
-        Dataprep.write_fits("$(FITSPATH)/$FITSNAME","CVI$(DIFFTYPE)_$(SAVENAME)_allangle_$(METH)","$(PATHTOSAVE)/Data",cviallangle,(DATADIMENSION[1]*DATADIMENSION[2],maximum(NANGLE)),BLANK,finished=true,overwrite=OVERWRITE,more=["LAG",LAG])
+        Dataprep.write_fits("$(FITSPATH)/$FITSNAME","CVI$(DIFFTYPE)_$(SAVENAME)_allangle_$(METH)","$(PATHTOSAVE)/Data",cviallangle,(DATADIMENSION[1]*DATADIMENSION[2],maximum(NANGLE)),BLANK,finished=true,overwrite=OVERWRITE,more=["LAG",LAG],cvi=true)
         println("CVI map with all angles values saved in the $(PATHTOSAVE)/Data/CVI$(DIFFTYPE)_$(SAVENAME)_allangle_$(METH)_NumberOfFilesWithTheSameNameAsPrefixe.fits as a fits.")
     end
 
