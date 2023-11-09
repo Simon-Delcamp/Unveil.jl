@@ -3,6 +3,7 @@ include("Dataprep.jl") #Read and write fits
 using .Dataprep
 
 using ShiftedArrays, StatsBase
+using ProgressBars
 
 export construct_cvimap!
 export construct_cvimap
@@ -190,13 +191,10 @@ Compute the centroid velocity increment of xyarr at multiple Lag values. Nangle 
 """
 function cv_increment(xyarr,Lag::Vector{Int64},nangle; diff="relative",periodic=false, BLANK=-1000) 
     cvi_allangle             = convert(Array{Union{Missing,Float64}},zeros(Float64,size(xyarr)[1],size(xyarr)[2],maximum(nangle)))
-    println("what ?")
-
     cvi_allangle_alllag      = convert(Array{Union{Missing,Float64}},zeros(Float64,size(xyarr)[1]*size(xyarr)[2],maximum(nangle),size(Lag)[1]))
     cvi_allangle            .= BLANK
     cvi_allangle_alllag     .= BLANK 
-    println("deja ?")
-    for lagstep=1:size(Lag)[1]
+    for lagstep in ProgressBar(1:size(Lag)[1]) #WORKED # for lagstep=1:size(Lag)[1]
     # Iteration for angles
         for angl=1:nangle[lagstep]
             alpha = angl*2.0*pi/nangle[lagstep]

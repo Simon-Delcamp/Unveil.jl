@@ -61,6 +61,9 @@ However, the package installation is still simple. While in the local directory 
 julia> using Pkg
 julia> Pkg.add(url="https://gricad-gitlab.univ-grenoble-alpes.fr/delcamps/unveil")
 ```
+## KNOWN PROBLEMS
+If there is an issue during precompilation with GR_jll, follow the solution found in this website : 
+https://discourse.julialang.org/t/plots-initerror-undefvarerror-gr-jll-not-defined/102448/2
 
 <!---The second command will ask you to enter your Username and your Password. For the Username, just enter the one you are using to connect to gitlab (email adress probably). For the Password, you need a "Project Access Tokens". 
 
