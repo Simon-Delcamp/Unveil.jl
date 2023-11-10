@@ -784,7 +784,7 @@ function write_fits(fitstocopy::String,newname::String,pathtosave::String,datato
         haskey(head,"CRVAL3")  &&  write_key(secondfits[1],"CRVAL3",0)
         haskey(head,"CRPIX3")  &&  write_key(secondfits[1],"CRPIX3",0)
         haskey(head,"CRDELT3")  &&  write_key(secondfits[1],"CRDEL3",0)
-        haskey(head,"BUNIT")  &&  write_key(secondfits[1],"BUNIT","$(read_key(fitname[1],"CTYPE3")[1])")
+        haskey(head,"BUNIT")  &&  haskey(head,"CTYPE3") && write_key(secondfits[1],"BUNIT","$(read_key(fitname[1],"CTYPE3")[1])")
 
         write_key(secondfits[1],"COMMENTS1","Each lag gives a specific number of rotations ")
         write_key(secondfits[1],"COMMENTS2","(e.g l=3 needs less rotations than l=50).")
