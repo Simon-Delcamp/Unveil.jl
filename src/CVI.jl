@@ -124,7 +124,8 @@ function construct_cvimap(cvmap,Lag::Int64,mapdim; diff="relative",keepmissing=t
 
     #cvi_averaged_alllag = Array{Union{Missing,Float64},2}(undef,size(cvi_allangle_alllag)[1],size(Lag)[1])
     #cvi_averaged_alllag .= BLANK
-    cvi_averaged_alllag = Array{Union{Missing,Float64},2}(undef,mapdim[1],mapdim[2])
+#    cvi_averaged_alllag = Array{Union{Missing,Float16},2}(undef,mapdim[1],mapdim[2])
+    cvi_averaged_alllag = Array{Union{Missing,Float16},2}(undef,mapdim[1],mapdim[2])
     cvi_averaged_alllag .= BLANK
 
     #println(size(cvi_allangle_alllag))
@@ -229,7 +230,9 @@ Compute the centroid velocity increment of xyarr at multiple Lag values. Nangle 
 """
 function cv_increment(xyarr,Lag::Vector{Int64},nangle; diff="relative",periodic=false, BLANK=-1000) 
     #cvi_allangle             = convert(Array{Union{Missing,Float64}},zeros(Float64,size(xyarr)[1],size(xyarr)[2],maximum(nangle)))
-    cvi_allangle_alllag      = convert(Array{Union{Missing,Float64}},zeros(Float64,size(xyarr)[1],size(xyarr)[2],maximum(nangle),size(Lag)[1]))
+    #cvi_allangle_alllag      = convert(Array{Union{Missing,Float64}},zeros(Float64,size(xyarr)[1],size(xyarr)[2],maximum(nangle),size(Lag)[1]))
+    cvi_allangle_alllag      = convert(Array{Union{Missing,Float16}},zeros(Float64,size(xyarr)[1],size(xyarr)[2],maximum(nangle),size(Lag)[1]))
+
     #cvi_allangle            .= BLANK
     cvi_allangle_alllag     .= BLANK 
     for lagstep in ProgressBar(1:size(Lag)[1]) #WORKED # for lagstep=1:size(Lag)[1]
