@@ -134,14 +134,14 @@ function construct_cvimap(cvmap,Lag::Int64,mapdim; diff="relative",keepmissing=t
         missing1D = findall(ismissing,cvi_allangle_alllag)
         cvi_allangle_alllag[missing1D] .= missing
     end
-    for lagstep in ProgressBar(1:size(Lag)[1])
+    #for lagstep in ProgressBar(1:size(Lag)[1])
     #@inbounds @views for col=1:size(cvi_allangle_alllag)[2]
     for col in ProgressBar(1:size(cvi_allangle_alllag)[2])
         # Iteration in rows
         @inbounds @views for row=1:size(cvi_allangle_alllag)[1]
                 (cvi_averaged_alllag[row,col] = mean(skipmissing((cvi_allangle_alllag[row,col,:]))))
-            end
         end
+    end
 
 
     return(cvi_allangle_alllag,cvi_averaged_alllag,nangle)
