@@ -664,7 +664,7 @@ function cvi(VARFILEPATH)
         sizee=temp
  
         maxi = maximum(sizee) |> Int64
-        cviallanglereduced = Array{Float64}(undef,maxi)
+        cviallanglereduced = Array{Float16}(undef,maxi)
         cviallanglereduced .= BLANK
         tr = sizee |> Int64
         cviallanglereduced[1:tr] .= Dataprep.delete_allnotvalue(cviallangle[:,:],BLANK)
