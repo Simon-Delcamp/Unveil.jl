@@ -282,7 +282,7 @@ end
 Compute the centroid velocity increment of xyarr at one Lag. Nangle is the number of angle using to compute the differences (it's a value in the parameter file, equal to 192). Diff (default relative) is for differences between two pixels : absolute or relative. Periodic=true (default=false) is for working on periodic data (from simulations like fbm). The returned array will have the first two dimensions equal to the size of the map, and the third dimension is the cvi computed at each angle.
 """
 function cv_increment(xyarr,Lag::Int64,nangle,DataDimension; diff="relative",periodic=false,BLANK=-1000)
-    cvi_allangle_alllag      = convert(Array{Union{Missing,Float64}},zeros(Float64,size(xyarr)[1],size(xyarr)[2],nangle))
+    cvi_allangle_alllag      = convert(Array{Union{Missing,Float16}},zeros(Float64,size(xyarr)[1],size(xyarr)[2],nangle))
     cvi_allangle_alllag     .= BLANK 
     for angl=1:nangle
     
