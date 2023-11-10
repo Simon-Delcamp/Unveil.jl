@@ -307,9 +307,9 @@ function cv_increment(xyarr,Lag::Int64,nangle,DataDimension; diff="relative",per
                 end
             end
         else
-            Threads.@threads @inbounds @views for col=1:size(xyarr)[2]
+            Threads.@threads for col=1:size(xyarr)[2]
                 # Iteration in rows
-                Threads.@threads @inbounds @views for row=1:size(xyarr)[1]
+                Threads.@threads for row=1:size(xyarr)[1]
                     ((ismissing(xyarr_shifted[row,col])) || ismissing(xyarr[row,col]) || (xyarr_shifted[row,col] != BLANK || xyarr[row,col] != BLANK)) && (cvi_allangle_alllag[row,col,angl] = xyarr_shifted[row,col]-xyarr[row,col])
                 end
             end
