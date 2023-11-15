@@ -3,6 +3,7 @@ include("Dataprep.jl") #Read and write fits
 using .Dataprep
 
 using ShiftedArrays, StatsBase
+using ProgressBars
 
 export construct_cvimap!
 export construct_cvimap
@@ -73,29 +74,35 @@ function construct_cvimap(cvmap,Lag::Vector{Int64},mapdim; diff="relative",keepm
     #println("CV inc done") 
     cvmap = 0.0
     GC.gc()  # CLEANING MEMORY
-
     cvi_allangle_alllag = Dataprep.replace_nantomissing(cvi_allangle_alllag)   # Replace NaN into missing for the average
     cvi_allangle_alllag = Dataprep.replace_blanktomissing(cvi_allangle_alllag,BLANK)   # Replace blank into missing for the average
 
-    cvi_averaged_alllag = Array{Union{Missing,Float64},2}(undef,size(cvi_allangle_alllag)[1],size(Lag)[1])
+    #cvi_averaged_alllag = Array{Union{Missing,Float64},2}(undef,size(cvi_allangle_alllag)[1],size(Lag)[1])
+    #cvi_averaged_alllag .= BLANK
+    cvi_averaged_alllag = Array{Union{Missing,Float64},3}(undef,mapdim[1],mapdim[2],size(Lag)[1])
     cvi_averaged_alllag .= BLANK
-
 
     @inbounds @views for lagstep=1:size(Lag)[1]
         if keepmissing==true
             missing1D = findall(ismissing,cvi_allangle_alllag[:,:,lagstep])
             cvi_allangle_alllag[missing1D,lagstep] .= missing
         end
-
-        @inbounds @views for pix=1:size(cvi_allangle_alllag)[1]
+        @inbounds @views for col=1:size(cvi_allangle_alllag)[2]
+            # Iteration in rows
+            @inbounds @views for row=1:size(cvi_allangle_alllag)[1]
             #(ismissing(cvi_allangle_alllag[pix,1,lagstep])) || (cvi_averaged_alllag[pix,lagstep] = mean(skipmissing((cvi_allangle_alllag[pix,:,lagstep]))))
-            (cvi_averaged_alllag[pix,lagstep] = mean(skipmissing((cvi_allangle_alllag[pix,:,lagstep]))))
+                (cvi_averaged_alllag[row,col,lagstep] = mean(skipmissing((cvi_allangle_alllag[row,col,:,lagstep]))))
+            end
         end
+        #@inbounds @views for pix=1:size(cvi_allangle_alllag)[1]
+        #    #(ismissing(cvi_allangle_alllag[pix,1,lagstep])) || (cvi_averaged_alllag[pix,lagstep] = mean(skipmissing((cvi_allangle_alllag[pix,:,lagstep]))))
+        #    (cvi_averaged_alllag[pix,lagstep] = mean(skipmissing((cvi_allangle_alllag[pix,:,lagstep]))))
+        #end
         #cvi_averaged_alllag = Dataprep.addblank(cvi_averaged_alllag,missing1D,BLANK,(mapdim[1]*mapdim[2],size(Lag)[1]))
 
     end
     
-    cvi_averaged_alllag = reshape(cvi_averaged_alllag,mapdim[1],mapdim[2],size(Lag)[1])
+    #cvi_averaged_alllag = reshape(cvi_averaged_alllag,mapdim[1],mapdim[2],size(Lag)[1])
     return(cvi_allangle_alllag,cvi_averaged_alllag,nangle)
 end
 
@@ -106,23 +113,55 @@ end
 
 Same as construct_cvimap if Lag is a Int64 of one lag. Mapdim is the dimension of your 2Dmap. The differences can be absolute or relative.
 """
-function construct_cvimap(cvmap,Lag::Int64,mapdim; diff="relative",keepmissing=true)
+function construct_cvimap(cvmap,Lag::Int64,mapdim; diff="relative",keepmissing=true,BLANK=-1000)
     nangle = floor(Int,2pi/(atan(1/Lag)))
-    cvi_allangle = reshape(cv_increment(cvmap,Lag,nangle,diff=diff,mapdim),mapdim[1]*mapdim[2],nangle) 
-    #ss = open("/tmp/mmap_cvi.bin","w+")
-    #cvi_averaged = Mmap.mmap(ss,BitArray,size(cvi_allangle)[1])
-    cvi_averaged = Array{Union{Missing,Float64}}(undef,size(cvi_allangle)[1])
+    cvi_allangle_alllag = cv_increment(cvmap,Lag,nangle,mapdim,diff=diff)
+
+    cvmap = 0.0
+    GC.gc()  # CLEANING MEMORY
+    cvi_allangle_alllag = Dataprep.replace_nantomissing(cvi_allangle_alllag)   # Replace NaN into missing for the average
+    cvi_allangle_alllag = Dataprep.replace_blanktomissing(cvi_allangle_alllag,BLANK)   # Replace blank into missing for the average
+
+    #cvi_averaged_alllag = Array{Union{Missing,Float64},2}(undef,size(cvi_allangle_alllag)[1],size(Lag)[1])
+    #cvi_averaged_alllag .= BLANK
+#    cvi_averaged_alllag = Array{Union{Missing,Float16},2}(undef,mapdim[1],mapdim[2])
+    cvi_averaged_alllag = Array{Union{Missing,Float16},2}(undef,mapdim[1],mapdim[2])
+    cvi_averaged_alllag .= BLANK
+
+    #println(size(cvi_allangle_alllag))
+    #println(size(cvi_averaged_alllag))
+
     if keepmissing==true
-        missing1D               = findall(ismissing,cvi_allangle)
-        cvi_allangle[missing1D] .= missing
+        missing1D = findall(ismissing,cvi_allangle_alllag)
+        cvi_allangle_alllag[missing1D] .= missing
     end
-    @inbounds @views for pix in eachindex(cvi_averaged)
-        keepmissing==false && (cvi_averaged[pix] = mean(skipmissing(cvi_allangle[pix,:])))
-        keepmissing==true  && (cvi_averaged[pix] = mean(cvi_allangle[pix,:]))
+    #for lagstep in ProgressBar(1:size(Lag)[1])
+    #@inbounds @views for col=1:size(cvi_allangle_alllag)[2]
+    for col in ProgressBar(1:size(cvi_allangle_alllag)[2])
+        # Iteration in rows
+        @inbounds @views for row=1:size(cvi_allangle_alllag)[1]
+                (cvi_averaged_alllag[row,col] = mean(skipmissing((cvi_allangle_alllag[row,col,:]))))
+        end
     end
-    cvi_averaged = reshape(cvi_averaged,mapdim[1],mapdim[2])
-    #return(cvi_averaged,cvi_allangle)
-    return(cvi_allangle,cvi_averaged,nangle)
+
+
+    return(cvi_allangle_alllag,cvi_averaged_alllag,nangle)
+    
+    ####cvi_allangle = reshape(cv_increment(cvmap,Lag,nangle,diff=diff,mapdim),mapdim[1]*mapdim[2],nangle) 
+    #####ss = open("/tmp/mmap_cvi.bin","w+")
+    #####cvi_averaged = Mmap.mmap(ss,BitArray,size(cvi_allangle)[1])
+    ####cvi_averaged = Array{Union{Missing,Float64}}(undef,size(cvi_allangle)[1])
+    ####if keepmissing==true
+    ####    missing1D               = findall(ismissing,cvi_allangle)
+    ####    cvi_allangle[missing1D] .= missing
+    ####end
+    ####@inbounds @views for pix in eachindex(cvi_averaged)
+    ####    keepmissing==false && (cvi_averaged[pix] = mean(skipmissing(cvi_allangle[pix,:])))
+    ####    keepmissing==true  && (cvi_averaged[pix] = mean(cvi_allangle[pix,:]))
+    ####end
+    ####cvi_averaged = reshape(cvi_averaged,mapdim[1],mapdim[2])
+    #####return(cvi_averaged,cvi_allangle)
+    ####return(cvi_allangle,cvi_averaged,nangle)
 
 end
 
@@ -190,11 +229,13 @@ end
 Compute the centroid velocity increment of xyarr at multiple Lag values. Nangle is the number of angle using to compute the differences (it's a value in the parameter file, equal to 192). Diff (default relative) is for differences between two pixels : absolute or relative. Periodic=true (default=false) is for working on periodic data (from simulations like fbm). The returned array will have the first dimension equal to the size of the map (pixel square), the second dimension is the cvi computed at each angle, and the third dimension is for each value of Lag.
 """
 function cv_increment(xyarr,Lag::Vector{Int64},nangle; diff="relative",periodic=false, BLANK=-1000) 
-    cvi_allangle             = convert(Array{Union{Missing,Float64}},zeros(Float64,size(xyarr)[1],size(xyarr)[2],maximum(nangle)))
-    cvi_allangle_alllag      = convert(Array{Union{Missing,Float64}},zeros(Float64,size(xyarr)[1]*size(xyarr)[2],maximum(nangle),size(Lag)[1]))
-    cvi_allangle            .= BLANK
+    #cvi_allangle             = convert(Array{Union{Missing,Float64}},zeros(Float64,size(xyarr)[1],size(xyarr)[2],maximum(nangle)))
+    #cvi_allangle_alllag      = convert(Array{Union{Missing,Float64}},zeros(Float64,size(xyarr)[1],size(xyarr)[2],maximum(nangle),size(Lag)[1]))
+    cvi_allangle_alllag      = convert(Array{Union{Missing,Float16}},zeros(Float64,size(xyarr)[1],size(xyarr)[2],maximum(nangle),size(Lag)[1]))
+
+    #cvi_allangle            .= BLANK
     cvi_allangle_alllag     .= BLANK 
-    for lagstep=1:size(Lag)[1]
+    for lagstep in ProgressBar(1:size(Lag)[1]) #WORKED # for lagstep=1:size(Lag)[1]
     # Iteration for angles
         for angl=1:nangle[lagstep]
             alpha = angl*2.0*pi/nangle[lagstep]
@@ -211,23 +252,23 @@ function cv_increment(xyarr,Lag::Vector{Int64},nangle; diff="relative",periodic=
                         # First, check if the value is missing. If so, do not continue and go to row+1
                         # Second, if previous step is false, then check if it's a blank value. If not continue and do the difference.
                         
-                        ((ismissing(xyarr_shifted[row,col]) || ismissing(xyarr[row,col])) || (xyarr_shifted[row,col] != BLANK || xyarr[row,col] != BLANK)) && (cvi_allangle[row,col,angl] = abs(xyarr_shifted[row,col]-xyarr[row,col]))
-                        ((ismissing(xyarr_shifted[row,col]) || ismissing(xyarr[row,col])) || (xyarr_shifted[row,col] == BLANK || xyarr[row,col] == BLANK)) && (cvi_allangle[row,col,angl] = BLANK)
+                        ((ismissing(xyarr_shifted[row,col]) || ismissing(xyarr[row,col])) || (xyarr_shifted[row,col] != BLANK || xyarr[row,col] != BLANK)) && (cvi_allangle_alllag[row,col,angl] = abs(xyarr_shifted[row,col]-xyarr[row,col]))
+                        ((ismissing(xyarr_shifted[row,col]) || ismissing(xyarr[row,col])) || (xyarr_shifted[row,col] == BLANK || xyarr[row,col] == BLANK)) && (cvi_allangle_alllag[row,col,angl] = BLANK)
                         #((diff == "relative") && (ismissing(xyarr_shifted[row,col]) || ismissing(xyarr[row,col])) || (xyarr_shifted[row,col] != BLANK || xyarr[row,col] != BLANK)) && (cvi_allangle[row,col,angl] = xyarr_shifted[row,col]-xyarr[row,col])
                         #cvi_allangle[row,col,angl] = xyarr_shifted[row,col]-xyarr[row,col]
                     end
                 end
             else
-                 for col=1:size(xyarr)[2]
+                @inbounds @views for col=1:size(xyarr)[2]
                     # Iteration in rows
-                    for row=1:size(xyarr)[1]
-                        ((ismissing(xyarr_shifted[row,col])) || ismissing(xyarr[row,col]) || (xyarr_shifted[row,col] != BLANK || xyarr[row,col] != BLANK)) && (cvi_allangle[row,col,angl] = xyarr_shifted[row,col]-xyarr[row,col])
+                    @inbounds @views for row=1:size(xyarr)[1]
+                        ((ismissing(xyarr_shifted[row,col])) || ismissing(xyarr[row,col]) || (xyarr_shifted[row,col] != BLANK || xyarr[row,col] != BLANK)) && (cvi_allangle_alllag[row,col,angl,lagstep] = xyarr_shifted[row,col]-xyarr[row,col])
                     end
                 end
             end
         end
-        cvi_allangle = Dataprep.replace_blanktomissing(cvi_allangle,BLANK)
-        cvi_allangle_alllag[:,:,lagstep] = reshape(cvi_allangle,size(xyarr)[1]*size(xyarr)[2],maximum(nangle))   # (P*P,ROT,Lag)  
+        #cvi_allangle = Dataprep.replace_blanktomissing(cvi_allangle,BLANK)
+        #cvi_allangle_alllag[:,:,lagstep] = reshape(cvi_allangle,size(xyarr)[1]*size(xyarr)[2],maximum(nangle))   # (P*P,ROT,Lag)  
     end
     #diff == "absolute" && return(abs.(cvi_allangle_alllag))
     return(cvi_allangle_alllag)
@@ -240,23 +281,62 @@ end
 
 Compute the centroid velocity increment of xyarr at one Lag. Nangle is the number of angle using to compute the differences (it's a value in the parameter file, equal to 192). Diff (default relative) is for differences between two pixels : absolute or relative. Periodic=true (default=false) is for working on periodic data (from simulations like fbm). The returned array will have the first two dimensions equal to the size of the map, and the third dimension is the cvi computed at each angle.
 """
-function cv_increment(xyarr,Lag::Int64,nangle,DataDimension; diff="relative",periodic=false)
-    cvi_allangle  = convert(Array{Union{Missing,Float64}},zeros(Float64,size(xyarr)[1],size(xyarr)[2],nangle))
-    # Iteration for angles
-    @inbounds @views for angl=1:nangle#[lagstep]
-        alpha = angl*2.0*pi/nangle#[lagstep]
+function cv_increment(xyarr,Lag::Int64,nangle,DataDimension; diff="relative",periodic=false,BLANK=-1000)
+    cvi_allangle_alllag      = convert(Array{Union{Missing,Float16}},zeros(Float64,size(xyarr)[1],size(xyarr)[2],nangle))
+    cvi_allangle_alllag     .= BLANK 
+    for angl=1:nangle
+    
+        alpha = angl*2.0*pi/nangle
         periodic==false && (xyarr_shifted = ShiftedArray(xyarr,(trunc(Int,Lag*cos(alpha)),trunc(Int,Lag*sin(alpha)))))
         periodic==true  && (xyarr_shifted = circshift(xyarr,(trunc(Int,Lag*cos(alpha)),trunc(Int,Lag*sin(alpha)))))
-        # Iteration in columns
+        #xyarr_shifted = Dataprep.replace_missingtoblank(xyarr_shifted,BLANK)
+        #xyarr = Dataprep.replace_missingtoblank(xyarr,BLANK)
+
+        if diff=="absolute"
+            # Iteration in columns
         @inbounds @views for col=1:size(xyarr)[2]
             # Iteration in rows
-            @inbounds @views for row=1:size(xyarr)[1]
-                cvi_allangle[row,col,angl] = xyarr_shifted[row,col]-xyarr[row,col]
+                @inbounds @views for row=1:size(xyarr)[1]
+                    # First, check if the value is missing. If so, do not continue and go to row+1
+                    # Second, if previous step is false, then check if it's a blank value. If not continue and do the difference.
+                    
+                    ((ismissing(xyarr_shifted[row,col]) || ismissing(xyarr[row,col])) || (xyarr_shifted[row,col] != BLANK || xyarr[row,col] != BLANK)) && (cvi_allangle_alllag[row,col,angl] = abs(xyarr_shifted[row,col]-xyarr[row,col]))
+                    ((ismissing(xyarr_shifted[row,col]) || ismissing(xyarr[row,col])) || (xyarr_shifted[row,col] == BLANK || xyarr[row,col] == BLANK)) && (cvi_allangle_alllag[row,col,angl] = BLANK)
+                    #((diff == "relative") && (ismissing(xyarr_shifted[row,col]) || ismissing(xyarr[row,col])) || (xyarr_shifted[row,col] != BLANK || xyarr[row,col] != BLANK)) && (cvi_allangle[row,col,angl] = xyarr_shifted[row,col]-xyarr[row,col])
+                    #cvi_allangle[row,col,angl] = xyarr_shifted[row,col]-xyarr[row,col]
+                end
+            end
+        else
+            Threads.@threads for col=1:size(xyarr)[2]
+                # Iteration in rows
+                Threads.@threads for row=1:size(xyarr)[1]
+                    ((ismissing(xyarr_shifted[row,col])) || ismissing(xyarr[row,col]) || (xyarr_shifted[row,col] != BLANK || xyarr[row,col] != BLANK)) && (cvi_allangle_alllag[row,col,angl] = xyarr_shifted[row,col]-xyarr[row,col])
+                end
             end
         end
     end
-    diff == "absolute" && return(abs.(cvi_allangle))
-    return(cvi_allangle)
+        #cvi_allangle = Dataprep.replace_blanktomissing(cvi_allangle,BLANK)
+        #cvi_allangle_alllag[:,:,lagstep] = reshape(cvi_allangle,size(xyarr)[1]*size(xyarr)[2],maximum(nangle))   # (P*P,ROT,Lag)  
+    
+    #diff == "absolute" && return(abs.(cvi_allangle_alllag))
+    return(cvi_allangle_alllag)
+
+    ############"cvi_allangle  = convert(Array{Union{Missing,Float64}},zeros(Float64,size(xyarr)[1],size(xyarr)[2],nangle))
+    ############"# Iteration for angles
+    ############"@inbounds @views for angl=1:nangle#[lagstep]
+    ############"    alpha = angl*2.0*pi/nangle#[lagstep]
+    ############"    periodic==false && (xyarr_shifted = ShiftedArray(xyarr,(trunc(Int,Lag*cos(alpha)),trunc(Int,Lag*sin(alpha)))))
+    ############"    periodic==true  && (xyarr_shifted = circshift(xyarr,(trunc(Int,Lag*cos(alpha)),trunc(Int,Lag*sin(alpha)))))
+    ############"    # Iteration in columns
+    ############"    @inbounds @views for col=1:size(xyarr)[2]
+    ############"        # Iteration in rows
+    ############"        @inbounds @views for row=1:size(xyarr)[1]
+    ############"            cvi_allangle[row,col,angl] = xyarr_shifted[row,col]-xyarr[row,col]
+    ############"        end
+    ############"    end
+    ############"end
+    ############"diff == "absolute" && return(abs.(cvi_allangle))
+    ############"return(cvi_allangle)
 end
 
 

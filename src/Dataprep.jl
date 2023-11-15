@@ -771,7 +771,26 @@ function write_fits(fitstocopy::String,newname::String,pathtosave::String,datato
         end
     end
     if cvi==true
-        write_key(secondfits[1],"LAGS",join(lags,","))
+        #write_key(secondfits[1],"LAGS",join(lags,","))
+        haskey(head,"CTYPE1")  &&  write_key(secondfits[1],"CTYPE1","$(read_key(fitname[1],"CTYPE1")[1]),$(read_key(fitname[1],"CTYPE2")[1])")
+        haskey(head,"CTYPE2")  &&  write_key(secondfits[1],"CTYPE2","ROTATION -- DEPEND OF THE LAG (cf comments)")
+        haskey(head,"CTYPE3")  &&  write_key(secondfits[1],"CTYPE3","LAG -- PIXEL")
+        haskey(head,"CRVAL1")  &&  write_key(secondfits[1],"CRVAL1",0)
+        haskey(head,"CRPIX1")  &&  write_key(secondfits[1],"CRPIX1",0)
+        haskey(head,"CRDELT1")  &&  write_key(secondfits[1],"CRDEL1",0)
+        haskey(head,"CRVAL2")  &&  write_key(secondfits[1],"CRVAL2",0)
+        haskey(head,"CRPIX2")  &&  write_key(secondfits[1],"CRPIX2",0)
+        haskey(head,"CRDELT2")  &&  write_key(secondfits[1],"CRDEL2",0)
+        haskey(head,"CRVAL3")  &&  write_key(secondfits[1],"CRVAL3",0)
+        haskey(head,"CRPIX3")  &&  write_key(secondfits[1],"CRPIX3",0)
+        haskey(head,"CRDELT3")  &&  write_key(secondfits[1],"CRDEL3",0)
+        haskey(head,"BUNIT")  &&  haskey(head,"CTYPE3") && write_key(secondfits[1],"BUNIT","$(read_key(fitname[1],"CTYPE3")[1])")
+
+        write_key(secondfits[1],"COMMENTS1","Each lag gives a specific number of rotations ")
+        write_key(secondfits[1],"COMMENTS2","(e.g l=3 needs less rotations than l=50).")
+        write_key(secondfits[1],"COMMENTS3","Spectra are not ordered simply")
+        write_key(secondfits[1],"COMMENTS4","thus can't reproduce the image in 2D with that file.")
+
     end
     close(fitname)
     if finished==true
