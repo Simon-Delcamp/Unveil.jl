@@ -18,7 +18,8 @@ function fct_sct(cvicube,LAG,ORDERS)
     sct = Array{Float64}(undef,size(ORDERS)[1],size(LAG)[1])
     for ord=1:size(ORDERS)[1]    
         for lag=1:size(LAG)[1]
-            sct[ord,lag]= StatsBase.mean(skipmissing(abs.(cvicube[:,:,lag])).^ORDERS[ord])
+            #sct[ord,lag]= StatsBase.mean(skipmissing(abs.(cvicube[:,:,lag])).^ORDERS[ord])
+            sct[ord,lag]= StatsBase.mean(skipmissing(abs.(cvicube[:,lag])).^ORDERS[ord])
         end
     end
     return(sct)
