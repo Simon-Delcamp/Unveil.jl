@@ -730,18 +730,29 @@ function pca(VARFILEPATH)
     # Perform the first PCA analysis (same notation as in the MultivariateStats doc)
     println("Perform PCA")
     M, Yt, VARPERCENT,cubereconstructed = PCA.pca(cube,NBPC)
-    println(size(Yt))
+    #println(size(Yt))
     Dataprep.write_fits("$(FITSPATH)/$(FILENAME)","Yt_$(NBPC)PC","$PATHTOSAVE/Data/",Yt,(NBPC,DATADIMENSION[3]),BLANK,overwrite=OVERWRITE,more=["NBPC",NBPC,"VARPERC",VARPERCENT[NBPC]*100,"METHOD","PCA"])
     println("Matrix of PCs saved in in $(PATHTOSAVE)/Data/Yt_$(NBPC)PC_NumberOfFilesWithTheSameNameAsPrefixe.fits as a fits.")
 
-
+    if ismis == 1
+        mmean = Dataprep.addblank(M.mean,missingplaces2D[:,1],BLANK,(DATADIMENSION[1],DATADIMENSION[2]))
+        #projec            = Dataprep.addblank(PCA.proj(M),missingplaces2D[:,1:NBPC],BLANK,DATADIMENSION) 
+    end
+    mmean = reshape(mmean,(DATADIMENSION[1],DATADIMENSION[2]))
+    Dataprep.write_fits("$(FITSPATH)/$(FILENAME)","mmean_$(NBPC)PC","$PATHTOSAVE/Data/",mmean,(DATADIMENSION[1],DATADIMENSION[2]),BLANK,overwrite=OVERWRITE,more=["NBPC",NBPC,"VARPERC",VARPERCENT[NBPC]*100,"METHOD","PCA"])
     s = open("$(PATHTOSAVE)/Data/Yt_$(NBPC)PC.bin", "w+")
     write(s,Yt)
     close(s)
     Ytpath = "$(PATHTOSAVE)/Data/Yt_$(NBPC)PC.bin"
 
 
-
+    proj = PCA.proj(M)
+    if ismis == 1
+        proj = Dataprep.addblank(proj,missingplaces2D[:,1:NBPC],BLANK,(DATADIMENSION[1],DATADIMENSION[2],NBPC))
+    end
+    proj = reshape(proj,(DATADIMENSION[1],DATADIMENSION[2],NBPC))
+    Dataprep.write_fits("$(FITSPATH)/$FILENAME","$(SAVENAME)_projectionmatrix","$(PATHTOSAVE)/Data/",proj,(DATADIMENSION_NOMISSING[1],DATADIMENSION_NOMISSING[2],NBPC),BLANK,finished=true,overwrite=OVERWRITE)
+    xvector = range(1,NBPC)#[1:HIGHESTPC]
 
     # Cleaning memory
     cube = 0.0 
@@ -844,7 +855,7 @@ function structure_functions(VARFILEPATH ; meth="moninyaglom", limi=0,limf=0)
 
     #println(cvicube)
     if meth=="moninyaglom"
-    sct = Structure_functions.fct_sct(cvicube,LAG,ORDERS)  
+        sct = Structure_functions.fct_sct(cvicube,LAG,ORDERS)  
     elseif meth=="hily"
         sct = Structure_functions.fct_sct_int(cvicube,LAG,ORDERS) 
     else
