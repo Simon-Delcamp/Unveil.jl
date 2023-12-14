@@ -288,7 +288,7 @@ function cv(VARFILEPATH)
     cvmap = reshape(cvmap,(DATADIMENSION[1],DATADIMENSION[2]))
 
 
-    Dataprep.write_fits("$(FITSPATH)/$FITSNAME","CV_$(SAVENAME)_$(METH)","$(PATHTOSAVE)/Data/",cvmap,(DATADIMENSION_NOMISSING[1],DATADIMENSION_NOMISSING[2]),BLANK,finished=true,overwrite=OVERWRITE)
+    Dataprep.write_fits("$(FITSPATH)/$FITSNAME","CV_$(SAVENAME)_$(METH)","$(PATHTOSAVE)/Data/",cvmap,(DATADIMENSION_NOMISSING[1],DATADIMENSION_NOMISSING[2]),BLANK,finished=true,overwrite=OVERWRITE,more=["THRESH",THRESHOLD])
     #cvmap = 0.0
 
     println("CV map saved in $(PATHTOSAVE)/Data/CV_$(SAVENAME)_$(METH)_NumberOfFilesWithTheSameNameAsPrefixe.fits as a fits.")
@@ -417,7 +417,7 @@ function cvcvi(VARFILEPATH)    #  ; thresh=0, add="0")  #<- OPTION used to bench
 
 
     #Dataprep.write_fits("$(FITSPATH)/$FITSNAME","CV_$(SAVENAME)_$(METH)","$(PATHTOSAVE)/Data/",cvmap,(DATADIMENSION_NOMISSING[1],DATADIMENSION_NOMISSING[2]),BLANK,finished=true,overwrite=OVERWRITE)
-    Dataprep.write_fits("$(FITSPATH)/$FITSNAME","CV_$(SAVENAME)_$(METH)","$(PATHTOSAVE)/Data/",cvmap,(DATADIMENSION_NOMISSING[1],DATADIMENSION_NOMISSING[2]),BLANK,finished=true,overwrite=OVERWRITE)
+    Dataprep.write_fits("$(FITSPATH)/$FITSNAME","CV_$(SAVENAME)_$(METH)","$(PATHTOSAVE)/Data/",cvmap,(DATADIMENSION_NOMISSING[1],DATADIMENSION_NOMISSING[2]),BLANK,finished=true,overwrite=OVERWRITE,more=["THRESH",THRESHOLD])
     #cvmap = 0.0
 
     GC.gc()
@@ -486,10 +486,10 @@ function cvcvi(VARFILEPATH)    #  ; thresh=0, add="0")  #<- OPTION used to bench
             cviallanglereduced[1:tr,lx] .= Dataprep.delete_allnotvalue(cviallangle[:,:,lx],BLANK)
         end
         println("Start saving")
-        Dataprep.write_fits("$(FITSPATH)/$FITSNAME","CVI$(DIFFTYPE)_$(SAVENAME)_$(METH)","$(PATHTOSAVE)/Data/",cvimap_averaged,(DATADIMENSION[1],DATADIMENSION[2],size(LAG)[1]),BLANK,finished=true,overwrite=OVERWRITE,more=["LAG",LAG])
+        Dataprep.write_fits("$(FITSPATH)/$FITSNAME","CVI$(DIFFTYPE)_$(SAVENAME)_$(METH)","$(PATHTOSAVE)/Data/",cvimap_averaged,(DATADIMENSION[1],DATADIMENSION[2],size(LAG)[1]),BLANK,finished=true,overwrite=OVERWRITE,more=["LAG",LAG,"THRESH",THRESHOLD])
         println("CVI map saved in $(PATHTOSAVE)/Data/CVI$(DIFFTYPE)_$(SAVENAME)_$(METH)_NumberOfFilesWithTheSameNameAsPrefixe.fits as a fits.")
        #Dataprep.write_fits("$(FITSPATH)/$FITSNAME","CVI$(DIFFTYPE)_$(SAVENAME)_allangle_$(METH)","$(PATHTOSAVE)/Data",cviallangle,(DATADIMENSION[1]*DATADIMENSION[2],maximum(NANGLE),size(LAG)[1]),BLANK,finished=true,overwrite=OVERWRITE,more=["LAG",LAG],cvi=true)
-        Dataprep.write_fits("$(FITSPATH)/$FITSNAME","CVI$(DIFFTYPE)_$(SAVENAME)_allangle_$(METH)","$(PATHTOSAVE)/Data",cviallanglereduced,(maxi,size(LAG)[1]),BLANK,finished=true,overwrite=OVERWRITE,more=["LAG",LAG],cvi=true)
+        Dataprep.write_fits("$(FITSPATH)/$FITSNAME","CVI$(DIFFTYPE)_$(SAVENAME)_allangle_$(METH)","$(PATHTOSAVE)/Data",cviallanglereduced,(maxi,size(LAG)[1]),BLANK,finished=true,overwrite=OVERWRITE,more=["LAG",LAG,"THRESH",THRESHOLD],cvi=true)
         println("CVI map with all angles values saved in the $(PATHTOSAVE)/Data/CVI$(DIFFTYPE)_$(SAVENAME)_allangle_$(METH)_NumberOfFilesWithTheSameNameAsPrefixe.fits as a fits.")
     
     else
@@ -525,12 +525,12 @@ function cvcvi(VARFILEPATH)    #  ; thresh=0, add="0")  #<- OPTION used to bench
         tr = sizee |> Int64
         cviallanglereduced[1:tr] .= Dataprep.delete_allnotvalue(cviallangle[:,:],BLANK)
         println("Start saving")
-        Dataprep.write_fits("$(FITSPATH)/$FITSNAME","CVI$(DIFFTYPE)_$(SAVENAME)_$(METH)","$(PATHTOSAVE)/Data/",cvimap_averaged,(DATADIMENSION[1],DATADIMENSION[2]),BLANK,finished=true,overwrite=OVERWRITE,more=["LAG",LAG])
+        Dataprep.write_fits("$(FITSPATH)/$FITSNAME","CVI$(DIFFTYPE)_$(SAVENAME)_$(METH)","$(PATHTOSAVE)/Data/",cvimap_averaged,(DATADIMENSION[1],DATADIMENSION[2]),BLANK,finished=true,overwrite=OVERWRITE,more=["LAG",LAG,"THRESH",THRESHOLD])
         println("CVI map saved in $(PATHTOSAVE)/Data/CVI$(DIFFTYPE)_$(SAVENAME)_$(METH)_NumberOfFilesWithTheSameNameAsPrefixe.fits as a fits.")
 
         #Dataprep.write_fits("$(FITSPATH)/$FITSNAME","CVI$(DIFFTYPE)_$(SAVENAME)_$(METH)","$(PATHTOSAVE)/Data/",cvimap_averaged,(DATADIMENSION[1],DATADIMENSION[2]),BLANK,finished=true,overwrite=OVERWRITE,more=["LAG",LAG])
         #println("CVI map saved in $(PATHTOSAVE)/Data/CVI$(DIFFTYPE)_$(SAVENAME)_$(METH)_NumberOfFilesWithTheSameNameAsPrefixe.fits as a fits.")
-        Dataprep.write_fits("$(FITSPATH)/$FITSNAME","CVI$(DIFFTYPE)_$(SAVENAME)_allangle_$(METH)","$(PATHTOSAVE)/Data",cviallangle,(DATADIMENSION[1]*DATADIMENSION[2],size(cviallangle)[2]),BLANK,finished=true,overwrite=OVERWRITE,more=["LAG",LAG],cvi=true)
+        Dataprep.write_fits("$(FITSPATH)/$FITSNAME","CVI$(DIFFTYPE)_$(SAVENAME)_allangle_$(METH)","$(PATHTOSAVE)/Data",cviallangle,(DATADIMENSION[1]*DATADIMENSION[2],size(cviallangle)[2]),BLANK,finished=true,overwrite=OVERWRITE,more=["LAG",LAG,"THRESH",THRESHOLD],cvi=true)
         println("CVI map with all angles values saved in the $(PATHTOSAVE)/Data/CVI$(DIFFTYPE)_$(SAVENAME)_allangle_$(METH)_NumberOfFilesWithTheSameNameAsPrefixe.fits as a fits.")
     end
 
@@ -819,7 +819,7 @@ end
 
 Compute the structure functions ``S_p(l)`` of a Centroid Velocity Increment cube. By default will use the definition in Monin & Yaglom+75, but can compute the one in  NOT WORKING ANYMORE NEED DEBUGING Hily-Blant+2008 by changing the option 'meth=hily' NOT WORKING ANYMORE NEED DEBUGING. A '.txt' file should be used accordingly as an input : use the function 'Unveil.prodallvarfile' to produce it. The cube given as input should be a CVI (use function **Unveil.cvi** if needed). Prefer a cube with rotations of every lags than azimutal average, like that : (Pixel positions,angles,lag). To compute the exponent of the ``S_p(l)``, we need the limits of the fit : this can be given as an option when calling the function if you already know it (with options limi=N,limf=M), or the function will asking a user input. These limits should be given as the position number of the desired lag in the lag array (seen in cvi fits header).
 
-OUTPUTS : One figure with ``S_p(l)`` vs ``S_3(l)``, same with fit, and exponants of ``S_p(l)`` function of p. Also, *.dat* files with values of the exponants and with the ``S_p(l)``.
+WARNING : FIGURES AREN'T PLOTTED FOR NOW DUE TO A PROBLEM. OUTPUTS : One figure with ``S_p(l)`` vs ``S_3(l)``, same with fit, and exponants of ``S_p(l)`` function of p. Also, *.dat* files with values of the exponants and with the ``S_p(l)``.
 Use this function in a julia terminal with :
     julia> Unveil.structure_functions(VARFILEPATH)
 """
@@ -830,6 +830,8 @@ function structure_functions(VARFILEPATH ; meth="moninyaglom", limi=0,limf=0)
 
     # Read the fits from the path. Return the data, the VelocityVector, the dimension, the velocity_increment, and the header.
     cvicube,DATADIMENSION,HEAD = Dataprep.read_fits_cvi("$(FITSPATH)/$(FILENAME)" ; check=false)
+    haskey(HEAD,"THRESH") && (THRESHOLD = HEAD["THRESH"])
+    println(THRESHOLD)
     if haskey(HEAD,"METHOD")==1 
         if HEAD["METHOD"]=="PCA"
             METH = HEAD["NBPC"]
@@ -863,23 +865,24 @@ function structure_functions(VARFILEPATH ; meth="moninyaglom", limi=0,limf=0)
     end
     nl = cat(0,LAG ; dims=1)
     nsct = cat(reshape(nl,(1,size(nl)[1])),cat(ORDERS,sct ; dims=2);dims=1)
-    Dataprep.write_dat(nsct,"$(PATHTOSAVE)/Data/","$(SAVENAME)_Sp(l)_$(METH)", more=["METHOD $(METH) ; FILE : $(SAVENAME). Each column is a lag, each row an order. First column give the orders, first row the lags. For information : p=$(ORDERS), and l=$(LAG)" ], overwrite=OVERWRITE)
+
+    Dataprep.write_dat(nsct,"$(PATHTOSAVE)/Data/","$(SAVENAME)_Sp(l)_$(METH)", more=["METHOD $(METH) ; FILE : $(SAVENAME) ; Intensity threshold during CV computation : $(THRESHOLD). Each column is a lag, each row an order. First column give the orders, first row the lags. For information : p=$(ORDERS), and l=$(LAG) ;  " ], overwrite=OVERWRITE)
 
 
-    Graphic.StcFct(sct,sct[3,:],ORDERS,"$SAVENAME")
-    if OVERWRITE==true
-        Plots.savefig("$(PATHTOSAVE)/Figures/stc_fct_$(SAVENAME)_$(METH).pdf")
-    elseif (OVERWRITE==false && isfile("$(PATHTOSAVE)/Figures/stc_fct_$(SAVENAME)_$(METH).pdf")==true)
-        println("THE GIVEN FILE NAME ALREADY EXIST. AN INDICE WILL BE ADDED AT THE END OF THE GIVEN NAME, EQUAL TO THE NUMBER OF FILES WITH THE SAME NAME +1 ")
-        count = 1
-        for ix=1:size((findall.("stc_fct_$(SAVENAME)_$(METH).pdf",readdir("$(PATHTOSAVE)/Figures/"))))[1]
-            if size(findall("stc_fct_$(SAVENAME)_$(METH).pdf",readdir("$(PATHTOSAVE)/Figures/")[ix]))[1]!=0
-                count += 1
-            end
-        end
-        newname = "stc_fct_$(SAVENAME)_$(METH)_$(count)"
-        Plots.savefig("$(PATHTOSAVE)/Figures/$(newname).pdf")
-    end
+    #Graphic.StcFct(sct,sct[3,:],ORDERS,"$SAVENAME")
+    #if OVERWRITE==true
+    #    Plots.savefig("$(PATHTOSAVE)/Figures/stc_fct_$(SAVENAME)_$(METH).pdf")
+    #elseif (OVERWRITE==false && isfile("$(PATHTOSAVE)/Figures/stc_fct_$(SAVENAME)_$(METH).pdf")==true)
+    #    println("THE GIVEN FILE NAME ALREADY EXIST. AN INDICE WILL BE ADDED AT THE END OF THE GIVEN NAME, EQUAL TO THE NUMBER OF FILES WITH THE SAME NAME +1 ")
+    #    count = 1
+    #    for ix=1:size((findall.("stc_fct_$(SAVENAME)_$(METH).pdf",readdir("$(PATHTOSAVE)/Figures/"))))[1]
+    #        if size(findall("stc_fct_$(SAVENAME)_$(METH).pdf",readdir("$(PATHTOSAVE)/Figures/")[ix]))[1]!=0
+    #            count += 1
+    #        end
+    #    end
+    #    newname = "stc_fct_$(SAVENAME)_$(METH)_$(count)"
+    #    Plots.savefig("$(PATHTOSAVE)/Figures/$(newname).pdf")
+    #end
 
     if limi==0 || limf==0
         println(" ")
@@ -893,42 +896,42 @@ function structure_functions(VARFILEPATH ; meth="moninyaglom", limi=0,limf=0)
         CANALTOFIT = limi:limf
     end    
     zeta = Structure_functions.xhi_fct_p(ORDERS[:],sct[:,CANALTOFIT])
-    Graphic.StcFctWithFit(sct,sct[3,:],ORDERS,zeta,CANALTOFIT,"$SAVENAME")
-    if OVERWRITE==true
-        Plots.savefig("$(PATHTOSAVE)/Figures/stc_fctfit_$(SAVENAME)_$(METH).pdf")
-    elseif (OVERWRITE==false && isfile("$(PATHTOSAVE)/Figures/stc_fctfit_$(SAVENAME)_$(METH).pdf")==true)
-        println("THE GIVEN FILE NAME ALREADY EXIST. AN INDICE WILL BE ADDED AT THE END OF THE GIVEN NAME, EQUAL TO THE NUMBER OF FILES WITH THE SAME NAME +1 ")
-        count = 1
-        for ix=1:size((findall.("stc_fctfit_$(SAVENAME)_$(METH)",readdir("$(PATHTOSAVE)/Figures/"))))[1]
-            if size(findall("stc_fctfit_$(SAVENAME)_$(METH)",readdir("$(PATHTOSAVE)/Figures/")[ix]))[1]!=0
-                count += 1
-            end
-        end
-        newname = "stc_fctfit_$(SAVENAME)_$(METH)_$(count)"
-        Plots.savefig("$(PATHTOSAVE)/Figures/$(newname).pdf")
-    else
-        Plots.savefig("$(PATHTOSAVE)/Figures/stc_fctfit_$(SAVENAME)_$(METH).pdf")
-    end
+    #Graphic.StcFctWithFit(sct,sct[3,:],ORDERS,zeta,CANALTOFIT,"$SAVENAME")
+    #if OVERWRITE==true
+    #    Plots.savefig("$(PATHTOSAVE)/Figures/stc_fctfit_$(SAVENAME)_$(METH).pdf")
+    #elseif (OVERWRITE==false && isfile("$(PATHTOSAVE)/Figures/stc_fctfit_$(SAVENAME)_$(METH).pdf")==true)
+    #    println("THE GIVEN FILE NAME ALREADY EXIST. AN INDICE WILL BE ADDED AT THE END OF THE GIVEN NAME, EQUAL TO THE NUMBER OF FILES WITH THE SAME NAME +1 ")
+    #    count = 1
+    #    for ix=1:size((findall.("stc_fctfit_$(SAVENAME)_$(METH)",readdir("$(PATHTOSAVE)/Figures/"))))[1]
+    #        if size(findall("stc_fctfit_$(SAVENAME)_$(METH)",readdir("$(PATHTOSAVE)/Figures/")[ix]))[1]!=0
+    #            count += 1
+    #        end
+    #    end
+    #    newname = "stc_fctfit_$(SAVENAME)_$(METH)_$(count)"
+    #    Plots.savefig("$(PATHTOSAVE)/Figures/$(newname).pdf")
+    #else
+    #    Plots.savefig("$(PATHTOSAVE)/Figures/stc_fctfit_$(SAVENAME)_$(METH).pdf")
+    #end
+#
+    #Graphic.StcFctExponent(zeta,zeta[3,1],ORDERS,[0,ORDERS[end]+1],[0,1.8],"Using $(METH)","$SAVENAME")
+    #if OVERWRITE==true
+    #    Plots.savefig("$(PATHTOSAVE)/Figures/zeta_$(SAVENAME)_$(METH).pdf")
+    #elseif (OVERWRITE==false && isfile("$(PATHTOSAVE)/Figures/zeta_$(SAVENAME)_$(METH).pdf")==true) #Not sure this is working
+    #    println("THE GIVEN FILE NAME ALREADY EXIST. AN INDICE WILL BE ADDED AT THE END OF THE GIVEN NAME, EQUAL TO THE NUMBER OF FILES WITH THE SAME NAME +1 ")
+    #    count = 1
+    #    for ix=1:size((findall.("zeta_$(SAVENAME)_$(METH)",readdir("$(PATHTOSAVE)/Figures/"))))[1]
+    #        if size(findall("zeta_$(SAVENAME)_$(METH)",readdir("$(PATHTOSAVE)/Figures/")[ix]))[1]!=0
+    #            count += 1
+    #        end
+    #    end
+    #    newname = "zeta_$(SAVENAME)_$(METH)_$(count)"
+    #    Plots.savefig("$(PATHTOSAVE)/Figures/$(newname).pdf")
+    #else 
+    #    Plots.savefig("$(PATHTOSAVE)/Figures/zeta_$(SAVENAME)_$(METH).pdf")
+    #end
 
-    Graphic.StcFctExponent(zeta,zeta[3,1],ORDERS,[0,ORDERS[end]+1],[0,1.8],"Using $(METH)","$SAVENAME")
-    if OVERWRITE==true
-        Plots.savefig("$(PATHTOSAVE)/Figures/zeta_$(SAVENAME)_$(METH).pdf")
-    elseif (OVERWRITE==false && isfile("$(PATHTOSAVE)/Figures/zeta_$(SAVENAME)_$(METH).pdf")==true) #Not sure this is working
-        println("THE GIVEN FILE NAME ALREADY EXIST. AN INDICE WILL BE ADDED AT THE END OF THE GIVEN NAME, EQUAL TO THE NUMBER OF FILES WITH THE SAME NAME +1 ")
-        count = 1
-        for ix=1:size((findall.("zeta_$(SAVENAME)_$(METH)",readdir("$(PATHTOSAVE)/Figures/"))))[1]
-            if size(findall("zeta_$(SAVENAME)_$(METH)",readdir("$(PATHTOSAVE)/Figures/")[ix]))[1]!=0
-                count += 1
-            end
-        end
-        newname = "zeta_$(SAVENAME)_$(METH)_$(count)"
-        Plots.savefig("$(PATHTOSAVE)/Figures/$(newname).pdf")
-    else 
-        Plots.savefig("$(PATHTOSAVE)/Figures/zeta_$(SAVENAME)_$(METH).pdf")
-    end
 
-
-    Dataprep.write_dat(cat([METHV 0 0 0],cat(zeta,ORDERS,dims=2),dims=1),"$(PATHTOSAVE)/Data/","$(SAVENAME)_stcfct_$(METH)", more=["METHOD $(METH) ; FILE : $(SAVENAME). ROW are results for differents orders which are given at the last column. First column is the exponant, second column is the factor A : Sp(l)=A*S3(l)^B. Also, at first row and first column is the method used : <0 for SWO, 0 for raw cube, >0 for PCA. The value gives the number of PCs for PCA)" ], overwrite=OVERWRITE)
+    Dataprep.write_dat(cat([METHV 0 0 0],cat(zeta,ORDERS,dims=2),dims=1),"$(PATHTOSAVE)/Data/","$(SAVENAME)_stcfct_$(METH)", more=["METHOD $(METH) ; FILE : $(SAVENAME) ; Intensity threshold during CV computation : $(THRESHOLD). ROW are results for differents orders which are given at the last column. First column is the exponant, second column is the factor A : Sp(l)=A*S3(l)^B. Also, at first row and first column is the method used : <0 for SWO, 0 for raw cube, >0 for PCA. The value gives the number of PCs for PCA)" ], overwrite=OVERWRITE)
 
 
 end #function structure_function

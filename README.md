@@ -12,6 +12,8 @@ The module **Unveil.jl** is the main one. It contains 8 functions, each one comu
 
 ![Structuration of the code](docs/build/assets/codestructure.png)
 
+WARNING : something wrong with the figures plotted in the structure_functions functions. For now, they are deleted. But all the values computed are saved in two .dat files.
+
 ## Statistical analysis
 The statistical analysis is based on the computation of the Centroid Velocity, and the Centroid Velocity Increment. On a PPV (Position-Position-Velocity) cube, the centroid velocity is writen as :
 
@@ -136,4 +138,5 @@ For a list and description of every function, please see the doc : download the 
 
 
 
-
+# FITS headers
+For the CV computations, it is recommended to use an intensity threshold. Thus, the fits written after a CV computation (CV map, CVI files, Structure functions .dat files) contains the value of the intensity threshold, given like in the .txt variables input files. It is a factor of the noise in the original cube.
