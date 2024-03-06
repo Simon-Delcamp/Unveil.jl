@@ -103,7 +103,8 @@ Use this script in a julia terminal with :
 
 """
 function convpca(VARFILEPATH)
-    FITSPATH,FILENAME,PATHTOSAVE,SAVENAME,NOISECAN,UNITVELOCITY,HIGHESTPC,BLANK,OVERWRITE = Dataprep.read_var_files(VARFILEPATH)
+    FITSPATH,FILENAME,PATHTOSAVE,SAVENAME,NOISECANTXT,UNITVELOCITY,HIGHESTPC,BLANK,OVERWRITE = Dataprep.read_var_files(VARFILEPATH)
+    NOISECAN = [parse(Int, ss) for ss in split(NOISECANTXT,",")]
 
 
     # Read the fits from the path. Return the data, the VelocityVector, the dimension, the velocity_increment, and the header.
@@ -129,8 +130,7 @@ function convpca(VARFILEPATH)
         DATADIMENSION_NOMISSING              = (DATADIMENSION[1]*DATADIMENSION[2],DATADIMENSION[3])
     end
 
-    #SIGMAT = Analysis.rms_cube(cube,NOISECAN)[2]
-
+    SIGMAT = Analysis.rms_cube(cube,NOISECAN)[2]
 
     #First PCA
     println("Perform PCA")

@@ -252,10 +252,12 @@ function cv_increment(xyarr,Lag::Vector{Int64},nangle; diff="relative",periodic=
                         # First, check if the value is missing. If so, do not continue and go to row+1
                         # Second, if previous step is false, then check if it's a blank value. If not continue and do the difference.
                         
-                        ((ismissing(xyarr_shifted[row,col]) || ismissing(xyarr[row,col])) || (xyarr_shifted[row,col] != BLANK || xyarr[row,col] != BLANK)) && (cvi_allangle_alllag[row,col,angl] = abs(xyarr_shifted[row,col]-xyarr[row,col]))
-                        ((ismissing(xyarr_shifted[row,col]) || ismissing(xyarr[row,col])) || (xyarr_shifted[row,col] == BLANK || xyarr[row,col] == BLANK)) && (cvi_allangle_alllag[row,col,angl] = BLANK)
-                        #((diff == "relative") && (ismissing(xyarr_shifted[row,col]) || ismissing(xyarr[row,col])) || (xyarr_shifted[row,col] != BLANK || xyarr[row,col] != BLANK)) && (cvi_allangle[row,col,angl] = xyarr_shifted[row,col]-xyarr[row,col])
-                        #cvi_allangle[row,col,angl] = xyarr_shifted[row,col]-xyarr[row,col]
+                        #((ismissing(xyarr_shifted[row,col]) || ismissing(xyarr[row,col])) || (xyarr_shifted[row,col] != BLANK || xyarr[row,col] != BLANK)) && (cvi_allangle_alllag[row,col,angl] = abs(xyarr_shifted[row,col]-xyarr[row,col]))
+                        #((ismissing(xyarr_shifted[row,col]) || ismissing(xyarr[row,col])) || (xyarr_shifted[row,col] == BLANK || xyarr[row,col] == BLANK)) && (cvi_allangle_alllag[row,col,angl] = BLANK)
+                        ##((diff == "relative") && (ismissing(xyarr_shifted[row,col]) || ismissing(xyarr[row,col])) || (xyarr_shifted[row,col] != BLANK || xyarr[row,col] != BLANK)) && (cvi_allangle[row,col,angl] = xyarr_shifted[row,col]-xyarr[row,col])
+                        ##cvi_allangle[row,col,angl] = xyarr_shifted[row,col]-xyarr[row,col]
+
+                        ((ismissing(xyarr_shifted[row,col])) || ismissing(xyarr[row,col]) || (xyarr_shifted[row,col] != BLANK || xyarr[row,col] != BLANK)) && (cvi_allangle_alllag[row,col,angl,lagstep] = abs(xyarr_shifted[row,col]-xyarr[row,col]))
                     end
                 end
             else
@@ -300,10 +302,11 @@ function cv_increment(xyarr,Lag::Int64,nangle,DataDimension; diff="relative",per
                     # First, check if the value is missing. If so, do not continue and go to row+1
                     # Second, if previous step is false, then check if it's a blank value. If not continue and do the difference.
                     
-                    ((ismissing(xyarr_shifted[row,col]) || ismissing(xyarr[row,col])) || (xyarr_shifted[row,col] != BLANK || xyarr[row,col] != BLANK)) && (cvi_allangle_alllag[row,col,angl] = abs(xyarr_shifted[row,col]-xyarr[row,col]))
-                    ((ismissing(xyarr_shifted[row,col]) || ismissing(xyarr[row,col])) || (xyarr_shifted[row,col] == BLANK || xyarr[row,col] == BLANK)) && (cvi_allangle_alllag[row,col,angl] = BLANK)
-                    #((diff == "relative") && (ismissing(xyarr_shifted[row,col]) || ismissing(xyarr[row,col])) || (xyarr_shifted[row,col] != BLANK || xyarr[row,col] != BLANK)) && (cvi_allangle[row,col,angl] = xyarr_shifted[row,col]-xyarr[row,col])
-                    #cvi_allangle[row,col,angl] = xyarr_shifted[row,col]-xyarr[row,col]
+                    #((ismissing(xyarr_shifted[row,col]) || ismissing(xyarr[row,col])) || (xyarr_shifted[row,col] != BLANK || xyarr[row,col] != BLANK)) && (cvi_allangle_alllag[row,col,angl] = abs(xyarr_shifted[row,col]-xyarr[row,col]))
+                    #((ismissing(xyarr_shifted[row,col]) || ismissing(xyarr[row,col])) || (xyarr_shifted[row,col] == BLANK || xyarr[row,col] == BLANK)) && (cvi_allangle_alllag[row,col,angl] = BLANK)
+                    ##((diff == "relative") && (ismissing(xyarr_shifted[row,col]) || ismissing(xyarr[row,col])) || (xyarr_shifted[row,col] != BLANK || xyarr[row,col] != BLANK)) && (cvi_allangle[row,col,angl] = xyarr_shifted[row,col]-xyarr[row,col])
+                    ##cvi_allangle[row,col,angl] = xyarr_shifted[row,col]-xyarr[row,col]
+                    ((ismissing(xyarr_shifted[row,col])) || ismissing(xyarr[row,col]) || (xyarr_shifted[row,col] != BLANK || xyarr[row,col] != BLANK)) && (cvi_allangle_alllag[row,col,angl] = abs(xyarr_shifted[row,col]-xyarr[row,col]))
                 end
             end
         else

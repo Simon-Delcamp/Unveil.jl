@@ -3,8 +3,7 @@ module Analysis
 include("Dataprep.jl") #Read and write fits
 using .Dataprep
 
-import MultivariateStats, StatsBase, Statistics
-using  FFTW, AbstractFFTs
+using MultivariateStats, StatsBase, Statistics, FFTW, AbstractFFTs
 
 export fourmoments
 export metricOW
@@ -136,10 +135,10 @@ function rms_cube(cube::Array{Float64,3},can)
     for ix=1:size(cube)[2]
 
         for jx=1:size(cube)[1]
-            map[jx,ix] = sqrt(StatsBase.moment(cube[jx,ix,can],2))
+            map[jx,ix] = sqrt(moment(cube[jx,ix,can],2))
         end
     end
-    rmsavr = StatsBase.mean(skipmissing(map))
+    rmsavr = mean(skipmissing(map))
     return(map,rmsavr)
 
 end
@@ -156,9 +155,9 @@ Compute the dispersion (e.g. sqrt(second moment order)) on velocity canal given 
 function rms_cube(cube::Array{Float64,2},can)
     map = Array{Float64}(undef,size(cube)[1])
     for jx=1:size(cube)[1]
-        map[jx] = sqrt(StatsBase.moment(cube[jx,can],2))
+        map[jx] = sqrt(moment(cube[jx,can],2))
     end
-    rmsavr = StatsBase.mean(skipmissing(map))
+    rmsavr = mean(skipmissing(map))
     return(map,rmsavr)
 
 end
