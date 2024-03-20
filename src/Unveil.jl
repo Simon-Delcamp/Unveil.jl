@@ -33,7 +33,6 @@ export compmethod_stcfct
 
 
 
-
 """
     compmethod_stcfct(VARFILEPATH)
 
@@ -138,10 +137,8 @@ function convpca(VARFILEPATH)
 
     # Projection matrix
     proj = PCA.proj(M)
-
-
-
     mom1,mom2,mom3,mom4 = Analysis.fourmoments(proj,dim=2)
+
 
     if ismis == 1
         proj = Dataprep.addblank(proj,missingplaces2D[:,1:HIGHESTPC],BLANK,(DATADIMENSION[1],DATADIMENSION[2],HIGHESTPC))
@@ -160,7 +157,7 @@ function convpca(VARFILEPATH)
     M = 0
     Yt = 0
     GC.gc()   # CLEANING MEMORY, NECESSARY FOR LARGE DATASET
-    println("cleaned")
+
     #BL#Graphic.distribmom_multipc(mom1[2:end-1],mom2[2:end-1],mom3[2:end-1],mom4[2:end-1],xvector[2:end-1])
     newname = "$(SAVENAME)_mom"
     if (OVERWRITE==false && isfile("$(PATHTOSAVE)/Figures/$(SAVENAME)_mom.pdf")==true)
@@ -209,6 +206,7 @@ function convpca(VARFILEPATH)
     #println("Metric minimum=$(minimetr)")
     #println("#PC of metric minimum=$(minipc)")
 end #convpca
+
 
 
 
@@ -322,7 +320,7 @@ function cvcvi(VARFILEPATH)    #  ; thresh=0, add="0")  #<- OPTION used to bench
         mult = false
     end 
 
-
+    
     # Read the fits from the path. Return the data, the VelocityVector, the dimension, the velocity_increment, and the header.
     cube,VELOCITYVECTOR,DATADIMENSION,VELOCITYINCREMENT,HEAD = Dataprep.read_fits_ppv("$FITSPATH/$FITSNAME",UNITVELOCITY ; check=false)
     if haskey(HEAD,"METHOD")==1 
@@ -445,6 +443,7 @@ function cvcvi(VARFILEPATH)    #  ; thresh=0, add="0")  #<- OPTION used to bench
     else
         error("Not good argument in DIFFTYPE (should be abs or relative)")
     end
+    
     cvmap = 0
     GC.gc()
     if  mult==true
@@ -831,7 +830,7 @@ function structure_functions(VARFILEPATH ; meth="moninyaglom", limi=0,limf=0)
     # Read the fits from the path. Return the data, the VelocityVector, the dimension, the velocity_increment, and the header.
     cvicube,DATADIMENSION,HEAD = Dataprep.read_fits_cvi("$(FITSPATH)/$(FILENAME)" ; check=false)
     haskey(HEAD,"THRESH") && (THRESHOLD = HEAD["THRESH"])
-    println(THRESHOLD)
+    haskey(HEAD,"THRESH") || (THRESHOLD = 0)
     if haskey(HEAD,"METHOD")==1 
         if HEAD["METHOD"]=="PCA"
             METH = HEAD["NBPC"]

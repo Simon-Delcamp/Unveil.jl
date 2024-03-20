@@ -90,6 +90,44 @@ end
 
 
 """
+    changetxt(FILENAME::String, VARNAME::String, VARVAL::Int)
+
+Modify the variablex .txt files, replacing the variable VARNAME with a new value VARVAL. These files are originally produced by prodvarfile(). Works for replacing Int values (like number of PCs). The same function is written for replacing String variables (like path).
+"""
+function changetxt(FILENAME::String, VARNAME::String, VARVAL::Int)
+    lines = readlines(FILENAME)
+    open(FILENAME,"w") do ids_file
+        for line in lines
+            if startswith(line, VARNAME)    
+                println(ids_file,"$(VARNAME)                $(VARVAL)")
+            else    
+                println(ids_file,line)
+            end
+        end
+    end
+end
+
+"""
+    changetxt(FILENAME::String, VARNAME::String, VARVAL::String)
+
+Modify the variablex .txt files, replacing the variable VARNAME with a new value VARVAL. These files are originally produced by prodvarfile(). Works for replacing String values, like path. The same function is written for replacing Int variable (like number of PCs).
+"""
+function changetxt(FILENAME::String, VARNAME::String, VARVAL::String)
+    lines = readlines(FILENAME)
+    open(FILENAME,"w") do ids_file
+        for line in lines
+            if startswith(line, VARNAME)    
+                println(ids_file,"$(VARNAME)             \"$(VARVAL)\"")
+            else    
+                println(ids_file,line)
+            end
+        end
+    end
+end
+
+
+
+"""
     deletemissing(data,missing1D)
 
 Delete all rows where there is at least one missing value using a boolean vector of the missing values.
