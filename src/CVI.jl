@@ -344,7 +344,6 @@ end
 
 
 
-
 """
     moment_one(yarr,xarr)
 
@@ -385,6 +384,22 @@ function moment_one_field(arr,SIGMAT,THRESHOLD,velvector,BLANK)
     return(momentfield)
 end
 
+
+
+function newcvicalc()
+
+
+end
+
+
+
+function distcalc(x1,x2,y1,y2)
+    xi = min(x1,x2) 
+    xf = max(x1,x2)
+    yi = min(y1,y2)
+    yf = max(y1,y2)
+    return(sqrt((xf-xi)^2+(yf-yi)^2))
+end
 
 
 
