@@ -34,7 +34,6 @@ function checkwindowopti(sourcecube,cubewo,minimap,VELOCITYVECTOR,NBROW,NBCOL;li
 end
 
 
-
 function distribcv_multipc(mom1,mom2,mom3,mom4,metric,xvector)
     gr()
     l = @layout [grid(2,2);a{0.4h} ]
@@ -164,7 +163,15 @@ function pratio(M,ylog::Bool,pc,titl)
     display(p)
 end
 
-
+function metric_PCA(metric,xvector,PATHTOSAVE; plot=true)
+    # plot metric PCA
+    if plot==true
+        X = xvector
+        Y = metric
+        scatter(X, Y, title="pol_metricPCA", xlabel="PCs", ylabel="Metric", mc=:red, ms=2, ma=0.5)
+        savefig(PATHTOSAVE)
+    end
+end
 
 """
     StcFct()
