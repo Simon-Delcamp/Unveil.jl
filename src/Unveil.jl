@@ -201,6 +201,7 @@ function convpca(VARFILEPATH; plot=true)
     end #if
     #BL#Plots.savefig("$(PATHTOSAVE)/Figures/$(newname).pdf")
 #test
+#test2
     Dataprep.write_dat([metric mom1./0.05 mom2 mom3 mom4.-3 xvector],"$PATHTOSAVE/Data/","$(SAVENAME)_metricPCA",overwrite=OVERWRITE,more=["$FILENAME","Metric  Mom1   Mom2   Mom3   Mom4   PCs"])
     if plot==true
         Graphic.metric_PCA(metric,xvector,"$PATHTOSAVE/Data/"*"$(SAVENAME)_metricPCA"*".png")
