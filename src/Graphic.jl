@@ -163,15 +163,17 @@ function pratio(M,ylog::Bool,pc,titl)
     display(p)
 end
 
-function metric_PCA(metric,xvector,PATHTOSAVE; plot=true)
+
+
+function metric_PCA(metric,xvector,PATHTOSAVE)
     # plot metric PCA
-    if plot==true
-        X = xvector
-        Y = metric
-        scatter(X, Y, title="pol_metricPCA", xlabel="PCs", ylabel="Metric", mc=:red, ms=2, ma=0.5)
-        savefig(PATHTOSAVE)
-    end
+    X = xvector
+    Y = metric
+    scatter(X, Y, title="pol_metricPCA", xlabel="PCs", ylabel="Metric", mc=:red, ms=2, ma=0.5)
+    savefig(PATHTOSAVE)
 end
+
+
 
 """
     StcFct()
