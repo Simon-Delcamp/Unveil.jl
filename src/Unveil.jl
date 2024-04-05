@@ -737,7 +737,7 @@ function pca(VARFILEPATH)
         mmean = Dataprep.addblank(M.mean,missingplaces2D[:,1],BLANK,(DATADIMENSION[1],DATADIMENSION[2]))
         #projec            = Dataprep.addblank(PCA.proj(M),missingplaces2D[:,1:NBPC],BLANK,DATADIMENSION) 
     end
-    mmean = reshape(mmean,(DATADIMENSION[1],DATADIMENSION[2]))
+    mmean = reshape(M.mean,(DATADIMENSION[1],DATADIMENSION[2]))
     Dataprep.write_fits("$(FITSPATH)/$(FILENAME)","mmean_$(NBPC)PC","$PATHTOSAVE/Data/",mmean,(DATADIMENSION[1],DATADIMENSION[2]),BLANK,overwrite=OVERWRITE,more=["NBPC",NBPC,"VARPERC",VARPERCENT[NBPC]*100,"METHOD","PCA"])
     s = open("$(PATHTOSAVE)/Data/Yt_$(NBPC)PC.bin", "w+")
     write(s,Yt)
@@ -1200,5 +1200,17 @@ function cvcviOT(VARFILEPATH ; thresh=0, add="0")
     #println("CVI map with all angles values saved in the $(PATHTOSAVE)/Data/CVI$(DIFFTYPE)_$(SAVENAME)_allangle_$(METH)_NumberOfFilesWithTheSameNameAsPrefixe.fits as a fits.")
 end #function cvcvi
 
+
+
+
+
+
+function newcvi(fits,LAG,DLAG,BLANK)
+    CVMAP,HEAD,DATADIMENSION = Dataprep.read_fits_pp(fits)
+    #cviall = CVI.newcvicalc(cvmap,STEP,-1000)
+    cviall = CVI.nncvi(CVMAP,LAG,DLAG,BLANK)
+    Dataprep.write_fits(fits,"NEWCVI","/home/delcamps/Prog/test/",cviall,(size(cviall)[1],size(cviall)[2]),BLANK,finished=true,overwrite=false,more=["LAG",LAG])
+
+end
 
 end # module Unveil
