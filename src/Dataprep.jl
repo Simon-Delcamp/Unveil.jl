@@ -5,6 +5,7 @@ export addblank
 export blank_equal 
 export blank_inf
 export boolmatrix_missing
+export changetxt
 export directory_prep
 export flatiterator
 export pca_prep
