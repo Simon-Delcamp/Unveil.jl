@@ -95,7 +95,7 @@ end
 
 Modify the variablex .txt files, replacing the variable VARNAME with a new value VARVAL. These files are originally produced by prodvarfile(). Works for replacing Float values (like number of PCs). The same function is written for replacing String variables (like path).
 """
-function changetxt(FILENAME::String, VARNAME::String, VARVAL::Float)
+function changetxt(FILENAME::String, VARNAME::String, VARVAL::Float64)
     lines = readlines(FILENAME)
     open(FILENAME,"w") do ids_file
         for line in lines
