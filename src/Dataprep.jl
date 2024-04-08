@@ -91,11 +91,11 @@ end
 
 
 """
-    changetxt(FILENAME::String, VARNAME::String, VARVAL::Int)
+    changetxt(FILENAME::String, VARNAME::String, VARVAL::Float)
 
-Modify the variablex .txt files, replacing the variable VARNAME with a new value VARVAL. These files are originally produced by prodvarfile(). Works for replacing Int values (like number of PCs). The same function is written for replacing String variables (like path).
+Modify the variablex .txt files, replacing the variable VARNAME with a new value VARVAL. These files are originally produced by prodvarfile(). Works for replacing Float values (like number of PCs). The same function is written for replacing String variables (like path).
 """
-function changetxt(FILENAME::String, VARNAME::String, VARVAL::Int)
+function changetxt(FILENAME::String, VARNAME::String, VARVAL::Float)
     lines = readlines(FILENAME)
     open(FILENAME,"w") do ids_file
         for line in lines
