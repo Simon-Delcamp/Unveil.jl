@@ -736,8 +736,10 @@ function pca(VARFILEPATH)
     if ismis == 1
         mmean = Dataprep.addblank(M.mean,missingplaces2D[:,1],BLANK,(DATADIMENSION[1],DATADIMENSION[2]))
         #projec            = Dataprep.addblank(PCA.proj(M),missingplaces2D[:,1:NBPC],BLANK,DATADIMENSION) 
+        mmean = reshape(mmean,(DATADIMENSION[1],DATADIMENSION[2]))
+    else
+        mmean = reshape(M.mean,(DATADIMENSION[1],DATADIMENSION[2]))
     end
-    mmean = reshape(M.mean,(DATADIMENSION[1],DATADIMENSION[2]))
     Dataprep.write_fits("$(FITSPATH)/$(FILENAME)","mmean_$(NBPC)PC","$PATHTOSAVE/Data/",mmean,(DATADIMENSION[1],DATADIMENSION[2]),BLANK,overwrite=OVERWRITE,more=["NBPC",NBPC,"VARPERC",VARPERCENT[NBPC]*100,"METHOD","PCA"])
     s = open("$(PATHTOSAVE)/Data/Yt_$(NBPC)PC.bin", "w+")
     write(s,Yt)
