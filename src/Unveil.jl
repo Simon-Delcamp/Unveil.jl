@@ -18,6 +18,8 @@ using .Structure_functions
 using .CVI
 using .PCA
 using Plots
+using ProgressBars
+using StatsBase
 
 export pca
 export swo
@@ -980,7 +982,7 @@ function swo(VARFILEPATH ; meth="swo")
     end
     
     if meth=="swo"
-       maskinterv,mask = SWO.swo(cube,DATADIMENSION_NOMISSING,VELOCITYVECTOR,NOISECAN)
+       maskinterv,mask,posimap = SWO.newswo(cube,DATADIMENSION_NOMISSING,VELOCITYVECTOR,NOISECAN)
     elseif meth=="pety"
         maskinterv,mask = SWO.petysnr(cube,DATADIMENSION_NOMISSING,VELOCITYVECTOR,NOISECAN)
     else
@@ -1001,11 +1003,64 @@ function swo(VARFILEPATH ; meth="swo")
 
     if ismis == 1
         maskinterv = Dataprep.addblank(maskinterv,missingplaces2D,BLANK,DATADIMENSION)
+        posimapinf = Dataprep.addblank(posimap[:,1],missingplaces2D[:,1],BLANK,(DATADIMENSION[1],DATADIMENSION[2]))
+        posimapsup = Dataprep.addblank(posimap[:,2],missingplaces2D[:,1],BLANK,(DATADIMENSION[1],DATADIMENSION[2]))
+
         #maskintervpety = Dataprep.addblank(maskintervpety,missingplaces2D,BLANK,DATADIMENSION)
     end
     maskinterv = reshape(maskinterv,DATADIMENSION)
     maskinterv = Dataprep.blank_equal(maskinterv,BLANK,0)
+    posimap = Array{Float64}(undef, (DATADIMENSION[1],DATADIMENSION[2],2))
+    posimap .= BLANK
+    posimap[:,:,1] .= reshape(posimapinf,(DATADIMENSION[1],DATADIMENSION[2])) 
+    posimap[:,:,2] .= reshape(posimapsup,(DATADIMENSION[1],DATADIMENSION[2]))
+    posimap = Dataprep.replace_blanktomissing(posimap,BLANK)
+    int = 5
+    #posimap = Dataprep.replace_blanktomissing(posimap,0)
+    #p = plot(layout=2)
+    #p = heatmap!(p[1],posimap[:,:,1],clims=(1,100))
+    #p = heatmap!(p[2],posimap[:,:,2],clims=(110,170))
+    #display(p)
 
+
+    # These next ~40 rows allow to treat spectra for which SWO didn't found an optimised window. Will average the positions that SWO found for the 5x5 pixels around the pixel without a window. Thus, can't work if multiples spectra doesn't have a window around them, but it is logical. 
+    # Would be better to include it in a dedicated function.
+    for px=1:size(maskinterv)[1]
+        for py=1:size(maskinterv)[2]
+            if maskinterv[px,py,3]!=0
+                if px>int && px<DATADIMENSION[1]-int && py>int && py<DATADIMENSION[2]-int
+                    posi = floor(moment(collect(skipmissing(posimap[px-int:px+int,py-int:py+int,1])),1,0)) |> Int64
+                    posf = floor(moment(collect(skipmissing(posimap[px-int:px+int,py-int:py+int,2])),1,0))+1 |> Int64
+                elseif px<int && py>int && py<DATADIMENSION[2]-int
+                    posi = floor(moment(collect(skipmissing(posimap[px:px+int,py-int:py+int,1])),1,0)) |> Int64
+                    posf = floor(moment(collect(skipmissing(posimap[px:px+int,py-int:py+int,2])),1,0))+1 |> Int64
+                elseif py<int && px>int &&  px<DATADIMENSION[1]-int 
+                    posi = floor(moment(collect(skipmissing(posimap[px-int:px+int,py:py+int,1])),1,0)) |> Int64
+                    posf = floor(moment(collect(skipmissing(posimap[px-int:px+int,py:py+int,2])),1,0))+1 |> Int64
+                elseif px>DATADIMENSION[1]-int && py>int && py<DATADIMENSION[2]-int
+                    posi = floor(moment(collect(skipmissing(posimap[px-int:px,py-int:py+int,1])),1,0)) |> Int64
+                    posf = floor(moment(collect(skipmissing(posimap[px-int:px,py-int:py+int,2])),1,0))+1 |> Int64
+                elseif py>DATADIMENSION[2]-int && px>int &&  px<DATADIMENSION[1]-int
+                    posi = floor(moment(collect(skipmissing(posimap[px-int:px+int,py-int:py,1])),1,0)) |> Int64
+                    posf = floor(moment(collect(skipmissing(posimap[px-int:px+int,py-int:py,2])),1,0))+1 |> Int64
+                else 
+                    posi = 2
+                    posf = DATADIMENSION[3]-1
+                end
+                
+                if posf<=0
+                    posf = DATADIMENSION[3]-1
+                end
+                
+                if posi<=0
+                    posi = 2
+                end
+                maskinterv[px,py,1:posi] .= 0
+                maskinterv[px,py,posf:end] .=0
+            end
+        end
+    end
+    
     #maskintervpety = reshape(maskintervpety,DATADIMENSION)
     #maskintervpety = Dataprep.blank_equal(maskintervpety,BLANK,0)
 
@@ -1014,6 +1069,20 @@ function swo(VARFILEPATH ; meth="swo")
     #Dataprep.write_fits("$(FITSPATH)/$FILENAME","RECONSTRUCTED_$(SAVENAME)_SWOpety","$PATHTOSAVE/Data/",maskintervpety,DATADIMENSION,BLANK,overwrite=OVERWRITE,more=["METHOD","SWO"])
 
 end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
