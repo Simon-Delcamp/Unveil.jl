@@ -34,7 +34,6 @@ function checkwindowopti(sourcecube,cubewo,minimap,VELOCITYVECTOR,NBROW,NBCOL;li
 end
 
 
-
 function distribcv_multipc(mom1,mom2,mom3,mom4,metric,xvector)
     gr()
     l = @layout [grid(2,2);a{0.4h} ]
@@ -162,6 +161,16 @@ function pratio(M,ylog::Bool,pc,titl)
     p = plot!([1:1:(size(explained_percentage)[1])],100 .-cumsum(explained_percentage).*100,linestyle=:solid, linewidth=2,yaxis=loga, label="1-CumulSum(p)",xlabel="Number of Principal Components",ylabel = "Variance percentage explained", framestyle=:box)
     p = plot!(xaxis=(0:10:pc),xrotation=45,ylims=(1e-4,2e2),yminorticks=10) #ylim=[minimum(explained_percentage*100),110],,yminorticks=10,yticks=5
     display(p)
+end
+
+
+
+function metric_PCA(metric,xvector,PATHTOSAVE)
+    # plot metric PCA
+    X = xvector
+    Y = metric
+    scatter(X, Y, title="pol_metricPCA", xlabel="PCs", ylabel="Metric", mc=:red, ms=2, ma=0.5)
+    savefig(PATHTOSAVE)
 end
 
 

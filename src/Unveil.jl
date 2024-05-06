@@ -89,7 +89,7 @@ function compmethod_stcfct(VARFILEPATH)
         
 end
 
-
+# Coucou, c'est moi
 
 
 """
@@ -103,7 +103,7 @@ Use this script in a julia terminal with :
     julia>Unveil.convpca("VARFILEPATH")
 
 """
-function convpca(VARFILEPATH)
+function convpca(VARFILEPATH; plot=true)
     FITSPATH,FILENAME,PATHTOSAVE,SAVENAME,NOISECANTXT,UNITVELOCITY,HIGHESTPC,BLANK,OVERWRITE = Dataprep.read_var_files(VARFILEPATH)
     NOISECAN = [parse(Int, ss) for ss in split(NOISECANTXT,",")]
 
@@ -201,8 +201,12 @@ function convpca(VARFILEPATH)
 
     end #if
     #BL#Plots.savefig("$(PATHTOSAVE)/Figures/$(newname).pdf")
-
+#test
+#test2
     Dataprep.write_dat([metric mom1./0.05 mom2 mom3 mom4.-3 xvector],"$PATHTOSAVE/Data/","$(SAVENAME)_metricPCA",overwrite=OVERWRITE,more=["$FILENAME","Metric  Mom1   Mom2   Mom3   Mom4   PCs"])
+    if plot==true
+        Graphic.metric_PCA(metric,xvector,"$PATHTOSAVE/Data/"*"$(SAVENAME)_metricPCA"*".png")
+    end
     #minimetr = minimum(metric)
     #minipc   = xvector[findall(x->x==minimetr,metric)]
     #println("Metric minimum=$(minimetr)")
