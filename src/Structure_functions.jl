@@ -86,15 +86,10 @@ Fit the model y=A*(x)^B for multiple order and lag of structure functions.
 """
 function xhi_fct_p(pvec,struct_lag)
     zeta = Array{Float64}(undef,size(pvec)[1],3)
-    if size(pvec)[1]==6
-       p0 = [[0.37,1],[0.7,1],[1,1],[1.27,1],[1.53,1],[1.77,1]]
-    elseif size(pvec)[1]==7
-        p0 = [[0.37,1],[0.7,1],[1,1],[1.27,1],[1.53,1],[1.77,1],[1.9,1]]
-    elseif size(pvec)[1]==5
-        p0 = [[0.37,1],[0.7,1],[1,1],[1.27,1],[1.53,1]]
-    end
+    pp = [(i-1)*0.5+0.37 for i=1:size(pvec)[1]] 
+    pf = [1 for i=1:size(pvec)[1]]
+    p0 = [[pp[ix],pf[ix]] for ix=1:size(pvec)[1]] # Guesses for exponents B and factor A. 
     for ix=1:size(pvec)[1]
-        
         zeta[ix,:] .= fit_fctsct(struct_lag[ix,:],struct_lag[3,:],p0[ix])
         # WORKED with other version fit_fctsct
         #zeta[ix,:] .= fit_fctsct(struct_lag[ix,:],struct_lag[3,:])

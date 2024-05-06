@@ -224,7 +224,7 @@ Use this script in a julia terminal with :
     julia>Unveil.cv(VARFILEPATH)
 """
 function cv(VARFILEPATH)
-    FITSPATH,FITSNAME,PATHTOSAVE,FITSOURCE,SAVENAME,UNITVELOCITY,THRESHOLD,NOISECANTXT,BLANK,OVERWRITE = Dataprep.read_var_files(VARFILEPATH)
+    FITSPATH,FITSNAME,PATHTOSAVE,FITSOURCE,SAVENAME,UNITVELOCITY,THRESHOLD,NOISECANTXT,VSHIFT,BLANK,OVERWRITE = Dataprep.read_var_files(VARFILEPATH)
     NOISECAN = [parse(Int, ss) for ss in split(NOISECANTXT,",")]
 
 
@@ -278,6 +278,7 @@ function cv(VARFILEPATH)
     end
 
     println("------ CV CALCULATION ------")
+    VELOCITYVECTOR = Dataprep.shiftspec(VELOCITYVECTOR,VSHIFT)
     cvmap = CVI.moment_one_field(cube,SIGMAT,THRESHOLD,VELOCITYVECTOR,BLANK) # Calculate the first velocity moment order on data reconstructed
     cube  = 0.0 
     GC.gc()
@@ -287,6 +288,8 @@ function cv(VARFILEPATH)
     end
     cvmap = reshape(cvmap,(DATADIMENSION[1],DATADIMENSION[2]))
 
+    cvmap .= cvmap.+VSHIFT
+    VELOCITYVECTOR = Dataprep.shiftspec(VELOCITYVECTOR,-VSHIFT)
 
     Dataprep.write_fits("$(FITSPATH)/$FITSNAME","CV_$(SAVENAME)_$(METH)","$(PATHTOSAVE)/Data/",cvmap,(DATADIMENSION_NOMISSING[1],DATADIMENSION_NOMISSING[2]),BLANK,finished=true,overwrite=OVERWRITE,more=["THRESH",THRESHOLD])
     #cvmap = 0.0
@@ -313,7 +316,7 @@ Use this script in a julia terminal with :
     julia>Unveil.cvcvi(VARFILEPATH)
 """
 function cvcvi(VARFILEPATH)    #  ; thresh=0, add="0")  #<- OPTION used to benchmark intensity threshold easiest    
-    FITSPATH,FITSNAME,PATHTOSAVE,FITSOURCE,SAVENAME,THRESHOLD,NOISECANTXT,UNITVELOCITY,REMOVE,BLANK,LAG,DIFFTYPE,OVERWRITE = Dataprep.read_var_files(VARFILEPATH)
+    FITSPATH,FITSNAME,PATHTOSAVE,FITSOURCE,SAVENAME,THRESHOLD,NOISECANTXT,UNITVELOCITY,REMOVE,VSHIFT,BLANK,LAG,DIFFTYPE,OVERWRITE = Dataprep.read_var_files(VARFILEPATH)
     NOISECAN = [parse(Int, ss) for ss in split(NOISECANTXT,",")]
     if length(LAG)!=1
         LAG = [parse(Int, ss) for ss in split(LAG,",")]
@@ -406,9 +409,13 @@ function cvcvi(VARFILEPATH)    #  ; thresh=0, add="0")  #<- OPTION used to bench
 
 
     println("------ CV CALCULATION ------")
+    VELOCITYVECTOR = Dataprep.shiftspec(VELOCITYVECTOR,VSHIFT)
     cvmap = CVI.moment_one_field(cube,SIGMAT,THRESHOLD,VELOCITYVECTOR,BLANK) # Calculate the first velocity moment order on data reconstructed
     cube  = 0.0 
     GC.gc()
+
+    cvmap .= cvmap.+VSHIFT
+    VELOCITYVECTOR = Dataprep.shiftspec(VELOCITYVECTOR,-VSHIFT)
 
     if ismis == 1
         cvmap = Dataprep.addblank(cvmap,missingplaces2D[:,1],BLANK,(DATADIMENSION[1],DATADIMENSION[2]))
@@ -771,7 +778,7 @@ function pca(VARFILEPATH)
     end
     cubereconstructed = reshape(cubereconstructed,DATADIMENSION)
     #projec            = reshape(PCA.proj(M),DATADIMENSION)
-
+    #cubereconstructed = Dataprep.blank_equal(cubereconstructed,BLANK,0)
     println("Saving Fits")
     Dataprep.write_fits("$(FITSPATH)/$(FILENAME)","RECONSTRUCTED_$(SAVENAME)_$(NBPC)PC","$PATHTOSAVE/Data/",cubereconstructed,DATADIMENSION,BLANK,overwrite=OVERWRITE,more=["NBPC",NBPC,"VARPERC",VARPERCENT[NBPC]*100,"METHOD","PCA"])
     println("Data reconstructed from PCA saved in $(PATHTOSAVE)/Data/RECONSTRUCTED_$(SAVENAME)_$(NBPC)PC_NumberOfFilesWithTheSameNameAsPrefixe.fits as a fits.")
@@ -1005,11 +1012,12 @@ function swo(VARFILEPATH ; meth="swo")
         maskinterv = Dataprep.addblank(maskinterv,missingplaces2D,BLANK,DATADIMENSION)
         posimapinf = Dataprep.addblank(posimap[:,1],missingplaces2D[:,1],BLANK,(DATADIMENSION[1],DATADIMENSION[2]))
         posimapsup = Dataprep.addblank(posimap[:,2],missingplaces2D[:,1],BLANK,(DATADIMENSION[1],DATADIMENSION[2]))
-
         #maskintervpety = Dataprep.addblank(maskintervpety,missingplaces2D,BLANK,DATADIMENSION)
+    else 
+        posimapinf = posimap[:,1]
+        posimapsup = posimap[:,2]
     end
-    posimapinf = posimap[:,1]
-    posimapsup = posimap[:,2]
+
     maskinterv = reshape(maskinterv,DATADIMENSION)
     maskinterv = Dataprep.blank_equal(maskinterv,BLANK,0)
     posimap = Array{Float64}(undef, (DATADIMENSION[1],DATADIMENSION[2],2))
@@ -1017,7 +1025,7 @@ function swo(VARFILEPATH ; meth="swo")
     posimap[:,:,1] .= reshape(posimapinf,(DATADIMENSION[1],DATADIMENSION[2])) 
     posimap[:,:,2] .= reshape(posimapsup,(DATADIMENSION[1],DATADIMENSION[2]))
     posimap = Dataprep.replace_blanktomissing(posimap,BLANK)
-    int = 5
+    int = 10
     #posimap = Dataprep.replace_blanktomissing(posimap,0)
     #p = plot(layout=2)
     #p = heatmap!(p[1],posimap[:,:,1],clims=(1,100))
@@ -1029,7 +1037,7 @@ function swo(VARFILEPATH ; meth="swo")
     # Would be better to include it in a dedicated function.
     for px=1:size(maskinterv)[1]
         for py=1:size(maskinterv)[2]
-            if maskinterv[px,py,3]!=0
+            if maskinterv[px,py,3]!=0 && maskinterv[px,py,3]!=BLANK
                 if px>int && px<DATADIMENSION[1]-int && py>int && py<DATADIMENSION[2]-int
                     posi = floor(moment(collect(skipmissing(posimap[px-int:px+int,py-int:py+int,1])),1,0)) |> Int64
                     posf = floor(moment(collect(skipmissing(posimap[px-int:px+int,py-int:py+int,2])),1,0))+1 |> Int64
