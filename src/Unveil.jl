@@ -18,7 +18,8 @@ using .Structure_functions
 using .CVI
 using .PCA
 using Plots
-using DelimitedFiles
+using ProgressBars
+using StatsBase
 
 export pca
 export swo
@@ -227,7 +228,7 @@ Use this script in a julia terminal with :
     julia>Unveil.cv(VARFILEPATH)
 """
 function cv(VARFILEPATH)
-    FITSPATH,FITSNAME,PATHTOSAVE,FITSOURCE,SAVENAME,UNITVELOCITY,THRESHOLD,NOISECANTXT,BLANK,OVERWRITE = Dataprep.read_var_files(VARFILEPATH)
+    FITSPATH,FITSNAME,PATHTOSAVE,FITSOURCE,SAVENAME,UNITVELOCITY,THRESHOLD,NOISECANTXT,VSHIFT,BLANK,OVERWRITE = Dataprep.read_var_files(VARFILEPATH)
     NOISECAN = [parse(Int, ss) for ss in split(NOISECANTXT,",")]
 
 
@@ -281,6 +282,7 @@ function cv(VARFILEPATH)
     end
 
     println("------ CV CALCULATION ------")
+    VELOCITYVECTOR = Dataprep.shiftspec(VELOCITYVECTOR,VSHIFT)
     cvmap = CVI.moment_one_field(cube,SIGMAT,THRESHOLD,VELOCITYVECTOR,BLANK) # Calculate the first velocity moment order on data reconstructed
     cube  = 0.0 
     GC.gc()
@@ -290,6 +292,8 @@ function cv(VARFILEPATH)
     end
     cvmap = reshape(cvmap,(DATADIMENSION[1],DATADIMENSION[2]))
 
+    cvmap .= cvmap.+VSHIFT
+    VELOCITYVECTOR = Dataprep.shiftspec(VELOCITYVECTOR,-VSHIFT)
 
     Dataprep.write_fits("$(FITSPATH)/$FITSNAME","CV_$(SAVENAME)_$(METH)","$(PATHTOSAVE)/Data/",cvmap,(DATADIMENSION_NOMISSING[1],DATADIMENSION_NOMISSING[2]),BLANK,finished=true,overwrite=OVERWRITE,more=["THRESH",THRESHOLD])
     #cvmap = 0.0
@@ -316,7 +320,7 @@ Use this script in a julia terminal with :
     julia>Unveil.cvcvi(VARFILEPATH)
 """
 function cvcvi(VARFILEPATH)    #  ; thresh=0, add="0")  #<- OPTION used to benchmark intensity threshold easiest    
-    FITSPATH,FITSNAME,PATHTOSAVE,FITSOURCE,SAVENAME,THRESHOLD,NOISECANTXT,UNITVELOCITY,REMOVE,BLANK,LAG,DIFFTYPE,OVERWRITE = Dataprep.read_var_files(VARFILEPATH)
+    FITSPATH,FITSNAME,PATHTOSAVE,FITSOURCE,SAVENAME,THRESHOLD,NOISECANTXT,UNITVELOCITY,REMOVE,VSHIFT,BLANK,LAG,DIFFTYPE,OVERWRITE = Dataprep.read_var_files(VARFILEPATH)
     NOISECAN = [parse(Int, ss) for ss in split(NOISECANTXT,",")]
     if length(LAG)!=1
         LAG = [parse(Int, ss) for ss in split(LAG,",")]
@@ -409,9 +413,13 @@ function cvcvi(VARFILEPATH)    #  ; thresh=0, add="0")  #<- OPTION used to bench
 
 
     println("------ CV CALCULATION ------")
+    VELOCITYVECTOR = Dataprep.shiftspec(VELOCITYVECTOR,VSHIFT)
     cvmap = CVI.moment_one_field(cube,SIGMAT,THRESHOLD,VELOCITYVECTOR,BLANK) # Calculate the first velocity moment order on data reconstructed
     cube  = 0.0 
     GC.gc()
+
+    cvmap .= cvmap.+VSHIFT
+    VELOCITYVECTOR = Dataprep.shiftspec(VELOCITYVECTOR,-VSHIFT)
 
     if ismis == 1
         cvmap = Dataprep.addblank(cvmap,missingplaces2D[:,1],BLANK,(DATADIMENSION[1],DATADIMENSION[2]))
@@ -741,8 +749,10 @@ function pca(VARFILEPATH)
     if ismis == 1
         mmean = Dataprep.addblank(M.mean,missingplaces2D[:,1],BLANK,(DATADIMENSION[1],DATADIMENSION[2]))
         #projec            = Dataprep.addblank(PCA.proj(M),missingplaces2D[:,1:NBPC],BLANK,DATADIMENSION) 
+        mmean = reshape(mmean,(DATADIMENSION[1],DATADIMENSION[2]))
+    else
+        mmean = reshape(M.mean,(DATADIMENSION[1],DATADIMENSION[2]))
     end
-    mmean = reshape(mmean,(DATADIMENSION[1],DATADIMENSION[2]))
     Dataprep.write_fits("$(FITSPATH)/$(FILENAME)","mmean_$(NBPC)PC","$PATHTOSAVE/Data/",mmean,(DATADIMENSION[1],DATADIMENSION[2]),BLANK,overwrite=OVERWRITE,more=["NBPC",NBPC,"VARPERC",VARPERCENT[NBPC]*100,"METHOD","PCA"])
     s = open("$(PATHTOSAVE)/Data/Yt_$(NBPC)PC.bin", "w+")
     write(s,Yt)
@@ -772,7 +782,7 @@ function pca(VARFILEPATH)
     end
     cubereconstructed = reshape(cubereconstructed,DATADIMENSION)
     #projec            = reshape(PCA.proj(M),DATADIMENSION)
-
+    #cubereconstructed = Dataprep.blank_equal(cubereconstructed,BLANK,0)
     println("Saving Fits")
     Dataprep.write_fits("$(FITSPATH)/$(FILENAME)","RECONSTRUCTED_$(SAVENAME)_$(NBPC)PC","$PATHTOSAVE/Data/",cubereconstructed,DATADIMENSION,BLANK,overwrite=OVERWRITE,more=["NBPC",NBPC,"VARPERC",VARPERCENT[NBPC]*100,"METHOD","PCA"])
     println("Data reconstructed from PCA saved in $(PATHTOSAVE)/Data/RECONSTRUCTED_$(SAVENAME)_$(NBPC)PC_NumberOfFilesWithTheSameNameAsPrefixe.fits as a fits.")
@@ -983,7 +993,7 @@ function swo(VARFILEPATH ; meth="swo")
     end
     
     if meth=="swo"
-       maskinterv,mask = SWO.swo(cube,DATADIMENSION_NOMISSING,VELOCITYVECTOR,NOISECAN)
+       maskinterv,mask,posimap = SWO.newswo(cube,DATADIMENSION_NOMISSING,VELOCITYVECTOR,NOISECAN)
     elseif meth=="pety"
         maskinterv,mask = SWO.petysnr(cube,DATADIMENSION_NOMISSING,VELOCITYVECTOR,NOISECAN)
     else
@@ -1004,11 +1014,103 @@ function swo(VARFILEPATH ; meth="swo")
 
     if ismis == 1
         maskinterv = Dataprep.addblank(maskinterv,missingplaces2D,BLANK,DATADIMENSION)
+        posimapinf = Dataprep.addblank(posimap[:,1],missingplaces2D[:,1],BLANK,(DATADIMENSION[1],DATADIMENSION[2]))
+        posimapsup = Dataprep.addblank(posimap[:,2],missingplaces2D[:,1],BLANK,(DATADIMENSION[1],DATADIMENSION[2]))
         #maskintervpety = Dataprep.addblank(maskintervpety,missingplaces2D,BLANK,DATADIMENSION)
+    else 
+        posimapinf = posimap[:,1]
+        posimapsup = posimap[:,2]
     end
+
     maskinterv = reshape(maskinterv,DATADIMENSION)
     maskinterv = Dataprep.blank_equal(maskinterv,BLANK,0)
+    posimap = Array{Float64}(undef, (DATADIMENSION[1],DATADIMENSION[2],2))
+    posimap .= BLANK
+    posimap[:,:,1] .= reshape(posimapinf,(DATADIMENSION[1],DATADIMENSION[2])) 
+    posimap[:,:,2] .= reshape(posimapsup,(DATADIMENSION[1],DATADIMENSION[2]))
+    posimap = Dataprep.replace_blanktomissing(posimap,BLANK)
+    int = 10
+    #posimap = Dataprep.replace_blanktomissing(posimap,0)
+    #p = plot(layout=2)
+    #p = heatmap!(p[1],posimap[:,:,1],clims=(1,100))
+    #p = heatmap!(p[2],posimap[:,:,2],clims=(110,170))
+    #display(p)
 
+
+    # These next ~40 rows allow to treat spectra for which SWO didn't found an optimised window. Will average the positions that SWO found for the 5x5 pixels around the pixel without a window. Thus, can't work if multiples spectra doesn't have a window around them, but it is logical. 
+    # Would be better to include it in a dedicated function.
+    for px=1:size(maskinterv)[1]
+        for py=1:size(maskinterv)[2]
+            if maskinterv[px,py,3]!=0 && maskinterv[px,py,3]!=BLANK
+                if px>int && px<DATADIMENSION[1]-int && py>int && py<DATADIMENSION[2]-int
+                    posi = floor(moment(collect(skipmissing(posimap[px-int:px+int,py-int:py+int,1])),1,0)) |> Int64
+                    posf = floor(moment(collect(skipmissing(posimap[px-int:px+int,py-int:py+int,2])),1,0))+1 |> Int64
+                elseif px<int && py>int && py<DATADIMENSION[2]-int
+                    posi = floor(moment(collect(skipmissing(posimap[px:px+int,py-int:py+int,1])),1,0)) |> Int64
+                    posf = floor(moment(collect(skipmissing(posimap[px:px+int,py-int:py+int,2])),1,0))+1 |> Int64
+                elseif py<int && px>int &&  px<DATADIMENSION[1]-int 
+                    posi = floor(moment(collect(skipmissing(posimap[px-int:px+int,py:py+int,1])),1,0)) |> Int64
+                    posf = floor(moment(collect(skipmissing(posimap[px-int:px+int,py:py+int,2])),1,0))+1 |> Int64
+                elseif px>DATADIMENSION[1]-int && py>int && py<DATADIMENSION[2]-int
+                    posi = floor(moment(collect(skipmissing(posimap[px-int:px,py-int:py+int,1])),1,0)) |> Int64
+                    posf = floor(moment(collect(skipmissing(posimap[px-int:px,py-int:py+int,2])),1,0))+1 |> Int64
+                elseif py>DATADIMENSION[2]-int && px>int &&  px<DATADIMENSION[1]-int
+                    posi = floor(moment(collect(skipmissing(posimap[px-int:px+int,py-int:py,1])),1,0)) |> Int64
+                    posf = floor(moment(collect(skipmissing(posimap[px-int:px+int,py-int:py,2])),1,0))+1 |> Int64
+                elseif px==int && py>int && py<DATADIMENSION[2]-int
+                    posi = floor(moment(collect(skipmissing(posimap[px-int+1:px+int,py-int:py+int,1])),1,0)) |> Int64
+                    posf = floor(moment(collect(skipmissing(posimap[px-int+1:px+int,py-int:py+int,2])),1,0))+1 |> Int64
+                elseif px==DATADIMENSION[1]-int && py>int && py<DATADIMENSION[2]-int
+                    posi = floor(moment(collect(skipmissing(posimap[px-int:px+int-1,py-int:py+int,1])),1,0)) |> Int64
+                    posf = floor(moment(collect(skipmissing(posimap[px-int:px+int-1,py-int:py+int,2])),1,0))+1 |> Int64
+                elseif py==int && px>int && px<DATADIMENSION[1]-int
+                    posi = floor(moment(collect(skipmissing(posimap[px-int:px+int,py-int+1:py+int,1])),1,0)) |> Int64
+                    posf = floor(moment(collect(skipmissing(posimap[px-int:px+int,py-int+1:py+int,2])),1,0))+1 |> Int64
+                elseif py==DATADIMENSION[2]-int && px>int && px<DATADIMENSION[1]-int
+                    posi = floor(moment(collect(skipmissing(posimap[px-int:px+int,py-int:py+int-1,1])),1,0)) |> Int64
+                    posf = floor(moment(collect(skipmissing(posimap[px-int:px+int,py-int:py+int-1,2])),1,0))+1 |> Int64
+                elseif px==int && py==int
+                    posi = floor(moment(collect(skipmissing(posimap[px-int+1:px+int,py-int+1:py+int,1])),1,0)) |> Int64
+                    posf = floor(moment(collect(skipmissing(posimap[px-int+1:px+int,py-int+1:py+int,2])),1,0))+1 |> Int64
+                elseif px==int && py==DATADIMENSION[2]-int
+                    posi = floor(moment(collect(skipmissing(posimap[px-int+1:px+int,py-int:py+int-1,1])),1,0)) |> Int64
+                    posf = floor(moment(collect(skipmissing(posimap[px-int+1:px+int,py-int:py+int-1,2])),1,0))+1 |> Int64
+                elseif px==DATADIMENSION[2]-int && py==int
+                    posi = floor(moment(collect(skipmissing(posimap[px-int:px+int-1,py-int+1:py+int,1])),1,0)) |> Int64
+                    posf = floor(moment(collect(skipmissing(posimap[px-int:px+int-1,py-int+1:py+int,2])),1,0))+1 |> Int64
+                elseif px==DATADIMENSION[2]-int && py==DATADIMENSION[2]-int
+                    posi = floor(moment(collect(skipmissing(posimap[px-int:px+int-1,py-int:py+int-1,1])),1,0)) |> Int64
+                    posf = floor(moment(collect(skipmissing(posimap[px-int:px+int-1,py-int:py+int-1,2])),1,0))+1 |> Int64
+                elseif py>=DATADIMENSION[2]-int && px<=int 
+                    posi = floor(moment(collect(skipmissing(posimap[px:px+int,py-int+1:py,1])),1,0)) |> Int64
+                    posf = floor(moment(collect(skipmissing(posimap[px:px+int,py-int+1:py,2])),1,0))+1 |> Int64
+                elseif py>=DATADIMENSION[2]-int && px>=DATADIMENSION[2]-int
+                    posi = floor(moment(collect(skipmissing(posimap[px-int:px,py-int+1:py,1])),1,0)) |> Int64
+                    posf = floor(moment(collect(skipmissing(posimap[px-int:px,py-int+1:py,2])),1,0))+1 |> Int64
+                elseif py<=int && px<=int 
+                    posi = floor(moment(collect(skipmissing(posimap[px:px+int,py:py+int,1])),1,0)) |> Int64
+                    posf = floor(moment(collect(skipmissing(posimap[px:px+int,py:py+int,2])),1,0))+1 |> Int64
+                elseif py<=int && px>=DATADIMENSION[2]-int
+                    posi = floor(moment(collect(skipmissing(posimap[px-int:px,py:py+int,1])),1,0)) |> Int64
+                    posf = floor(moment(collect(skipmissing(posimap[px-int:px,py:py+int,2])),1,0))+1 |> Int64
+                else 
+                    posi = 2
+                    posf = DATADIMENSION[3]-1
+                end
+                
+                if posf<=0
+                    posf = DATADIMENSION[3]-1
+                end
+                
+                if posi<=0
+                    posi = 2
+                end
+                maskinterv[px,py,1:posi] .= 0
+                maskinterv[px,py,posf:end] .=0
+            end
+        end
+    end
+    
     #maskintervpety = reshape(maskintervpety,DATADIMENSION)
     #maskintervpety = Dataprep.blank_equal(maskintervpety,BLANK,0)
 
@@ -1017,6 +1119,20 @@ function swo(VARFILEPATH ; meth="swo")
     #Dataprep.write_fits("$(FITSPATH)/$FILENAME","RECONSTRUCTED_$(SAVENAME)_SWOpety","$PATHTOSAVE/Data/",maskintervpety,DATADIMENSION,BLANK,overwrite=OVERWRITE,more=["METHOD","SWO"])
 
 end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1205,5 +1321,17 @@ function cvcviOT(VARFILEPATH ; thresh=0, add="0")
     #println("CVI map with all angles values saved in the $(PATHTOSAVE)/Data/CVI$(DIFFTYPE)_$(SAVENAME)_allangle_$(METH)_NumberOfFilesWithTheSameNameAsPrefixe.fits as a fits.")
 end #function cvcvi
 
+
+
+
+
+
+function newcvi(fits,LAG,DLAG,BLANK)
+    CVMAP,HEAD,DATADIMENSION = Dataprep.read_fits_pp(fits)
+    #cviall = CVI.newcvicalc(cvmap,STEP,-1000)
+    cviall = CVI.nncvi(CVMAP,LAG,DLAG,BLANK)
+    Dataprep.write_fits(fits,"NEWCVI","/home/delcamps/Prog/test/",cviall,(size(cviall)[1],size(cviall)[2]),BLANK,finished=true,overwrite=false,more=["LAG",LAG])
+
+end
 
 end # module Unveil

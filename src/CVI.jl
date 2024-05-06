@@ -3,7 +3,7 @@ include("Dataprep.jl") #Read and write fits
 using .Dataprep
 
 using ShiftedArrays, StatsBase
-using ProgressBars
+using ProgressBars, Plots
 
 export construct_cvimap!
 export construct_cvimap
@@ -323,25 +323,7 @@ function cv_increment(xyarr,Lag::Int64,nangle,DataDimension; diff="relative",per
     
     #diff == "absolute" && return(abs.(cvi_allangle_alllag))
     return(cvi_allangle_alllag)
-
-    ############"cvi_allangle  = convert(Array{Union{Missing,Float64}},zeros(Float64,size(xyarr)[1],size(xyarr)[2],nangle))
-    ############"# Iteration for angles
-    ############"@inbounds @views for angl=1:nangle#[lagstep]
-    ############"    alpha = angl*2.0*pi/nangle#[lagstep]
-    ############"    periodic==false && (xyarr_shifted = ShiftedArray(xyarr,(trunc(Int,Lag*cos(alpha)),trunc(Int,Lag*sin(alpha)))))
-    ############"    periodic==true  && (xyarr_shifted = circshift(xyarr,(trunc(Int,Lag*cos(alpha)),trunc(Int,Lag*sin(alpha)))))
-    ############"    # Iteration in columns
-    ############"    @inbounds @views for col=1:size(xyarr)[2]
-    ############"        # Iteration in rows
-    ############"        @inbounds @views for row=1:size(xyarr)[1]
-    ############"            cvi_allangle[row,col,angl] = xyarr_shifted[row,col]-xyarr[row,col]
-    ############"        end
-    ############"    end
-    ############"end
-    ############"diff == "absolute" && return(abs.(cvi_allangle))
-    ############"return(cvi_allangle)
 end
-
 
 
 
@@ -375,8 +357,6 @@ function moment_one_field(arr,SIGMAT,THRESHOLD,velvector,BLANK)
     maxvel = maximum(velvector)
     minvel = minimum(velvector)
     for ix=1:size(arr)[2] # For loop on the pixel number (column and row permuted two lines before)
-        #println("DAH")
-        #println(maximum(arr[:,ix]))
         #(maximum(arr[:,ix])!=BLANK) && (momentfield[ix] = moment_one(arr[:,ix],velvector))
         (momentfield[ix] = moment_one(arr[:,ix],velvector))
         #(momentfield[ix] = moment_one(skipmissing(arr[:,ix]),velvector))  # MOMENTS can't works with skipmissing
@@ -385,6 +365,186 @@ function moment_one_field(arr,SIGMAT,THRESHOLD,velvector,BLANK)
     return(momentfield)
 end
 
+
+# Supprimer les différences superflues
+# Vérifier qu'il n'y a pas des différence d'un pixel avec lui même (lag=0)
+# PROBLEM : pour moi, en prenant le pixel (1,1), il est le plus loin de tous les autres. Donc à priori, en calculant les distances par rapport à lui, on a toutes les distances que l'on pourrait avoir. Mais apparement non, il y a pleins de cas où ce n'est pas vrai. Provient d'un manque de précision des floats lors des comparaisons ?
+# Bizarre que ce soit un problème de précision parce que on calcule des distances avec des pixels qui sont des Int. Et ce sont toujours les mêmes puisque l'on prend les distances en relatif l'un par rapport à l'autre (le pix [50,56] est à [1,6] de celui à [51,50], on calcule la distance donc de [1,6], comme si c'était entre le pixel [1,1] et [2,7]
+# Ok ça a l'air bon, mais le problème maintenant c'est le temps d'execution...
+# Bon, soit je résoud le temps d'exe, soit autre solution
+# En réalité, le temps d'exe est très long parce que il doit écrire un fichier en ajoutant des lignes et colonnes souvent. Donc si on s'affranchit de ça c'est win
+# Un moyen c'est de ne calculer que quelques lag donnés en input, et tu sélectionne les bonnes dist avec une approx et une incertitude dessus. Ca résoud le problème soutenu par François probablement
+# Mais ça ne pourra pas être fait sur tous les lags. Donc je ne sais pas.
+function newcvicalc(CVMAP, STEP, BLANK)
+    alldist = similar(CVMAP)
+    N = size(CVMAP)[1]
+    M = size(CVMAP)[2]  
+    # Compute the number of non-blanked pixels to estimate the number of differences
+    NNBL = size(findall(x->x!=BLANK,CVMAP))[1]
+    NBL = N*M-NNBL
+    if N==M
+        NCVI = N*(N+1)/2-1
+    else 
+        MI = min(M,N)
+        MA = max(M,N)
+        NCVI = MI*(MI+1)/2-1+(MA-MI)*MI  |> Int64
+    end
+    #println(NBL)
+    #println(size(findall(x->x==BLANK,CVMAP))[1])
+    #println(NCVI)
+    #println(NNBL)
+    #println((NCVI-NBL)*NNBL-NCVI*NBL)
+    co = 0
+    ncount = floor(Int64,N/STEP) #|> Int64
+    
+    pbar = ProgressBar(total=ncount)
+    @views @inbounds for ppx=1:STEP:N
+        @views @inbounds for ppy=1:STEP:M
+            # Compute the number of lags
+            # The maximum number of lags is given by the pixel at [1,1], the more far awy from the others
+            if ppx+ppy==2
+                for px=1:N
+                    for py=1:M
+                        alldist[px,py] = distcalc(ppx,px,ppy,py)
+                    end
+                end
+                
+                global lags = unique(alldist)
+                global nnew = Array{Int64}(undef,size(lags)[1])
+                global cviall = Array{Float64}(undef,NCVI,size(lags)[1])
+                println(size(cviall))
+                #global cviall = Array{Float64}(undef,2,size(lags)[1])
+                cviall[1,:] = lags
+                cviall[2:end,:] .= BLANK
+                alldist = 0
+                nnew .= 1
+                #p = histogram(lags,markershapes=:cross,bins=0:1:200)
+                #display(p)
+                #savefig("/home/delcamps/Prog/test/lagshist.pdf")
+            end
+
+            # Fix one position in the CV map, and compute the differences from him to all the others
+            if CVMAP[ppx,ppy]!=BLANK
+                @views @inbounds for px=1:N
+                    @views @inbounds for py=1:M
+                        if CVMAP[px,py]!=BLANK
+                            # From the fixed position, compute differences
+                            dif = CVMAP[ppx,ppy]-CVMAP[px,py]
+                            dist = distcalc(ppx,px,ppy,py) 
+                            poslag = findfirst(isapprox(dist;atol=5e-1),cviall[1,:])
+
+                            # IF exist a blank value at the position of the lag, then replace it. ELSE, add a new row with the CVI at the corresponding lag and blank everything else
+                            if nnew[poslag]!=size(cviall)[1] 
+                            #if eltype(findfirst(isapprox(BLANK,atol=1),cviall[2:end,poslag]))==Int
+                                #posrow = findfirst(isapprox(BLANK;atol=1),cviall[2:end,poslag])
+                                cviall[1+nnew[poslag],poslag] = dif
+                                nnew[poslag] += 1
+                            else
+                                #println("create a new row")
+                                co += 1
+                                arr = Array{Float64}(undef,1,size(cviall)[2])
+                                arr[1,1:poslag-1]   .= BLANK
+                                arr[1,poslag]        = dif
+                                arr[1,poslag+1:end] .= BLANK
+                                cviall = cat(cviall,arr,dims=1)
+                            end
+                            
+                            #posrow =findfirst(isapprox(BLANK;atol=1),cviall[2:end,poslag])
+                            #cviall[1+posrow,poslag] = dif
+                        end
+                    end
+                end
+            end
+
+        end
+        update(pbar)
+
+    end
+    println("NUMBER OF ADDED ROW")
+    println(co)
+    return(cviall)
+end
+
+#p = plot()
+#for ppx=1:2:size(CVMAP)[1]
+#alldist = similar(CVMAP)
+#for px=1:size(CVMAP)[1]
+#    for py=1:size(CVMAP)[2]
+#        alldist[px,py] = distcalc(ppx,px,60,py)
+#    end
+#end
+#al = unique(alldist)
+#p = scatter!(al,markershapes=:cross,legend=:false)
+#
+#end
+#display(p)
+#
+#savefig("/home/delcamps/Prog/test/lags.pdf")
+#error()
+
+function nncvi(CVMAP,LAG,DLAG,BLANK)
+    alldist = similar(CVMAP)
+    N = size(CVMAP)[1]
+    M = size(CVMAP)[2]  
+    if N==M
+        NCVI = N*(N+1)/2-1
+    else 
+        MI = min(M,N)
+        MA = max(M,N)
+        NCVI = MI*(MI+1)/2-1+(MA-MI)*MI  |> Int64
+    end
+    dif = similar(CVMAP)
+    dist = similar(CVMAP)
+    pbar = ProgressBar(total=N)
+    cviall = Array{Float64}(undef,NCVI*size(LAG)[1]*100,size(LAG)[1])
+    cviall[1,:] = LAG
+    cviall[2:end,:] .= BLANK
+    nnew = Array{Int64}(undef,1,size(LAG)[1])
+    nnew .= 1
+    for ppx=1:N
+        for ppy=1:M
+            for px=1:N 
+                for py=1:M
+                    if CVMAP[ppx,ppy]!=BLANK && CVMAP[px,py]!=BLANK
+                        dif = CVMAP[ppx,ppy] - CVMAP[px,py]
+                        dist = distcalc(ppx,px,ppy,py)
+                        arrdist = isapprox.(dist,LAG;atol=DLAG)
+                        poslags = findall(isapprox.(dist,LAG,atol=DLAG))
+                        if sum(arrdist)>=1
+                            for np=1:sum(arrdist)
+                                if size(cviall)[1]>=nnew[poslags[np]]
+                                    cviall[nnew[poslags[np]],arrdist] .= dif
+                                    nnew[poslags[np]] += 1
+                                else 
+                                    arr = Array{Float64}(undef,1,size(cviall)[2])
+                                    arr[1,1:poslags[np]-1]   .= BLANK
+                                    arr[1,poslags[np]]        = dif
+                                    arr[1,poslags[np]+1:end] .= BLANK
+                                    cviall = cat(cviall,arr,dims=1)
+                                end
+                            end
+                        end
+                    end
+                end
+            end 
+            
+        end
+        update(pbar)
+
+    end
+    return(cviall)
+
+end
+
+
+
+function distcalc(x1,x2,y1,y2)
+    xi = min(x1,x2) 
+    xf = max(x1,x2)
+    yi = min(y1,y2)
+    yf = max(y1,y2)
+    return(sqrt((xf-xi)^2+(yf-yi)^2))
+end
 
 
 

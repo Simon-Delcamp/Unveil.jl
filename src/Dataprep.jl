@@ -5,6 +5,7 @@ export addblank
 export blank_equal 
 export blank_inf
 export boolmatrix_missing
+export changetxt
 export directory_prep
 export flatiterator
 export pca_prep
@@ -21,6 +22,7 @@ export replace_nantoblank
 export replace_nantomissing
 export replace_nosignal
 export read_var_files
+export shiftspec
 export write_dat
 export write_fits
 
@@ -90,11 +92,30 @@ end
 
 
 """
-    changetxt(FILENAME::String, VARNAME::String, VARVAL::Int)
+    changetxt(FILENAME::String, VARNAME::String, VARVAL::Union{Float64,Int})
 
-Modify the variablex .txt files, replacing the variable VARNAME with a new value VARVAL. These files are originally produced by prodvarfile(). Works for replacing Int values (like number of PCs). The same function is written for replacing String variables (like path).
+Modify the variablex .txt files, replacing the variable VARNAME with a new value VARVAL. These files are originally produced by prodvarfile(). Works for replacing Float and Int values (like number of PCs, intensity threshold). The same function is written for replacing String variables (like path).
 """
-function changetxt(FILENAME::String, VARNAME::String, VARVAL::Int)
+function changetxt(FILENAME::String, VARNAME::String, VARVAL::Union{Float64,Int})
+    lines = readlines(FILENAME)
+    open(FILENAME,"w") do ids_file
+        for line in lines
+            if startswith(line, VARNAME)    
+                println(ids_file,"$(VARNAME)                $(VARVAL)")
+            else    
+                println(ids_file,line)
+            end
+        end
+    end
+end
+
+
+"""
+    changetxt(FILENAME::String, VARNAME::String, VARVAL)
+
+Modify the variablex .txt files, replacing the variable VARNAME with a new value VARVAL. These files are originally produced by prodvarfile(). Works for replacing Float and int vector values (like lags). The same function is written for replacing String variables (like path).
+"""
+function changetxt(FILENAME::String, VARNAME::String, VARVAL)
     lines = readlines(FILENAME)
     open(FILENAME,"w") do ids_file
         for line in lines
@@ -271,6 +292,7 @@ function prodvarfile(;PATH=".",com=true)
             "UNITVELOCITY      m/s									                    # Velocity units of the fits file",
             "THREHSOLD         0.2                                                       # Values lower than this factor multiplied by the noise RMS will be blanked. ",
             "NOISECANTXT       1,25                                                      # Noise channels ",
+            "VSHIFT             0                                       # Velocity value to use for centering spectra",
             "BLANK             -1000                                                     # Blanking data",
             "OVERWRITE         false                                             # Would you like to overwrite output files with the same name ? true or false ",
             "#---------------------------------------------------------------------------------------------------------------#",
@@ -308,6 +330,7 @@ function prodvarfile(;PATH=".",com=true)
             "NOISECANTXT       1,25                                                      # Noise channels ",
             "UNITVELOCITY      m/s									            # Velocity units of the fits file",
             "REMOVE            false                                             # Remove spectra with very low intensity. ",
+            "VSHIFT             0                                       # Velocity value to use for centering spectra",
             "BLANK             -1000                                             # Blanking data",
             "LAG               2,3,5,7,10,20,50                                  # Values of the Lags used for CVI calculations",
             "DIFFTYPE          relative                                          # Type of differences computed during CVI calculation (relative or abs)",
@@ -414,6 +437,7 @@ function prodvarfile(;PATH=".",com=true)
             "UNITVELOCITY      m/s		",
             "THREHSOLD         0.2    ",
             "NOISECANTXT       1,25            ",
+            "VSHIFT             0   ",
             "BLANK             -1000        ",
             "OVERWRITE         false      ",
             ]
@@ -445,6 +469,7 @@ function prodvarfile(;PATH=".",com=true)
             "NOISECANTXT       1,25         ",
             "UNITVELOCITY      m/s			",
             "REMOVE            false       ",
+            "VSHIFT             0   ",
             "BLANK             -1000           ",
             "LAG               2,3,5,7,10,20,50        ",
             "DIFFTYPE          relative                 ",
@@ -698,12 +723,6 @@ end
 A function to read and import values of a variable files. The variable files can be anywhere in the machine, but preferentially localised in the "var_file" folders.
 """
 function read_var_files(varfile_path)
-    #if isfile("$(varfile_path)")==false
-    #    println("Your file does not exist. Would you like to create one ? (Y/N)")
-    #    answer = readline()
-    #    answer == "N" && (error("No .txt file at that location"))
-    #    create_var_file(varfile_path)
-    #end
     (isfile("$(varfile_path)")==false) && (error("No .txt file at that location"))
     var_data = readdlm("$(varfile_path)",comments=true)
     toreturn = Array{Any,2}(undef, size(var_data)[1], 1)
@@ -713,6 +732,17 @@ function read_var_files(varfile_path)
 
     return(toreturn)
 end
+
+
+"""
+    shiftspec(velvec,vshift)
+
+Shift th velocity axis. Used to center spectra of a cube. VELVEC ic the velocity vector, VSHIFT is the shift to apply on VELVEC. 
+"""
+function shiftspec(velvec,vshift)
+    return(velvec.-vshift)
+end
+
 
 
 """ 
