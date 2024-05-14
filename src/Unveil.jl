@@ -883,20 +883,20 @@ function structure_functions(VARFILEPATH ; meth="moninyaglom", limi=0,limf=0)
     Dataprep.write_dat(nsct,"$(PATHTOSAVE)/Data/","$(SAVENAME)_Sp(l)_$(METH)", more=["METHOD $(METH) ; FILE : $(SAVENAME) ; Intensity threshold during CV computation : $(THRESHOLD). Each column is a lag, each row an order. First column give the orders, first row the lags. For information : p=$(ORDERS), and l=$(LAG) ;  " ], overwrite=OVERWRITE)
 
 
-    #Graphic.StcFct(sct,sct[3,:],ORDERS,"$SAVENAME")
-    #if OVERWRITE==true
-    #    Plots.savefig("$(PATHTOSAVE)/Figures/stc_fct_$(SAVENAME)_$(METH).pdf")
-    #elseif (OVERWRITE==false && isfile("$(PATHTOSAVE)/Figures/stc_fct_$(SAVENAME)_$(METH).pdf")==true)
-    #    println("THE GIVEN FILE NAME ALREADY EXIST. AN INDICE WILL BE ADDED AT THE END OF THE GIVEN NAME, EQUAL TO THE NUMBER OF FILES WITH THE SAME NAME +1 ")
-    #    count = 1
-    #    for ix=1:size((findall.("stc_fct_$(SAVENAME)_$(METH).pdf",readdir("$(PATHTOSAVE)/Figures/"))))[1]
-    #        if size(findall("stc_fct_$(SAVENAME)_$(METH).pdf",readdir("$(PATHTOSAVE)/Figures/")[ix]))[1]!=0
-    #            count += 1
-    #        end
-    #    end
-    #    newname = "stc_fct_$(SAVENAME)_$(METH)_$(count)"
-    #    Plots.savefig("$(PATHTOSAVE)/Figures/$(newname).pdf")
-    #end
+    Graphic.StcFct(sct,sct[3,:],ORDERS,"$SAVENAME")
+    if OVERWRITE==true
+        Plots.savefig("$(PATHTOSAVE)/Figures/stc_fct_$(SAVENAME)_$(METH).pdf")
+    elseif (OVERWRITE==false && isfile("$(PATHTOSAVE)/Figures/stc_fct_$(SAVENAME)_$(METH).pdf")==true)
+        println("THE GIVEN FILE NAME ALREADY EXIST. AN INDICE WILL BE ADDED AT THE END OF THE GIVEN NAME, EQUAL TO THE NUMBER OF FILES WITH THE SAME NAME +1 ")
+        count = 1
+        for ix=1:size((findall.("stc_fct_$(SAVENAME)_$(METH).pdf",readdir("$(PATHTOSAVE)/Figures/"))))[1]
+            if size(findall("stc_fct_$(SAVENAME)_$(METH).pdf",readdir("$(PATHTOSAVE)/Figures/")[ix]))[1]!=0
+                count += 1
+            end
+        end
+        newname = "stc_fct_$(SAVENAME)_$(METH)_$(count)"
+        Plots.savefig("$(PATHTOSAVE)/Figures/$(newname).pdf")
+    end
 
     if limi==0 || limf==0
         println(" ")
@@ -910,39 +910,39 @@ function structure_functions(VARFILEPATH ; meth="moninyaglom", limi=0,limf=0)
         CANALTOFIT = limi:limf
     end    
     zeta = Structure_functions.xhi_fct_p(ORDERS[:],sct[:,CANALTOFIT])
-    #Graphic.StcFctWithFit(sct,sct[3,:],ORDERS,zeta,CANALTOFIT,"$SAVENAME")
-    #if OVERWRITE==true
-    #    Plots.savefig("$(PATHTOSAVE)/Figures/stc_fctfit_$(SAVENAME)_$(METH).pdf")
-    #elseif (OVERWRITE==false && isfile("$(PATHTOSAVE)/Figures/stc_fctfit_$(SAVENAME)_$(METH).pdf")==true)
-    #    println("THE GIVEN FILE NAME ALREADY EXIST. AN INDICE WILL BE ADDED AT THE END OF THE GIVEN NAME, EQUAL TO THE NUMBER OF FILES WITH THE SAME NAME +1 ")
-    #    count = 1
-    #    for ix=1:size((findall.("stc_fctfit_$(SAVENAME)_$(METH)",readdir("$(PATHTOSAVE)/Figures/"))))[1]
-    #        if size(findall("stc_fctfit_$(SAVENAME)_$(METH)",readdir("$(PATHTOSAVE)/Figures/")[ix]))[1]!=0
-    #            count += 1
-    #        end
-    #    end
-    #    newname = "stc_fctfit_$(SAVENAME)_$(METH)_$(count)"
-    #    Plots.savefig("$(PATHTOSAVE)/Figures/$(newname).pdf")
-    #else
-    #    Plots.savefig("$(PATHTOSAVE)/Figures/stc_fctfit_$(SAVENAME)_$(METH).pdf")
-    #end
+    Graphic.StcFctWithFit(sct,sct[3,:],ORDERS,zeta,CANALTOFIT,"$SAVENAME")
+    if OVERWRITE==true
+        Plots.savefig("$(PATHTOSAVE)/Figures/stc_fctfit_$(SAVENAME)_$(METH).pdf")
+    elseif (OVERWRITE==false && isfile("$(PATHTOSAVE)/Figures/stc_fctfit_$(SAVENAME)_$(METH).pdf")==true)
+        println("THE GIVEN FILE NAME ALREADY EXIST. AN INDICE WILL BE ADDED AT THE END OF THE GIVEN NAME, EQUAL TO THE NUMBER OF FILES WITH THE SAME NAME +1 ")
+        count = 1
+        for ix=1:size((findall.("stc_fctfit_$(SAVENAME)_$(METH)",readdir("$(PATHTOSAVE)/Figures/"))))[1]
+            if size(findall("stc_fctfit_$(SAVENAME)_$(METH)",readdir("$(PATHTOSAVE)/Figures/")[ix]))[1]!=0
+                count += 1
+            end
+        end
+        newname = "stc_fctfit_$(SAVENAME)_$(METH)_$(count)"
+        Plots.savefig("$(PATHTOSAVE)/Figures/$(newname).pdf")
+    else
+        Plots.savefig("$(PATHTOSAVE)/Figures/stc_fctfit_$(SAVENAME)_$(METH).pdf")
+    end
 #
-    #Graphic.StcFctExponent(zeta,zeta[3,1],ORDERS,[0,ORDERS[end]+1],[0,1.8],"Using $(METH)","$SAVENAME")
-    #if OVERWRITE==true
-    #    Plots.savefig("$(PATHTOSAVE)/Figures/zeta_$(SAVENAME)_$(METH).pdf")
-    #elseif (OVERWRITE==false && isfile("$(PATHTOSAVE)/Figures/zeta_$(SAVENAME)_$(METH).pdf")==true) #Not sure this is working
-    #    println("THE GIVEN FILE NAME ALREADY EXIST. AN INDICE WILL BE ADDED AT THE END OF THE GIVEN NAME, EQUAL TO THE NUMBER OF FILES WITH THE SAME NAME +1 ")
-    #    count = 1
-    #    for ix=1:size((findall.("zeta_$(SAVENAME)_$(METH)",readdir("$(PATHTOSAVE)/Figures/"))))[1]
-    #        if size(findall("zeta_$(SAVENAME)_$(METH)",readdir("$(PATHTOSAVE)/Figures/")[ix]))[1]!=0
-    #            count += 1
-    #        end
-    #    end
-    #    newname = "zeta_$(SAVENAME)_$(METH)_$(count)"
-    #    Plots.savefig("$(PATHTOSAVE)/Figures/$(newname).pdf")
-    #else 
-    #    Plots.savefig("$(PATHTOSAVE)/Figures/zeta_$(SAVENAME)_$(METH).pdf")
-    #end
+    Graphic.StcFctExponent(zeta,zeta[3,1],ORDERS,[0,ORDERS[end]+1],[0,1.8],"Using $(METH)","$SAVENAME")
+    if OVERWRITE==true
+        Plots.savefig("$(PATHTOSAVE)/Figures/zeta_$(SAVENAME)_$(METH).pdf")
+    elseif (OVERWRITE==false && isfile("$(PATHTOSAVE)/Figures/zeta_$(SAVENAME)_$(METH).pdf")==true) #Not sure this is working
+        println("THE GIVEN FILE NAME ALREADY EXIST. AN INDICE WILL BE ADDED AT THE END OF THE GIVEN NAME, EQUAL TO THE NUMBER OF FILES WITH THE SAME NAME +1 ")
+        count = 1
+        for ix=1:size((findall.("zeta_$(SAVENAME)_$(METH)",readdir("$(PATHTOSAVE)/Figures/"))))[1]
+            if size(findall("zeta_$(SAVENAME)_$(METH)",readdir("$(PATHTOSAVE)/Figures/")[ix]))[1]!=0
+                count += 1
+            end
+        end
+        newname = "zeta_$(SAVENAME)_$(METH)_$(count)"
+        Plots.savefig("$(PATHTOSAVE)/Figures/$(newname).pdf")
+    else 
+        Plots.savefig("$(PATHTOSAVE)/Figures/zeta_$(SAVENAME)_$(METH).pdf")
+    end
 
 
     Dataprep.write_dat(cat([METHV 0 0 0],cat(zeta,ORDERS,dims=2),dims=1),"$(PATHTOSAVE)/Data/","$(SAVENAME)_stcfct_$(METH)", more=["METHOD $(METH) ; FILE : $(SAVENAME) ; Intensity threshold during CV computation : $(THRESHOLD). ROW are results for differents orders which are given at the last column. First column is the exponant, second column is the factor A : Sp(l)=A*S3(l)^B. Also, at first row and first column is the method used : <0 for SWO, 0 for raw cube, >0 for PCA. The value gives the number of PCs for PCA)" ], overwrite=OVERWRITE)
