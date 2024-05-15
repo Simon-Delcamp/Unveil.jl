@@ -32,8 +32,7 @@ Compute the structure functions from Hily-Blant+08 method.
 function fct_sct_int(cvicube,LAG,ORDERS)
     spl = Array{Float64}(undef,size(ORDERS)[1],size(LAG)[1])
     for lx=1:size(LAG)[1]
-        cvire = reshape(cvicube[:,:,lx],size(cvicube)[1]*size(cvicube)[2])
-
+        cvire = collect(skipmissing(cvicube[:,lx])) #reshape(cvicube[:,lx],size(cvicube[:,1])) #reshape(cvicube[:,:,lx],size(cvicube)[1]*size(cvicube)[2])
         # Histogram
         hist = fit(Histogram,cvire,-30:0.01:30)
         deltax = abs(hist.edges[1][2]-hist.edges[1][1])
