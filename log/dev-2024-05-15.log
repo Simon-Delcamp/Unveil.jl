@@ -1,0 +1,423 @@
+┌ Info: 2024-05-15 15:50:29 Watching ["/home/delcamps/Prog/Unveil"]
+└ @ GenieAutoReload /home/delcamps/.julia/packages/GenieAutoReload/IuBCb/src/GenieAutoReload.jl:19
+┌ Info: 2024-05-15 15:50:31 
+│ Web Server starting at http://127.0.0.1:8000 
+└ @ Genie.Server /home/delcamps/.julia/packages/Genie/3gPCR/src/Server.jl:161
+┌ Info: 2024-05-15 15:50:31 Listening on: 127.0.0.1:8000, thread id: 1
+└ @ HTTP.Servers /home/delcamps/.julia/packages/HTTP/uAaAw/src/Servers.jl:366
+┌ Info: 2024-05-15 15:51:05 Autoreloading
+└ @ GenieAutoReload /home/delcamps/.julia/packages/GenieAutoReload/IuBCb/src/GenieAutoReload.jl:22
+┌ Info: 2024-05-15 15:54:37 Autoreloading
+└ @ GenieAutoReload /home/delcamps/.julia/packages/GenieAutoReload/IuBCb/src/GenieAutoReload.jl:22
+┌ Info: 2024-05-15 16:16:59 Watching ["/home/delcamps/Prog/Unveil"]
+└ @ GenieAutoReload /home/delcamps/.julia/packages/GenieAutoReload/IuBCb/src/GenieAutoReload.jl:19
+┌ Info: 2024-05-15 16:17:01 
+│ Web Server starting at http://127.0.0.1:8000 
+└ @ Genie.Server /home/delcamps/.julia/packages/Genie/3gPCR/src/Server.jl:161
+┌ Info: 2024-05-15 16:17:01 Listening on: 127.0.0.1:8000, thread id: 1
+└ @ HTTP.Servers /home/delcamps/.julia/packages/HTTP/uAaAw/src/Servers.jl:366
+┌ Error: 2024-05-15 16:17:08 MethodError: no method matching HTTP.Messages.Response(::Vector{ParsedHTMLString}, ::ParsedHTMLString)
+│ 
+│ Closest candidates are:
+│   HTTP.Messages.Response(::Any, ::Any, !Matched::Any, !Matched::Any, !Matched::Any)
+│    @ HTTP ~/.julia/packages/HTTP/uAaAw/src/Messages.jl:98
+│   HTTP.Messages.Response(!Matched::Int64, ::AbstractString)
+│    @ HTTP ~/.julia/packages/HTTP/uAaAw/src/Messages.jl:117
+│   HTTP.Messages.Response(!Matched::Integer, ::Any, !Matched::Any; version, request)
+│    @ HTTP ~/.julia/packages/HTTP/uAaAw/src/Messages.jl:105
+│   ...
+│ 
+│ Stacktrace:
+│   [1] to_response(action_result::Tuple{Vector{ParsedHTMLString}, ParsedHTMLString})
+│     @ Genie.Router ~/.julia/packages/Genie/3gPCR/src/Router.jl:953
+│   [2] |>(x::Tuple{Vector{ParsedHTMLString}, ParsedHTMLString}, f::typeof(Genie.Router.to_response))
+│     @ Base ./operators.jl:917
+│   [3] run_route(r::Genie.Router.Route)
+│     @ Genie.Router ~/.julia/packages/Genie/3gPCR/src/Router.jl:535
+│   [4] route_request(req::HTTP.Messages.Request, res::HTTP.Messages.Response)
+│     @ Genie.Router ~/.julia/packages/Genie/3gPCR/src/Router.jl:171
+│   [5] handle_request(req::HTTP.Messages.Request, res::HTTP.Messages.Response)
+│     @ Genie.Server ~/.julia/packages/Genie/3gPCR/src/Server.jl:278
+│   [6] (::Genie.Server.var"#29#30"{HTTP.Messages.Request, HTTP.Messages.Response})()
+│     @ Genie.Server /opt/julias/julia-1.10.2/share/julia/stdlib/v1.10/Distributed/src/macros.jl:123
+│   [7] #invokelatest#2
+│     @ ./essentials.jl:892 [inlined]
+│   [8] invokelatest
+│     @ ./essentials.jl:889 [inlined]
+│   [9] #153
+│     @ /opt/julias/julia-1.10.2/share/julia/stdlib/v1.10/Distributed/src/remotecall.jl:425 [inlined]
+│  [10] run_work_thunk(thunk::Distributed.var"#153#154"{Genie.Server.var"#29#30"{HTTP.Messages.Request, HTTP.Messages.Response}, Tuple{}, @Kwargs{}}, print_error::Bool)
+│     @ Distributed /opt/julias/julia-1.10.2/share/julia/stdlib/v1.10/Distributed/src/process_messages.jl:70
+│  [11] #remotecall_fetch#158
+│     @ /opt/julias/julia-1.10.2/share/julia/stdlib/v1.10/Distributed/src/remotecall.jl:450 [inlined]
+│  [12] remotecall_fetch
+│     @ /opt/julias/julia-1.10.2/share/julia/stdlib/v1.10/Distributed/src/remotecall.jl:449 [inlined]
+│  [13] remotecall_fetch
+│     @ /opt/julias/julia-1.10.2/share/julia/stdlib/v1.10/Distributed/src/remotecall.jl:492 [inlined]
+│  [14] setup_http_listener(req::HTTP.Messages.Request, res::HTTP.Messages.Response)
+│     @ Genie.Server ~/.julia/packages/Genie/3gPCR/src/Server.jl:305
+│  [15] setup_http_listener
+│     @ ~/.julia/packages/Genie/3gPCR/src/Server.jl:304 [inlined]
+│  [16] (::HTTP.Handlers.var"#1#2"{typeof(Genie.Server.setup_http_listener)})(stream::HTTP.Streams.Stream{HTTP.Messages.Request, HTTP.Connections.Connection{Sockets.TCPSocket}})
+│     @ HTTP.Handlers ~/.julia/packages/HTTP/uAaAw/src/Handlers.jl:58
+│  [17] setup_http_streamer(http::HTTP.Streams.Stream{HTTP.Messages.Request, HTTP.Connections.Connection{Sockets.TCPSocket}})
+│     @ Genie.Server ~/.julia/packages/Genie/3gPCR/src/Server.jl:294
+│  [18] (::Genie.Server.var"#7#14")(http::HTTP.Streams.Stream{HTTP.Messages.Request, HTTP.Connections.Connection{Sockets.TCPSocket}})
+│     @ Genie.Server ~/.julia/packages/Genie/3gPCR/src/Server.jl:121
+│  [19] #invokelatest#2
+│     @ ./essentials.jl:892 [inlined]
+│  [20] invokelatest
+│     @ ./essentials.jl:889 [inlined]
+│  [21] handle_connection(f::Function, c::HTTP.Connections.Connection{Sockets.TCPSocket}, listener::HTTP.Servers.Listener{Nothing, Sockets.TCPServer}, readtimeout::Int64, access_log::Nothing)
+│     @ HTTP.Servers ~/.julia/packages/HTTP/uAaAw/src/Servers.jl:447
+│  [22] (::HTTP.Servers.var"#16#17"{Genie.Server.var"#7#14", HTTP.Servers.Listener{Nothing, Sockets.TCPServer}, Set{HTTP.Connections.Connection}, Int64, Nothing, Base.Semaphore, HTTP.Connections.Connection{Sockets.TCPSocket}})()
+│     @ HTTP.Servers ~/.julia/packages/HTTP/uAaAw/src/Servers.jl:385
+│ 
+└ @ Genie.Server /home/delcamps/.julia/packages/Genie/3gPCR/src/Server.jl:317
+┌ Info: 2024-05-15 16:35:55 Watching ["/home/delcamps/Prog/Unveil"]
+└ @ GenieAutoReload /home/delcamps/.julia/packages/GenieAutoReload/IuBCb/src/GenieAutoReload.jl:19
+┌ Info: 2024-05-15 16:35:57 
+│ Web Server starting at http://127.0.0.1:8000 
+└ @ Genie.Server /home/delcamps/.julia/packages/Genie/3gPCR/src/Server.jl:161
+┌ Info: 2024-05-15 16:35:57 Listening on: 127.0.0.1:8000, thread id: 1
+└ @ HTTP.Servers /home/delcamps/.julia/packages/HTTP/uAaAw/src/Servers.jl:366
+┌ Info: 2024-05-15 16:39:06 Autoreloading
+└ @ GenieAutoReload /home/delcamps/.julia/packages/GenieAutoReload/IuBCb/src/GenieAutoReload.jl:22
+┌ Info: 2024-05-15 16:39:17 Watching ["/home/delcamps/Prog/Unveil"]
+└ @ GenieAutoReload /home/delcamps/.julia/packages/GenieAutoReload/IuBCb/src/GenieAutoReload.jl:19
+┌ Info: 2024-05-15 16:39:19 
+│ Web Server starting at http://127.0.0.1:8000 
+└ @ Genie.Server /home/delcamps/.julia/packages/Genie/3gPCR/src/Server.jl:161
+┌ Info: 2024-05-15 16:39:20 Listening on: 127.0.0.1:8000, thread id: 1
+└ @ HTTP.Servers /home/delcamps/.julia/packages/HTTP/uAaAw/src/Servers.jl:366
+┌ Info: 2024-05-15 16:44:42 Autoreloading
+└ @ GenieAutoReload /home/delcamps/.julia/packages/GenieAutoReload/IuBCb/src/GenieAutoReload.jl:22
+┌ Info: 2024-05-15 16:44:49 Autoreloading
+└ @ GenieAutoReload /home/delcamps/.julia/packages/GenieAutoReload/IuBCb/src/GenieAutoReload.jl:22
+┌ Error: 2024-05-15 16:47:54 Failed to revise /home/delcamps/Prog/Unveil/app.jl
+│   exception = (Base.Meta.ParseError("ParseError:\n# Error @ /home/delcamps/Prog/Unveil/app.jl:102:20\n\n@page(\"/\", \"ui.jl\")\n#                  └ ── Expected `end`", Base.JuliaSyntax.ParseError(Base.JuliaSyntax.SourceFile("module App\nusing GenieFramework\nusing GenieFramework.Genie.Requests: postpayload\n#using Main.StatisticAnalysis\n@genietools\n\n# route(\"/\") do\n#     [ \n#         h4(\"Welcome to the Unveil module\"),\n#         h4(\"\"),\n#         Html.form(action = \"/\", method=\"POST\", [\n#             input(type=\"text\",id=\"fitsourcepath\", placeholder=\"Enter path to the fits source\", name=\"fitsourcepath\")]),\n#         Html.form(action = \"/\", method=\"POST\", [\n#             input(type=\"text\",id=\"fitsname\", placeholder=\"Enter name of the fits source\", name=\"fitsname\")]),      \n#         Html.form(action = \"/\", method=\"POST\", [\n#             input(type=\"text\",id=\"pathtosave\", placeholder=\"Enter path for futur saved data\", name=\"pathtosave\")]),  \n#         Html.form(action = \"/\", method=\"POST\", [\n#             input(type=\"text\",id=\"savename\", placeholder=\"Enter name for futur saved data\", name=\"savename\")]),  \n#         Html.form(action = \"/\", method=\"POST\", [\n#             input(type=\"number\",placeholder=\"Enter indice of first channels with noise\", name=\"noiseu\")]),  \n#         Html.form(action = \"/\", method=\"POST\", [\n#             input(type=\"number\",placeholder=\"Enter indice of second channels with noise\", name=\"noises\")]),\n#         row([mycard(\"PCA\", \"perform PCA\"), mycard(\"SWO\", \"perform SWO\")])\n\n\n#     ]\n\n# end\n\nfunction mycard(title, description)\n    card(style=\"width:200px\",\n         [\n          card_section([h4(title), p(description)])\n         ])\nend\n# route(\"/form\") do\n#     Html.form(action = \"/result\", method=\"POST\", [\n#         input(type=\"number\", name=\"N\", placeholder=\"Enter vector length\")\n#         input(type=\"submit\", value=\"Send\")\n#     ])\n# end\n\n# route(\"/result\", method=POST) do\n#     N = parse(Int, postpayload(:N))\n#     x = gen_numbers(N)\n#     m = calc_mean(x)\n#     p(\"The mean of \$N random numbers is: \$m\", style=\"font-size:20px\")\n# end\n\n\n#include(\"ReactiveForm.jl\")\n\n@app begin\n    @out title = \"CSV Analysis\"\n    @out upfiles = readdir(FILE_PATH)\n    @in selected_file = \"iris.csv\"\n    @in selected_column = \"petal.length\"\n    @out columns = [\"petal.length\", \"petal.width\", \"sepal.length\", \"sepal.width\", \"variety\"]\n    @out trace = [histogram()]\n    @out layout = PlotlyBase.Layout(yaxis_title_text=\"Count\",xaxis_title_text=\"Value\")\n    @private data = DataFrame()\n\n    @onchange fileuploads begin\n        @show fileuploads\n        if ! isempty(fileuploads)\n            @info \"File was uploaded: \" fileuploads\n            notify(__model__,\"File was uploaded: \$(fileuploads)\")\n            filename = fileuploads[\"name\"]\n\n            try\n                isdir(FILE_PATH) || mkpath(FILE_PATH)\n                mv(fileuploads[\"path\"], joinpath(FILE_PATH, filename), force=true)\n            catch e\n                @error \"Error processing file: \$e\"\n                notify(__model__,\"Error processing file: \$(fileuploads[\"name\"])\")\n            end\n\n            fileuploads = Dict{AbstractString,AbstractString}()\n        end\n        upfiles = readdir(FILE_PATH)\n    end\n\n    @event rejected begin\n        @info \"rejected\"\n        notify(__model__, \"Please upload a valid file\")\n    end\n\n    @onchange isready,selected_file begin\n        data = CSV.read(joinpath(FILE_PATH, selected_file), DataFrame)\n        columns = names(data)\n    end\n\n    @onchange isready, selected_column begin\n        trace = [histogram(x=data[!, selected_column])]\n    end\n\nend\n\n\n\n\n@page(\"/\", \"ui.jl\")", 0, "/home/delcamps/Prog/Unveil/app.jl", 1, [1, 12, 33, 82, 112, 124, 125, 141, 150, 196, 214, 265, 387, 438, 556, 607, 727, 778, 894, 945, 1056, 1107, 1217, 1293, 1294, 1295, 1303, 1304, 1310, 1311, 1347, 1377, 1388, 1440, 1452, 1456, 1476, 1529, 1605, 1650, 1659, 1665, 1666, 1701, 1739, 1764, 1787, 1859, 1865, 1866, 1867, 1895, 1896, 1907, 1939, 1977, 2012, 2053, 2146, 2177, 2264, 2296, 2297, 2329, 2355, 2389, 2441, 2507, 2550, 2551, 2567, 2621, 2704, 2724, 2775, 2857, 2873, 2874, 2938, 2950, 2987, 2995, 2996, 3022, 3047, 3103, 3111, 3112, 3154, 3225, 3255, 3263, 3264, 3309, 3365, 3373, 3374, 3378, 3379, 3380, 3381, 3382, 3401]), Base.JuliaSyntax.Diagnostic[Base.JuliaSyntax.Diagnostic(3401, 3400, :error, "Expected `end`")], :block)), Union{Ptr{Nothing}, Base.InterpreterIP}[Ptr{Nothing} @0x00007f64b8b2c0a7, Ptr{Nothing} @0x00007f64b8b1aa0d, Ptr{Nothing} @0x00007f64b8b38834, Ptr{Nothing} @0x00007f64b8b38344, Ptr{Nothing} @0x00007f64b8b39083, Ptr{Nothing} @0x00007f64b8b39e5d, Base.InterpreterIP in top-level CodeInfo for Revise at statement 0])
+└ @ Revise /home/delcamps/.julia/packages/Revise/bAgL0/src/packagedef.jl:724
+┌ Error: 2024-05-15 16:49:10 Failed to revise /home/delcamps/Prog/Unveil/app.jl
+│   exception = (Base.Meta.ParseError("ParseError:\n# Error @ /home/delcamps/Prog/Unveil/app.jl:105:20\n\n@page(\"/\", \"ui.jl\")\n#                  └ ── Expected `end`", Base.JuliaSyntax.ParseError(Base.JuliaSyntax.SourceFile("module App\nusing GenieFramework\nusing GenieFramework.Genie.Requests: postpayload\n#using Main.StatisticAnalysis\n@genietools\n\n# route(\"/\") do\n#     [ \n#         h4(\"Welcome to the Unveil module\"),\n#         h4(\"\"),\n#         Html.form(action = \"/\", method=\"POST\", [\n#             input(type=\"text\",id=\"fitsourcepath\", placeholder=\"Enter path to the fits source\", name=\"fitsourcepath\")]),\n#         Html.form(action = \"/\", method=\"POST\", [\n#             input(type=\"text\",id=\"fitsname\", placeholder=\"Enter name of the fits source\", name=\"fitsname\")]),      \n#         Html.form(action = \"/\", method=\"POST\", [\n#             input(type=\"text\",id=\"pathtosave\", placeholder=\"Enter path for futur saved data\", name=\"pathtosave\")]),  \n#         Html.form(action = \"/\", method=\"POST\", [\n#             input(type=\"text\",id=\"savename\", placeholder=\"Enter name for futur saved data\", name=\"savename\")]),  \n#         Html.form(action = \"/\", method=\"POST\", [\n#             input(type=\"number\",placeholder=\"Enter indice of first channels with noise\", name=\"noiseu\")]),  \n#         Html.form(action = \"/\", method=\"POST\", [\n#             input(type=\"number\",placeholder=\"Enter indice of second channels with noise\", name=\"noises\")]),\n#         row([mycard(\"PCA\", \"perform PCA\"), mycard(\"SWO\", \"perform SWO\")])\n\n\n#     ]\n\n# end\n\nfunction mycard(title, description)\n    card(style=\"width:200px\",\n         [\n          card_section([h4(title), p(description)])\n         ])\nend\n# route(\"/form\") do\n#     Html.form(action = \"/result\", method=\"POST\", [\n#         input(type=\"number\", name=\"N\", placeholder=\"Enter vector length\")\n#         input(type=\"submit\", value=\"Send\")\n#     ])\n# end\n\n# route(\"/result\", method=POST) do\n#     N = parse(Int, postpayload(:N))\n#     x = gen_numbers(N)\n#     m = calc_mean(x)\n#     p(\"The mean of \$N random numbers is: \$m\", style=\"font-size:20px\")\n# end\n\n\n#include(\"ReactiveForm.jl\")\nconst FILE_PATH = joinpath(\"public\", \"uploads\")\nmkpath(FILE_PATH)\n\n\n@app begin\n    @out title = \"CSV Analysis\"\n    @out upfiles = readdir(FILE_PATH)\n    @in selected_file = \"iris.csv\"\n    @in selected_column = \"petal.length\"\n    @out columns = [\"petal.length\", \"petal.width\", \"sepal.length\", \"sepal.width\", \"variety\"]\n    @out trace = [histogram()]\n    @out layout = PlotlyBase.Layout(yaxis_title_text=\"Count\",xaxis_title_text=\"Value\")\n    @private data = DataFrame()\n\n    @onchange fileuploads begin\n        @show fileuploads\n        if ! isempty(fileuploads)\n            @info \"File was uploaded: \" fileuploads\n            notify(__model__,\"File was uploaded: \$(fileuploads)\")\n            filename = fileuploads[\"name\"]\n\n            try\n                isdir(FILE_PATH) || mkpath(FILE_PATH)\n                mv(fileuploads[\"path\"], joinpath(FILE_PATH, filename), force=true)\n            catch e\n                @error \"Error processing file: \$e\"\n                notify(__model__,\"Error processing file: \$(fileuploads[\"name\"])\")\n            end\n\n            fileuploads = Dict{AbstractString,AbstractString}()\n        end\n        upfiles = readdir(FILE_PATH)\n    end\n\n    @event rejected begin\n        @info \"rejected\"\n        notify(__model__, \"Please upload a valid file\")\n    end\n\n    @onchange isready,selected_file begin\n        data = CSV.read(joinpath(FILE_PATH, selected_file), DataFrame)\n        columns = names(data)\n    end\n\n    @onchange isready, selected_column begin\n        trace = [histogram(x=data[!, selected_column])]\n    end\n\nend\n\n\n\n\n@page(\"/\", \"ui.jl\")", 0, "/home/delcamps/Prog/Unveil/app.jl", 1, [1, 12, 33, 82, 112, 124, 125, 141, 150, 196, 214, 265, 387, 438, 556, 607, 727, 778, 894, 945, 1056, 1107, 1217, 1293, 1294, 1295, 1303, 1304, 1310, 1311, 1347, 1377, 1388, 1440, 1452, 1456, 1476, 1529, 1605, 1650, 1659, 1665, 1666, 1701, 1739, 1764, 1787, 1859, 1865, 1866, 1867, 1895, 1943, 1961, 1962, 1963, 1974, 2006, 2044, 2079, 2120, 2213, 2244, 2331, 2363, 2364, 2396, 2422, 2456, 2508, 2574, 2617, 2618, 2634, 2688, 2771, 2791, 2842, 2924, 2940, 2941, 3005, 3017, 3054, 3062, 3063, 3089, 3114, 3170, 3178, 3179, 3221, 3292, 3322, 3330, 3331, 3376, 3432, 3440, 3441, 3445, 3446, 3447, 3448, 3449, 3468]), Base.JuliaSyntax.Diagnostic[Base.JuliaSyntax.Diagnostic(3468, 3467, :error, "Expected `end`")], :block)), Union{Ptr{Nothing}, Base.InterpreterIP}[Ptr{Nothing} @0x00007f64b8b2c0a7, Ptr{Nothing} @0x00007f64b8b1aa0d, Ptr{Nothing} @0x00007f64b8b38834, Ptr{Nothing} @0x00007f64b8b38344, Ptr{Nothing} @0x00007f64b8b39083, Ptr{Nothing} @0x00007f64b8b39e5d, Base.InterpreterIP in top-level CodeInfo for Revise at statement 0])
+└ @ Revise /home/delcamps/.julia/packages/Revise/bAgL0/src/packagedef.jl:724
+┌ Error: 2024-05-15 16:59:39 LoadError: ParseError:
+│ # Error @ /tmp/jl_genie_build_J49Oh2/GenieViews/0dc5da90ea465674873897cd99a5ba8046814734.jl:29:61
+│            h6("PCA"),
+│            Html.form(action = "/", method="POST", [label(for="npc","Enter number of PCs to use"),
+│ #                                                           ╙ ── unexpected `=`
+│ Stacktrace:
+│   [1] top-level scope
+│     @ /tmp/jl_genie_build_J49Oh2/GenieViews/0dc5da90ea465674873897cd99a5ba8046814734.jl:29
+│   [2] include
+│     @ ./Base.jl:495 [inlined]
+│   [3] get_template(path::String; partial::Bool, context::Module, vars::@Kwargs{model::var"##Main_ReactiveModel!#226"})
+│     @ Genie.Renderer.Html ~/.julia/packages/Genie/3gPCR/src/renderers/Html.jl:360
+│   [4] get_template
+│     @ ~/.julia/packages/Genie/3gPCR/src/renderers/Html.jl:343 [inlined]
+│   [5] render(viewfile::FilePathsBase.PosixPath; layout::String, context::Module, vars::@Kwargs{model::var"##Main_ReactiveModel!#226"})
+│     @ Genie.Renderer.Html ~/.julia/packages/Genie/3gPCR/src/renderers/Html.jl:438
+│   [6] render
+│     @ ~/.julia/packages/Genie/3gPCR/src/renderers/Html.jl:434 [inlined]
+│   [7] render(::Type{MIME{Symbol("text/html")}}, viewfile::FilePathsBase.PosixPath; layout::String, context::Module, vars::@Kwargs{model::var"##Main_ReactiveModel!#226"})
+│     @ Genie.Renderer.Html ~/.julia/packages/Genie/3gPCR/src/renderers/Html.jl:486
+│   [8] render
+│     @ ~/.julia/packages/Genie/3gPCR/src/renderers/Html.jl:482 [inlined]
+│   [9] #html#33
+│     @ ~/.julia/packages/Genie/3gPCR/src/renderers/Html.jl:637 [inlined]
+│  [10] (::Stipple.Pages.var"#5#6"{FilePathsBase.PosixPath, Stipple.ReactiveTools.var"#32#34"{Module, Vector{Any}}, String, @Kwargs{}})()
+│     @ Stipple.Pages ~/.julia/packages/Stipple/egpvt/src/Pages.jl:65
+│  [11] run_route(r::Genie.Router.Route)
+│     @ Genie.Router ~/.julia/packages/Genie/3gPCR/src/Router.jl:535
+│  [12] route_request(req::HTTP.Messages.Request, res::HTTP.Messages.Response)
+│     @ Genie.Router ~/.julia/packages/Genie/3gPCR/src/Router.jl:171
+│  [13] handle_request(req::HTTP.Messages.Request, res::HTTP.Messages.Response)
+│     @ Genie.Server ~/.julia/packages/Genie/3gPCR/src/Server.jl:278
+│  [14] (::Genie.Server.var"#29#30"{HTTP.Messages.Request, HTTP.Messages.Response})()
+│     @ Genie.Server /opt/julias/julia-1.10.2/share/julia/stdlib/v1.10/Distributed/src/macros.jl:123
+│  [15] #invokelatest#2
+│     @ ./essentials.jl:892 [inlined]
+│  [16] invokelatest
+│     @ ./essentials.jl:889 [inlined]
+│  [17] #153
+│     @ /opt/julias/julia-1.10.2/share/julia/stdlib/v1.10/Distributed/src/remotecall.jl:425 [inlined]
+│  [18] run_work_thunk(thunk::Distributed.var"#153#154"{Genie.Server.var"#29#30"{HTTP.Messages.Request, HTTP.Messages.Response}, Tuple{}, @Kwargs{}}, print_error::Bool)
+│     @ Distributed /opt/julias/julia-1.10.2/share/julia/stdlib/v1.10/Distributed/src/process_messages.jl:70
+│  [19] #remotecall_fetch#158
+│     @ /opt/julias/julia-1.10.2/share/julia/stdlib/v1.10/Distributed/src/remotecall.jl:450 [inlined]
+│  [20] remotecall_fetch
+│     @ /opt/julias/julia-1.10.2/share/julia/stdlib/v1.10/Distributed/src/remotecall.jl:449 [inlined]
+│  [21] remotecall_fetch
+│     @ /opt/julias/julia-1.10.2/share/julia/stdlib/v1.10/Distributed/src/remotecall.jl:492 [inlined]
+│  [22] setup_http_listener(req::HTTP.Messages.Request, res::HTTP.Messages.Response)
+│     @ Genie.Server ~/.julia/packages/Genie/3gPCR/src/Server.jl:305
+│  [23] setup_http_listener
+│     @ ~/.julia/packages/Genie/3gPCR/src/Server.jl:304 [inlined]
+│  [24] (::HTTP.Handlers.var"#1#2"{typeof(Genie.Server.setup_http_listener)})(stream::HTTP.Streams.Stream{HTTP.Messages.Request, HTTP.Connections.Connection{Sockets.TCPSocket}})
+│     @ HTTP.Handlers ~/.julia/packages/HTTP/uAaAw/src/Handlers.jl:58
+│  [25] setup_http_streamer(http::HTTP.Streams.Stream{HTTP.Messages.Request, HTTP.Connections.Connection{Sockets.TCPSocket}})
+│     @ Genie.Server ~/.julia/packages/Genie/3gPCR/src/Server.jl:294
+│  [26] (::Genie.Server.var"#7#14")(http::HTTP.Streams.Stream{HTTP.Messages.Request, HTTP.Connections.Connection{Sockets.TCPSocket}})
+│     @ Genie.Server ~/.julia/packages/Genie/3gPCR/src/Server.jl:121
+│  [27] #invokelatest#2
+│     @ ./essentials.jl:892 [inlined]
+│  [28] invokelatest
+│     @ ./essentials.jl:889 [inlined]
+│  [29] handle_connection(f::Function, c::HTTP.Connections.Connection{Sockets.TCPSocket}, listener::HTTP.Servers.Listener{Nothing, Sockets.TCPServer}, readtimeout::Int64, access_log::Nothing)
+│     @ HTTP.Servers ~/.julia/packages/HTTP/uAaAw/src/Servers.jl:447
+│  [30] (::HTTP.Servers.var"#16#17"{Genie.Server.var"#7#14", HTTP.Servers.Listener{Nothing, Sockets.TCPServer}, Set{HTTP.Connections.Connection}, Int64, Nothing, Base.Semaphore, HTTP.Connections.Connection{Sockets.TCPSocket}})()
+│     @ HTTP.Servers ~/.julia/packages/HTTP/uAaAw/src/Servers.jl:385
+│ in expression starting at /tmp/jl_genie_build_J49Oh2/GenieViews/0dc5da90ea465674873897cd99a5ba8046814734.jl:29
+│ 
+└ @ Genie.Server /home/delcamps/.julia/packages/Genie/3gPCR/src/Server.jl:317
+┌ Error: 2024-05-15 17:09:12 UndefVarError: `mycard` not defined
+│ Stacktrace:
+│   [1] func_5ea159527aa8f694cc95cc1e7a9d7ec9929b28ed(; context::Module, model::var"##Main_ReactiveModel!#226")
+│     @ Main /tmp/jl_genie_build_J49Oh2/GenieViews/0dc5da90ea465674873897cd99a5ba8046814734.jl:5
+│   [2] func_5ea159527aa8f694cc95cc1e7a9d7ec9929b28ed()
+│     @ Main /tmp/jl_genie_build_J49Oh2/GenieViews/0dc5da90ea465674873897cd99a5ba8046814734.jl:3
+│   [3] (::var"#13#26"{var"##Main_ReactiveModel!#226"})()
+│     @ Main /tmp/jl_genie_build_J49Oh2/GenieViews/ec53ed69dbb26f5e0b8ec98fbcc9a3e71eab6538.jl:55
+│   [4] #invokelatest#2
+│     @ ./essentials.jl:892 [inlined]
+│   [5] invokelatest
+│     @ ./essentials.jl:889 [inlined]
+│   [6] normal_element(f::Function, elem::String, args::Vector{Any}, attrs::Vector{Pair{Symbol, Any}})
+│     @ Genie.Renderer.Html ~/.julia/packages/Genie/3gPCR/src/renderers/Html.jl:137
+│   [7] div(::Function; attrs::@Kwargs{class::String, htmlsourceindent::String})
+│     @ Genie.Renderer.Html ./none:2
+│   [8] div
+│     @ ./none:1 [inlined]
+│   [9] (::var"#12#25"{var"##Main_ReactiveModel!#226"})()
+│     @ Main /tmp/jl_genie_build_J49Oh2/GenieViews/ec53ed69dbb26f5e0b8ec98fbcc9a3e71eab6538.jl:54
+│  [10] #invokelatest#2
+│     @ ./essentials.jl:892 [inlined]
+│  [11] invokelatest
+│     @ ./essentials.jl:889 [inlined]
+│  [12] normal_element(f::Function, elem::String, args::Vector{Any}, attrs::Vector{Pair{Symbol, Any}})
+│     @ Genie.Renderer.Html ~/.julia/packages/Genie/3gPCR/src/renderers/Html.jl:137
+│  [13] div(::Function; attrs::@Kwargs{class::String, htmlsourceindent::String})
+│     @ Genie.Renderer.Html ./none:2
+│  [14] div
+│     @ ./none:1 [inlined]
+│  [15] (::var"#11#24"{var"##Main_ReactiveModel!#226"})()
+│     @ Main /tmp/jl_genie_build_J49Oh2/GenieViews/ec53ed69dbb26f5e0b8ec98fbcc9a3e71eab6538.jl:53
+│  [16] #invokelatest#2
+│     @ ./essentials.jl:892 [inlined]
+│  [17] invokelatest
+│     @ ./essentials.jl:889 [inlined]
+│  [18] normal_element(f::Function, elem::String, args::Vector{Any}, attrs::Vector{Pair{Symbol, Any}})
+│     @ Genie.Renderer.Html ~/.julia/packages/Genie/3gPCR/src/renderers/Html.jl:137
+│  [19] div(::Function; attrs::@Kwargs{class::String, htmlsourceindent::String})
+│     @ Genie.Renderer.Html ./none:2
+│  [20] div
+│     @ ./none:1 [inlined]
+│  [21] (::var"#10#23"{var"##Main_ReactiveModel!#226"})()
+│     @ Main /tmp/jl_genie_build_J49Oh2/GenieViews/ec53ed69dbb26f5e0b8ec98fbcc9a3e71eab6538.jl:52
+│  [22] #invokelatest#2
+│     @ ./essentials.jl:892 [inlined]
+│  [23] invokelatest
+│     @ ./essentials.jl:889 [inlined]
+│  [24] normal_element(f::Function, elem::String, args::Vector{Any}, attrs::Vector{Pair{Symbol, Any}})
+│     @ Genie.Renderer.Html ~/.julia/packages/Genie/3gPCR/src/renderers/Html.jl:137
+│  [25] #body#79
+│     @ ./none:2 [inlined]
+│  [26] body
+│     @ ./none:1 [inlined]
+│  [27] (::var"#6#19"{var"##Main_ReactiveModel!#226"})()
+│     @ Main /tmp/jl_genie_build_J49Oh2/GenieViews/ec53ed69dbb26f5e0b8ec98fbcc9a3e71eab6538.jl:9
+│  [28] #invokelatest#2
+│     @ ./essentials.jl:892 [inlined]
+│  [29] invokelatest
+│     @ ./essentials.jl:889 [inlined]
+│  [30] normal_element(f::Function, elem::String, args::Vector{Any}, attrs::Vector{Pair{Symbol, Any}})
+│     @ Genie.Renderer.Html ~/.julia/packages/Genie/3gPCR/src/renderers/Html.jl:137
+│  [31] #html#67
+│     @ ./none:2 [inlined]
+│  [32] html
+│     @ ./none:1 [inlined]
+│  [33] func_9e17702de869ea43b9350e2b8a2cf5600f42b500(; context::Module, model::var"##Main_ReactiveModel!#226")
+│     @ Main /tmp/jl_genie_build_J49Oh2/GenieViews/ec53ed69dbb26f5e0b8ec98fbcc9a3e71eab6538.jl:5
+│  [34] func_9e17702de869ea43b9350e2b8a2cf5600f42b500()
+│     @ Main /tmp/jl_genie_build_J49Oh2/GenieViews/ec53ed69dbb26f5e0b8ec98fbcc9a3e71eab6538.jl:3
+│  [35] #invokelatest#2
+│     @ ./essentials.jl:892 [inlined]
+│  [36] invokelatest
+│     @ ./essentials.jl:889 [inlined]
+│  [37] WebRenderable(::Function)
+│     @ Genie.Renderer ~/.julia/packages/Genie/3gPCR/src/Renderer.jl:163
+│  [38] |>
+│     @ ./operators.jl:917 [inlined]
+│  [39] render(::Type{MIME{Symbol("text/html")}}, viewfile::FilePathsBase.PosixPath; layout::String, context::Module, vars::@Kwargs{model::var"##Main_ReactiveModel!#226"})
+│     @ Genie.Renderer.Html ~/.julia/packages/Genie/3gPCR/src/renderers/Html.jl:486
+│  [40] render
+│     @ ~/.julia/packages/Genie/3gPCR/src/renderers/Html.jl:482 [inlined]
+│  [41] #html#33
+│     @ ~/.julia/packages/Genie/3gPCR/src/renderers/Html.jl:637 [inlined]
+│  [42] (::Stipple.Pages.var"#5#6"{FilePathsBase.PosixPath, Stipple.ReactiveTools.var"#32#34"{Module, Vector{Any}}, String, @Kwargs{}})()
+│     @ Stipple.Pages ~/.julia/packages/Stipple/egpvt/src/Pages.jl:65
+│  [43] run_route(r::Genie.Router.Route)
+│     @ Genie.Router ~/.julia/packages/Genie/3gPCR/src/Router.jl:535
+│  [44] route_request(req::HTTP.Messages.Request, res::HTTP.Messages.Response)
+│     @ Genie.Router ~/.julia/packages/Genie/3gPCR/src/Router.jl:171
+│  [45] handle_request(req::HTTP.Messages.Request, res::HTTP.Messages.Response)
+│     @ Genie.Server ~/.julia/packages/Genie/3gPCR/src/Server.jl:278
+│  [46] (::Genie.Server.var"#29#30"{HTTP.Messages.Request, HTTP.Messages.Response})()
+│     @ Genie.Server /opt/julias/julia-1.10.2/share/julia/stdlib/v1.10/Distributed/src/macros.jl:123
+│  [47] #invokelatest#2
+│     @ ./essentials.jl:892 [inlined]
+│  [48] invokelatest
+│     @ ./essentials.jl:889 [inlined]
+│  [49] #153
+│     @ /opt/julias/julia-1.10.2/share/julia/stdlib/v1.10/Distributed/src/remotecall.jl:425 [inlined]
+│  [50] run_work_thunk(thunk::Distributed.var"#153#154"{Genie.Server.var"#29#30"{HTTP.Messages.Request, HTTP.Messages.Response}, Tuple{}, @Kwargs{}}, print_error::Bool)
+│     @ Distributed /opt/julias/julia-1.10.2/share/julia/stdlib/v1.10/Distributed/src/process_messages.jl:70
+│  [51] #remotecall_fetch#158
+│     @ /opt/julias/julia-1.10.2/share/julia/stdlib/v1.10/Distributed/src/remotecall.jl:450 [inlined]
+│  [52] remotecall_fetch
+│     @ /opt/julias/julia-1.10.2/share/julia/stdlib/v1.10/Distributed/src/remotecall.jl:449 [inlined]
+│  [53] remotecall_fetch
+│     @ /opt/julias/julia-1.10.2/share/julia/stdlib/v1.10/Distributed/src/remotecall.jl:492 [inlined]
+│  [54] setup_http_listener(req::HTTP.Messages.Request, res::HTTP.Messages.Response)
+│     @ Genie.Server ~/.julia/packages/Genie/3gPCR/src/Server.jl:305
+│  [55] setup_http_listener
+│     @ ~/.julia/packages/Genie/3gPCR/src/Server.jl:304 [inlined]
+│  [56] (::HTTP.Handlers.var"#1#2"{typeof(Genie.Server.setup_http_listener)})(stream::HTTP.Streams.Stream{HTTP.Messages.Request, HTTP.Connections.Connection{Sockets.TCPSocket}})
+│     @ HTTP.Handlers ~/.julia/packages/HTTP/uAaAw/src/Handlers.jl:58
+│  [57] setup_http_streamer(http::HTTP.Streams.Stream{HTTP.Messages.Request, HTTP.Connections.Connection{Sockets.TCPSocket}})
+│     @ Genie.Server ~/.julia/packages/Genie/3gPCR/src/Server.jl:294
+│  [58] (::Genie.Server.var"#7#14")(http::HTTP.Streams.Stream{HTTP.Messages.Request, HTTP.Connections.Connection{Sockets.TCPSocket}})
+│     @ Genie.Server ~/.julia/packages/Genie/3gPCR/src/Server.jl:121
+│  [59] #invokelatest#2
+│     @ ./essentials.jl:892 [inlined]
+│  [60] invokelatest
+│     @ ./essentials.jl:889 [inlined]
+│  [61] handle_connection(f::Function, c::HTTP.Connections.Connection{Sockets.TCPSocket}, listener::HTTP.Servers.Listener{Nothing, Sockets.TCPServer}, readtimeout::Int64, access_log::Nothing)
+│     @ HTTP.Servers ~/.julia/packages/HTTP/uAaAw/src/Servers.jl:447
+│ 
+└ @ Genie.Server /home/delcamps/.julia/packages/Genie/3gPCR/src/Server.jl:317
+┌ Error: 2024-05-15 17:09:36 UndefVarError: `mycard` not defined
+│ Stacktrace:
+│   [1] func_9a31f52042afd210bb7c3d6e95ed9a76ea156fd7(; context::Module, model::var"##Main_ReactiveModel!#226")
+│     @ Main /tmp/jl_genie_build_J49Oh2/GenieViews/0dc5da90ea465674873897cd99a5ba8046814734.jl:5
+│   [2] func_9a31f52042afd210bb7c3d6e95ed9a76ea156fd7()
+│     @ Main /tmp/jl_genie_build_J49Oh2/GenieViews/0dc5da90ea465674873897cd99a5ba8046814734.jl:3
+│   [3] (::var"#13#26"{var"##Main_ReactiveModel!#226"})()
+│     @ Main /tmp/jl_genie_build_J49Oh2/GenieViews/ec53ed69dbb26f5e0b8ec98fbcc9a3e71eab6538.jl:55
+│   [4] #invokelatest#2
+│     @ ./essentials.jl:892 [inlined]
+│   [5] invokelatest
+│     @ ./essentials.jl:889 [inlined]
+│   [6] normal_element(f::Function, elem::String, args::Vector{Any}, attrs::Vector{Pair{Symbol, Any}})
+│     @ Genie.Renderer.Html ~/.julia/packages/Genie/3gPCR/src/renderers/Html.jl:137
+│   [7] div(::Function; attrs::@Kwargs{class::String, htmlsourceindent::String})
+│     @ Genie.Renderer.Html ./none:2
+│   [8] div
+│     @ ./none:1 [inlined]
+│   [9] (::var"#12#25"{var"##Main_ReactiveModel!#226"})()
+│     @ Main /tmp/jl_genie_build_J49Oh2/GenieViews/ec53ed69dbb26f5e0b8ec98fbcc9a3e71eab6538.jl:54
+│  [10] #invokelatest#2
+│     @ ./essentials.jl:892 [inlined]
+│  [11] invokelatest
+│     @ ./essentials.jl:889 [inlined]
+│  [12] normal_element(f::Function, elem::String, args::Vector{Any}, attrs::Vector{Pair{Symbol, Any}})
+│     @ Genie.Renderer.Html ~/.julia/packages/Genie/3gPCR/src/renderers/Html.jl:137
+│  [13] div(::Function; attrs::@Kwargs{class::String, htmlsourceindent::String})
+│     @ Genie.Renderer.Html ./none:2
+│  [14] div
+│     @ ./none:1 [inlined]
+│  [15] (::var"#11#24"{var"##Main_ReactiveModel!#226"})()
+│     @ Main /tmp/jl_genie_build_J49Oh2/GenieViews/ec53ed69dbb26f5e0b8ec98fbcc9a3e71eab6538.jl:53
+│  [16] #invokelatest#2
+│     @ ./essentials.jl:892 [inlined]
+│  [17] invokelatest
+│     @ ./essentials.jl:889 [inlined]
+│  [18] normal_element(f::Function, elem::String, args::Vector{Any}, attrs::Vector{Pair{Symbol, Any}})
+│     @ Genie.Renderer.Html ~/.julia/packages/Genie/3gPCR/src/renderers/Html.jl:137
+│  [19] div(::Function; attrs::@Kwargs{class::String, htmlsourceindent::String})
+│     @ Genie.Renderer.Html ./none:2
+│  [20] div
+│     @ ./none:1 [inlined]
+│  [21] (::var"#10#23"{var"##Main_ReactiveModel!#226"})()
+│     @ Main /tmp/jl_genie_build_J49Oh2/GenieViews/ec53ed69dbb26f5e0b8ec98fbcc9a3e71eab6538.jl:52
+│  [22] #invokelatest#2
+│     @ ./essentials.jl:892 [inlined]
+│  [23] invokelatest
+│     @ ./essentials.jl:889 [inlined]
+│  [24] normal_element(f::Function, elem::String, args::Vector{Any}, attrs::Vector{Pair{Symbol, Any}})
+│     @ Genie.Renderer.Html ~/.julia/packages/Genie/3gPCR/src/renderers/Html.jl:137
+│  [25] #body#79
+│     @ ./none:2 [inlined]
+│  [26] body
+│     @ ./none:1 [inlined]
+│  [27] (::var"#6#19"{var"##Main_ReactiveModel!#226"})()
+│     @ Main /tmp/jl_genie_build_J49Oh2/GenieViews/ec53ed69dbb26f5e0b8ec98fbcc9a3e71eab6538.jl:9
+│  [28] #invokelatest#2
+│     @ ./essentials.jl:892 [inlined]
+│  [29] invokelatest
+│     @ ./essentials.jl:889 [inlined]
+│  [30] normal_element(f::Function, elem::String, args::Vector{Any}, attrs::Vector{Pair{Symbol, Any}})
+│     @ Genie.Renderer.Html ~/.julia/packages/Genie/3gPCR/src/renderers/Html.jl:137
+│  [31] #html#67
+│     @ ./none:2 [inlined]
+│  [32] html
+│     @ ./none:1 [inlined]
+│  [33] func_9e17702de869ea43b9350e2b8a2cf5600f42b500(; context::Module, model::var"##Main_ReactiveModel!#226")
+│     @ Main /tmp/jl_genie_build_J49Oh2/GenieViews/ec53ed69dbb26f5e0b8ec98fbcc9a3e71eab6538.jl:5
+│  [34] func_9e17702de869ea43b9350e2b8a2cf5600f42b500()
+│     @ Main /tmp/jl_genie_build_J49Oh2/GenieViews/ec53ed69dbb26f5e0b8ec98fbcc9a3e71eab6538.jl:3
+│  [35] #invokelatest#2
+│     @ ./essentials.jl:892 [inlined]
+│  [36] invokelatest
+│     @ ./essentials.jl:889 [inlined]
+│  [37] WebRenderable(::Function)
+│     @ Genie.Renderer ~/.julia/packages/Genie/3gPCR/src/Renderer.jl:163
+│  [38] |>
+│     @ ./operators.jl:917 [inlined]
+│  [39] render(::Type{MIME{Symbol("text/html")}}, viewfile::FilePathsBase.PosixPath; layout::String, context::Module, vars::@Kwargs{model::var"##Main_ReactiveModel!#226"})
+│     @ Genie.Renderer.Html ~/.julia/packages/Genie/3gPCR/src/renderers/Html.jl:486
+│  [40] render
+│     @ ~/.julia/packages/Genie/3gPCR/src/renderers/Html.jl:482 [inlined]
+│  [41] #html#33
+│     @ ~/.julia/packages/Genie/3gPCR/src/renderers/Html.jl:637 [inlined]
+│  [42] (::Stipple.Pages.var"#5#6"{FilePathsBase.PosixPath, Stipple.ReactiveTools.var"#32#34"{Module, Vector{Any}}, String, @Kwargs{}})()
+│     @ Stipple.Pages ~/.julia/packages/Stipple/egpvt/src/Pages.jl:65
+│  [43] run_route(r::Genie.Router.Route)
+│     @ Genie.Router ~/.julia/packages/Genie/3gPCR/src/Router.jl:535
+│  [44] route_request(req::HTTP.Messages.Request, res::HTTP.Messages.Response)
+│     @ Genie.Router ~/.julia/packages/Genie/3gPCR/src/Router.jl:171
+│  [45] handle_request(req::HTTP.Messages.Request, res::HTTP.Messages.Response)
+│     @ Genie.Server ~/.julia/packages/Genie/3gPCR/src/Server.jl:278
+│  [46] (::Genie.Server.var"#29#30"{HTTP.Messages.Request, HTTP.Messages.Response})()
+│     @ Genie.Server /opt/julias/julia-1.10.2/share/julia/stdlib/v1.10/Distributed/src/macros.jl:123
+│  [47] #invokelatest#2
+│     @ ./essentials.jl:892 [inlined]
+│  [48] invokelatest
+│     @ ./essentials.jl:889 [inlined]
+│  [49] #153
+│     @ /opt/julias/julia-1.10.2/share/julia/stdlib/v1.10/Distributed/src/remotecall.jl:425 [inlined]
+│  [50] run_work_thunk(thunk::Distributed.var"#153#154"{Genie.Server.var"#29#30"{HTTP.Messages.Request, HTTP.Messages.Response}, Tuple{}, @Kwargs{}}, print_error::Bool)
+│     @ Distributed /opt/julias/julia-1.10.2/share/julia/stdlib/v1.10/Distributed/src/process_messages.jl:70
+│  [51] #remotecall_fetch#158
+│     @ /opt/julias/julia-1.10.2/share/julia/stdlib/v1.10/Distributed/src/remotecall.jl:450 [inlined]
+│  [52] remotecall_fetch
+│     @ /opt/julias/julia-1.10.2/share/julia/stdlib/v1.10/Distributed/src/remotecall.jl:449 [inlined]
+│  [53] remotecall_fetch
+│     @ /opt/julias/julia-1.10.2/share/julia/stdlib/v1.10/Distributed/src/remotecall.jl:492 [inlined]
+│  [54] setup_http_listener(req::HTTP.Messages.Request, res::HTTP.Messages.Response)
+│     @ Genie.Server ~/.julia/packages/Genie/3gPCR/src/Server.jl:305
+│  [55] setup_http_listener
+│     @ ~/.julia/packages/Genie/3gPCR/src/Server.jl:304 [inlined]
+│  [56] (::HTTP.Handlers.var"#1#2"{typeof(Genie.Server.setup_http_listener)})(stream::HTTP.Streams.Stream{HTTP.Messages.Request, HTTP.Connections.Connection{Sockets.TCPSocket}})
+│     @ HTTP.Handlers ~/.julia/packages/HTTP/uAaAw/src/Handlers.jl:58
+│  [57] setup_http_streamer(http::HTTP.Streams.Stream{HTTP.Messages.Request, HTTP.Connections.Connection{Sockets.TCPSocket}})
+│     @ Genie.Server ~/.julia/packages/Genie/3gPCR/src/Server.jl:294
+│  [58] (::Genie.Server.var"#7#14")(http::HTTP.Streams.Stream{HTTP.Messages.Request, HTTP.Connections.Connection{Sockets.TCPSocket}})
+│     @ Genie.Server ~/.julia/packages/Genie/3gPCR/src/Server.jl:121
+│  [59] #invokelatest#2
+│     @ ./essentials.jl:892 [inlined]
+│  [60] invokelatest
+│     @ ./essentials.jl:889 [inlined]
+│  [61] handle_connection(f::Function, c::HTTP.Connections.Connection{Sockets.TCPSocket}, listener::HTTP.Servers.Listener{Nothing, Sockets.TCPServer}, readtimeout::Int64, access_log::Nothing)
+│     @ HTTP.Servers ~/.julia/packages/HTTP/uAaAw/src/Servers.jl:447
+│ 
+└ @ Genie.Server /home/delcamps/.julia/packages/Genie/3gPCR/src/Server.jl:317
