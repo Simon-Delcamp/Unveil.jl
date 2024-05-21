@@ -1334,4 +1334,12 @@ function newcvi(fits,LAG,DLAG,BLANK)
 
 end
 
+
+
+function gopca(npc)
+    println("$npc")
+
+end
+
+
 end # module Unveil
