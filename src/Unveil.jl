@@ -9,6 +9,7 @@ include("SWO.jl")                   # Functions for method SWO
 include("Graphic.jl")               # Plotting 
 include("CVI.jl")                   # Functions for CVI computations
 include("Structure_functions.jl")   # Functions for Structure functions computations
+include("Unveilapp.jl")
 
 using .Dataprep
 using .SWO
@@ -17,6 +18,7 @@ using .Analysis
 using .Structure_functions
 using .CVI
 using .PCA
+using .Unveilapp
 using Plots
 using ProgressBars
 using StatsBase
