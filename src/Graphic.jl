@@ -2,8 +2,8 @@
 module Graphic
 
 using Plots,MultivariateStats, Statistics, StatsBase, LinearAlgebra
-using LaTeXStrings
-using Measures, LsqFit
+using LaTeXStrings, CurveFit
+using Measures
 
 export checkwindowopti
 export distribcv_multiow
@@ -106,36 +106,36 @@ end #distribcv_multipc
 
 
 
-"""
-   energyspec(powerspec,karr,imsize,PATHTOSAVE;fitted=true,SAVENAME="")
+# """
+#    energyspec(powerspec,karr,imsize,PATHTOSAVE;fitted=true,SAVENAME="")
 
-Plot an energy power spectra. karr is the frequencies array (pixel^-1). Also add a powerlaw fit by default.
-"""
-function energyspec(powerspec,karr,imsize,PATHTOSAVE;fitted=true,SAVENAME="")
-    Np   = trunc(Int,imsize/2)
-    mid = floor(Int,Np/5)
-    gr()
-    p = plot(karr[2:Np],powerspec[2:Np]./karr[2:Np],seriestype=:scatter,alpha=0.8,minorgrid=true,yaxis=:log,label="",xaxis=:log,xlabel="k (pixel⁻¹)",ylabel="P(k)")  
-    display(p)
-    if fitted==true
-      model(x,xhi) = xhi[2].*x.^xhi[1]    
+# Plot an energy power spectra. karr is the frequencies array (pixel^-1). Also add a powerlaw fit by default.
+# """
+# function energyspec(powerspec,karr,imsize,PATHTOSAVE;fitted=true,SAVENAME="")
+#     Np   = trunc(Int,imsize/2)
+#     mid = floor(Int,Np/5)
+#     gr()
+#     p = plot(karr[2:Np],powerspec[2:Np]./karr[2:Np],seriestype=:scatter,alpha=0.8,minorgrid=true,yaxis=:log,label="",xaxis=:log,xlabel="k (pixel⁻¹)",ylabel="P(k)")  
+#     display(p)
+#     if fitted==true
+#       model(x,xhi) = xhi[2].*x.^xhi[1]    
       
-      FitFbm = LsqFit.curve_fit(model, karr[5:mid], powerspec[5:mid]./karr[5:mid], [-3.0,1])
-      #FitFbm = LsqFit.curve_fit(model, karr[5:Np], powerspec[5:Np]./karr[5:Np], [-3.0,1])
-      a = "$(trunc(FitFbm.param[2],sigdigits=3))"
-      ind ="$(trunc(FitFbm.param[1],sigdigits=3))"
-      plot!(karr[5:mid], FitFbm.param[2].*karr[5:mid].^FitFbm.param[1],label=latexstring("$(a)\\times k^{$(ind)}"))
-      #FitFbm = curve_fit(model, karr[10:Np], mean(arr,dims=1)[10:Np]./karr[10:Np], [-3.0,10])
-      FitFbm = LsqFit.curve_fit(model, karr[20:Np], powerspec[20:Np]./karr[20:Np], [-3.0,1])
-      FitFbm = LsqFit.curve_fit(model, karr[40:Np], powerspec[40:Np]./karr[40:Np], [-3.0,1])
-      a = "$(trunc(FitFbm.param[2],sigdigits=3))"
-      ind ="$(trunc(FitFbm.param[1],sigdigits=3))"
-      #plot!(karr[20:Np], FitFbm.param[2].*karr[20:Np].^FitFbm.param[1],label=latexstring("$(a)\\times k^{$(ind)}"))
-      plot!(karr[40:Np], FitFbm.param[2].*karr[40:Np].^FitFbm.param[1],label=latexstring("$(a)\\times k^{$(ind)}"))
-      display(p)
-    end
-    Plots.savefig("$PATHTOSAVE/Figures/powerspectra_$(SAVENAME).pdf")
-end
+#       FitFbm = LsqFit.curve_fit(model, karr[5:mid], powerspec[5:mid]./karr[5:mid], [-3.0,1])
+#       #FitFbm = LsqFit.curve_fit(model, karr[5:Np], powerspec[5:Np]./karr[5:Np], [-3.0,1])
+#       a = "$(trunc(FitFbm.param[2],sigdigits=3))"
+#       ind ="$(trunc(FitFbm.param[1],sigdigits=3))"
+#       plot!(karr[5:mid], FitFbm.param[2].*karr[5:mid].^FitFbm.param[1],label=latexstring("$(a)\\times k^{$(ind)}"))
+#       #FitFbm = curve_fit(model, karr[10:Np], mean(arr,dims=1)[10:Np]./karr[10:Np], [-3.0,10])
+#       FitFbm = LsqFit.curve_fit(model, karr[20:Np], powerspec[20:Np]./karr[20:Np], [-3.0,1])
+#       FitFbm = LsqFit.curve_fit(model, karr[40:Np], powerspec[40:Np]./karr[40:Np], [-3.0,1])
+#       a = "$(trunc(FitFbm.param[2],sigdigits=3))"
+#       ind ="$(trunc(FitFbm.param[1],sigdigits=3))"
+#       #plot!(karr[20:Np], FitFbm.param[2].*karr[20:Np].^FitFbm.param[1],label=latexstring("$(a)\\times k^{$(ind)}"))
+#       plot!(karr[40:Np], FitFbm.param[2].*karr[40:Np].^FitFbm.param[1],label=latexstring("$(a)\\times k^{$(ind)}"))
+#       display(p)
+#     end
+#     Plots.savefig("$PATHTOSAVE/Figures/powerspectra_$(SAVENAME).pdf")
+# end
 
 
 

@@ -1,6 +1,6 @@
 module Structure_functions
 
-using StatsBase, LsqFit, Plots
+using StatsBase, CurveFit, Plots
 export fct_sct
 export fit_fctsct
 export xhi_fct_p
