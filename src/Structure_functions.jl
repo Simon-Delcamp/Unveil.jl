@@ -1,6 +1,6 @@
 module Structure_functions
 
-using StatsBase, Distributions, LsqFit, Plots
+using StatsBase, LsqFit, Plots
 export fct_sct
 export fit_fctsct
 export xhi_fct_p
