@@ -947,7 +947,10 @@ function structure_functions(VARFILEPATH ; meth="moninyaglom", limi=0,limf=0)
     #end
 
 
-    Dataprep.write_dat(cat([METHV 0 0 0],cat(zeta,ORDERS,dims=2),dims=1),"$(PATHTOSAVE)/Data/","$(SAVENAME)_stcfct_$(METH)", more=["METHOD $(METH) ; FILE : $(SAVENAME) ; Intensity threshold during CV computation : $(THRESHOLD). ROW are results for differents orders which are given at the last column. First column is the exponant, second column is the factor A : Sp(l)=A*S3(l)^B. Also, at first row and first column is the method used : <0 for SWO, 0 for raw cube, >0 for PCA. The value gives the number of PCs for PCA)" ], overwrite=OVERWRITE)
+    #Dataprep.write_dat(cat([METHV 0 0 0],cat(zeta,ORDERS,dims=2),dims=1),"$(PATHTOSAVE)/Data/","$(SAVENAME)_stcfct_$(METH)", more=["METHOD $(METH) ; FILE : $(SAVENAME) ; Intensity threshold during CV computation : $(THRESHOLD). ROW are results for differents orders which are given at the last column. First column is the exponant, second column is the factor A : Sp(l)=A*S3(l)^B. Also, at first row and first column is the method used : <0 for SWO, 0 for raw cube, >0 for PCA. The value gives the number of PCs for PCA)" ], overwrite=OVERWRITE)
+    println(zeta)
+    println(ORDERS)
+    Dataprep.write_dat(cat([METHV 0 0],cat(zeta,ORDERS,dims=2),dims=1),"$(PATHTOSAVE)/Data/","$(SAVENAME)_stcfct_$(METH)", more=["METHOD $(METH) ; FILE : $(SAVENAME) ; Intensity threshold during CV computation : $(THRESHOLD). ROW are results for differents orders which are given at the last column. First column is the exponant, second column is the factor A : Sp(l)=A*S3(l)^B. Also, at first row and first column is the method used : <0 for SWO, 0 for raw cube, >0 for PCA. The value gives the number of PCs for PCA)" ], overwrite=OVERWRITE)
 
 
 end #function structure_function

@@ -45,7 +45,7 @@ function fct_sct_int(cvicube,LAG,ORDERS)
         tx = xhist
         ty = temp
         model(x,xhi) = exp.(.-(x.-xhi[1]).^2 ./2 ./xhi[2].^2)./sqrt.(2pi)./xhi[2]
-        fitted = curve_fit(model, tx, ty, [0.0,1.0])
+        fitted = CurveFit.curve_fit(model, tx, ty, [0.0,1.0])
         tx = (xhist.-fitted.param[1])./fitted.param[2]
         ty = temp.*fitted.param[2]
         deltatx = abs(tx[1]-tx[2])
@@ -65,11 +65,14 @@ end
 Fit the model ydata=A*(xdata)^B. Return in first B, then A.
 """
 function fit_fctsct(xdata,ydata,y0 ; confinterv=true)
-    model(x,xhi) = xhi[2].*x.^xhi[1]
-    fit = curve_fit(model, ydata, xdata, y0)
+    #model(x,xhi) = xhi[2].*x.^xhi[1]
+    #fit = CurveFit.curve_fit(model, ydata, xdata, y0)
+    fit = CurveFit.power_fit(xdata,ydata)
+    println(fit)
     #confid_interval = standard_error(fit)
     #confinterv==false && return(fit.param[1],fit.param[2])
-    return(fit.param[1],fit.param[2],fit.resid[1])
+    #return(fit.param[1],fit.param[2],fit.resid[1])
+    return(fit[2],fit[1])#,fit.resid[1])
 end
 
 #= WORKING
@@ -85,7 +88,8 @@ end
 Fit the model y=A*(x)^B for multiple order and lag of structure functions.
 """
 function xhi_fct_p(pvec,struct_lag)
-    zeta = Array{Float64}(undef,size(pvec)[1],3)
+   # zeta = Array{Float64}(undef,size(pvec)[1],3)
+    zeta = Array{Float64}(undef,size(pvec)[1],2)
     pp = [(i-1)*0.5+0.37 for i=1:size(pvec)[1]] 
     pf = [1 for i=1:size(pvec)[1]]
     p0 = [[pp[ix],pf[ix]] for ix=1:size(pvec)[1]] # Guesses for exponents B and factor A. 
