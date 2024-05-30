@@ -966,7 +966,7 @@ Use this function in a julia terminal with :
     julia> Unveil.swo(VARFILEPATH)
 
 """
-function swo(FITSPATH,FILENAME,PATHTOSAVE,SAVENAME,UNITVELOCITY,BLANK,NOISECAN,OVERWRITE)#VARFILEPATH ; meth="swo")   
+function swo(FITSPATH,FILENAME,PATHTOSAVE,SAVENAME,UNITVELOCITY,STEP,BLANK,NOISECAN,OVERWRITE)#VARFILEPATH ; meth="swo")   
     #FITSPATH,FILENAME,PATHTOSAVE,SAVENAME,UNITVELOCITY,BLANK,NOISECANTXT,EXAMPLES,OVERWRITE = Dataprep.read_var_files(VARFILEPATH)
     #NOISECAN = [parse(Int, ss) for ss in split(NOISECANTXT,",")]
     println("Perform SWO")
@@ -1027,7 +1027,7 @@ function swo(FITSPATH,FILENAME,PATHTOSAVE,SAVENAME,UNITVELOCITY,BLANK,NOISECAN,O
     posimap[:,:,1] .= reshape(posimapinf,(DATADIMENSION[1],DATADIMENSION[2])) 
     posimap[:,:,2] .= reshape(posimapsup,(DATADIMENSION[1],DATADIMENSION[2]))
     posimap = Dataprep.replace_blanktomissing(posimap,BLANK)
-    int = 10
+    #int = 10
     #posimap = Dataprep.replace_blanktomissing(posimap,0)
     #p = plot(layout=2)
     #p = heatmap!(p[1],posimap[:,:,1],clims=(1,100))
@@ -1040,57 +1040,57 @@ function swo(FITSPATH,FILENAME,PATHTOSAVE,SAVENAME,UNITVELOCITY,BLANK,NOISECAN,O
     for px=1:size(maskinterv)[1]
         for py=1:size(maskinterv)[2]
             if maskinterv[px,py,3]!=0 && maskinterv[px,py,3]!=BLANK
-                if px>int && px<DATADIMENSION[1]-int && py>int && py<DATADIMENSION[2]-int
-                    posi = floor(moment(collect(skipmissing(posimap[px-int:px+int,py-int:py+int,1])),1,0)) |> Int64
-                    posf = floor(moment(collect(skipmissing(posimap[px-int:px+int,py-int:py+int,2])),1,0))+1 |> Int64
-                elseif px<int && py>int && py<DATADIMENSION[2]-int
-                    posi = floor(moment(collect(skipmissing(posimap[px:px+int,py-int:py+int,1])),1,0)) |> Int64
-                    posf = floor(moment(collect(skipmissing(posimap[px:px+int,py-int:py+int,2])),1,0))+1 |> Int64
-                elseif py<int && px>int &&  px<DATADIMENSION[1]-int 
-                    posi = floor(moment(collect(skipmissing(posimap[px-int:px+int,py:py+int,1])),1,0)) |> Int64
-                    posf = floor(moment(collect(skipmissing(posimap[px-int:px+int,py:py+int,2])),1,0))+1 |> Int64
-                elseif px>DATADIMENSION[1]-int && py>int && py<DATADIMENSION[2]-int
-                    posi = floor(moment(collect(skipmissing(posimap[px-int:px,py-int:py+int,1])),1,0)) |> Int64
-                    posf = floor(moment(collect(skipmissing(posimap[px-int:px,py-int:py+int,2])),1,0))+1 |> Int64
-                elseif py>DATADIMENSION[2]-int && px>int &&  px<DATADIMENSION[1]-int
-                    posi = floor(moment(collect(skipmissing(posimap[px-int:px+int,py-int:py,1])),1,0)) |> Int64
-                    posf = floor(moment(collect(skipmissing(posimap[px-int:px+int,py-int:py,2])),1,0))+1 |> Int64
-                elseif px==int && py>int && py<DATADIMENSION[2]-int
-                    posi = floor(moment(collect(skipmissing(posimap[px-int+1:px+int,py-int:py+int,1])),1,0)) |> Int64
-                    posf = floor(moment(collect(skipmissing(posimap[px-int+1:px+int,py-int:py+int,2])),1,0))+1 |> Int64
-                elseif px==DATADIMENSION[1]-int && py>int && py<DATADIMENSION[2]-int
-                    posi = floor(moment(collect(skipmissing(posimap[px-int:px+int-1,py-int:py+int,1])),1,0)) |> Int64
-                    posf = floor(moment(collect(skipmissing(posimap[px-int:px+int-1,py-int:py+int,2])),1,0))+1 |> Int64
-                elseif py==int && px>int && px<DATADIMENSION[1]-int
-                    posi = floor(moment(collect(skipmissing(posimap[px-int:px+int,py-int+1:py+int,1])),1,0)) |> Int64
-                    posf = floor(moment(collect(skipmissing(posimap[px-int:px+int,py-int+1:py+int,2])),1,0))+1 |> Int64
-                elseif py==DATADIMENSION[2]-int && px>int && px<DATADIMENSION[1]-int
-                    posi = floor(moment(collect(skipmissing(posimap[px-int:px+int,py-int:py+int-1,1])),1,0)) |> Int64
-                    posf = floor(moment(collect(skipmissing(posimap[px-int:px+int,py-int:py+int-1,2])),1,0))+1 |> Int64
-                elseif px==int && py==int
-                    posi = floor(moment(collect(skipmissing(posimap[px-int+1:px+int,py-int+1:py+int,1])),1,0)) |> Int64
-                    posf = floor(moment(collect(skipmissing(posimap[px-int+1:px+int,py-int+1:py+int,2])),1,0))+1 |> Int64
-                elseif px==int && py==DATADIMENSION[2]-int
-                    posi = floor(moment(collect(skipmissing(posimap[px-int+1:px+int,py-int:py+int-1,1])),1,0)) |> Int64
-                    posf = floor(moment(collect(skipmissing(posimap[px-int+1:px+int,py-int:py+int-1,2])),1,0))+1 |> Int64
-                elseif px==DATADIMENSION[2]-int && py==int
-                    posi = floor(moment(collect(skipmissing(posimap[px-int:px+int-1,py-int+1:py+int,1])),1,0)) |> Int64
-                    posf = floor(moment(collect(skipmissing(posimap[px-int:px+int-1,py-int+1:py+int,2])),1,0))+1 |> Int64
-                elseif px==DATADIMENSION[2]-int && py==DATADIMENSION[2]-int
-                    posi = floor(moment(collect(skipmissing(posimap[px-int:px+int-1,py-int:py+int-1,1])),1,0)) |> Int64
-                    posf = floor(moment(collect(skipmissing(posimap[px-int:px+int-1,py-int:py+int-1,2])),1,0))+1 |> Int64
-                elseif py>=DATADIMENSION[2]-int && px<=int 
-                    posi = floor(moment(collect(skipmissing(posimap[px:px+int,py-int+1:py,1])),1,0)) |> Int64
-                    posf = floor(moment(collect(skipmissing(posimap[px:px+int,py-int+1:py,2])),1,0))+1 |> Int64
-                elseif py>=DATADIMENSION[2]-int && px>=DATADIMENSION[2]-int
-                    posi = floor(moment(collect(skipmissing(posimap[px-int:px,py-int+1:py,1])),1,0)) |> Int64
-                    posf = floor(moment(collect(skipmissing(posimap[px-int:px,py-int+1:py,2])),1,0))+1 |> Int64
-                elseif py<=int && px<=int 
-                    posi = floor(moment(collect(skipmissing(posimap[px:px+int,py:py+int,1])),1,0)) |> Int64
-                    posf = floor(moment(collect(skipmissing(posimap[px:px+int,py:py+int,2])),1,0))+1 |> Int64
-                elseif py<=int && px>=DATADIMENSION[2]-int
-                    posi = floor(moment(collect(skipmissing(posimap[px-int:px,py:py+int,1])),1,0)) |> Int64
-                    posf = floor(moment(collect(skipmissing(posimap[px-int:px,py:py+int,2])),1,0))+1 |> Int64
+                if px>STEP && px<DATADIMENSION[1]-STEP && py>STEP && py<DATADIMENSION[2]-STEP
+                    posi = floor(moment(collect(skipmissing(posimap[px-STEP:px+STEP,py-STEP:py+STEP,1])),1,0)) |> Int64
+                    posf = floor(moment(collect(skipmissing(posimap[px-STEP:px+STEP,py-STEP:py+STEP,2])),1,0))+1 |> Int64
+                elseif px<STEP && py>STEP && py<DATADIMENSION[2]-STEP
+                    posi = floor(moment(collect(skipmissing(posimap[px:px+STEP,py-STEP:py+STEP,1])),1,0)) |> Int64
+                    posf = floor(moment(collect(skipmissing(posimap[px:px+STEP,py-STEP:py+STEP,2])),1,0))+1 |> Int64
+                elseif py<STEP && px>STEP &&  px<DATADIMENSION[1]-STEP 
+                    posi = floor(moment(collect(skipmissing(posimap[px-STEP:px+STEP,py:py+STEP,1])),1,0)) |> Int64
+                    posf = floor(moment(collect(skipmissing(posimap[px-STEP:px+STEP,py:py+STEP,2])),1,0))+1 |> Int64
+                elseif px>DATADIMENSION[1]-STEP && py>STEP && py<DATADIMENSION[2]-STEP
+                    posi = floor(moment(collect(skipmissing(posimap[px-STEP:px,py-STEP:py+STEP,1])),1,0)) |> Int64
+                    posf = floor(moment(collect(skipmissing(posimap[px-STEP:px,py-STEP:py+STEP,2])),1,0))+1 |> Int64
+                elseif py>DATADIMENSION[2]-STEP && px>STEP &&  px<DATADIMENSION[1]-STEP
+                    posi = floor(moment(collect(skipmissing(posimap[px-STEP:px+STEP,py-STEP:py,1])),1,0)) |> Int64
+                    posf = floor(moment(collect(skipmissing(posimap[px-STEP:px+STEP,py-STEP:py,2])),1,0))+1 |> Int64
+                elseif px==STEP && py>STEP && py<DATADIMENSION[2]-STEP
+                    posi = floor(moment(collect(skipmissing(posimap[px-STEP+1:px+STEP,py-STEP:py+STEP,1])),1,0)) |> Int64
+                    posf = floor(moment(collect(skipmissing(posimap[px-STEP+1:px+STEP,py-STEP:py+STEP,2])),1,0))+1 |> Int64
+                elseif px==DATADIMENSION[1]-STEP && py>STEP && py<DATADIMENSION[2]-STEP
+                    posi = floor(moment(collect(skipmissing(posimap[px-STEP:px+STEP-1,py-STEP:py+STEP,1])),1,0)) |> Int64
+                    posf = floor(moment(collect(skipmissing(posimap[px-STEP:px+STEP-1,py-STEP:py+STEP,2])),1,0))+1 |> Int64
+                elseif py==STEP && px>STEP && px<DATADIMENSION[1]-STEP
+                    posi = floor(moment(collect(skipmissing(posimap[px-STEP:px+STEP,py-STEP+1:py+STEP,1])),1,0)) |> Int64
+                    posf = floor(moment(collect(skipmissing(posimap[px-STEP:px+STEP,py-STEP+1:py+STEP,2])),1,0))+1 |> Int64
+                elseif py==DATADIMENSION[2]-STEP && px>STEP && px<DATADIMENSION[1]-STEP
+                    posi = floor(moment(collect(skipmissing(posimap[px-STEP:px+STEP,py-STEP:py+STEP-1,1])),1,0)) |> Int64
+                    posf = floor(moment(collect(skipmissing(posimap[px-STEP:px+STEP,py-STEP:py+STEP-1,2])),1,0))+1 |> Int64
+                elseif px==STEP && py==STEP
+                    posi = floor(moment(collect(skipmissing(posimap[px-STEP+1:px+STEP,py-STEP+1:py+STEP,1])),1,0)) |> Int64
+                    posf = floor(moment(collect(skipmissing(posimap[px-STEP+1:px+STEP,py-STEP+1:py+STEP,2])),1,0))+1 |> Int64
+                elseif px==STEP && py==DATADIMENSION[2]-STEP
+                    posi = floor(moment(collect(skipmissing(posimap[px-STEP+1:px+STEP,py-STEP:py+STEP-1,1])),1,0)) |> Int64
+                    posf = floor(moment(collect(skipmissing(posimap[px-STEP+1:px+STEP,py-STEP:py+STEP-1,2])),1,0))+1 |> Int64
+                elseif px==DATADIMENSION[2]-STEP && py==STEP
+                    posi = floor(moment(collect(skipmissing(posimap[px-STEP:px+STEP-1,py-STEP+1:py+STEP,1])),1,0)) |> Int64
+                    posf = floor(moment(collect(skipmissing(posimap[px-STEP:px+STEP-1,py-STEP+1:py+STEP,2])),1,0))+1 |> Int64
+                elseif px==DATADIMENSION[2]-STEP && py==DATADIMENSION[2]-STEP
+                    posi = floor(moment(collect(skipmissing(posimap[px-STEP:px+STEP-1,py-STEP:py+STEP-1,1])),1,0)) |> Int64
+                    posf = floor(moment(collect(skipmissing(posimap[px-STEP:px+STEP-1,py-STEP:py+STEP-1,2])),1,0))+1 |> Int64
+                elseif py>=DATADIMENSION[2]-STEP && px<=STEP 
+                    posi = floor(moment(collect(skipmissing(posimap[px:px+STEP,py-STEP+1:py,1])),1,0)) |> Int64
+                    posf = floor(moment(collect(skipmissing(posimap[px:px+STEP,py-STEP+1:py,2])),1,0))+1 |> Int64
+                elseif py>=DATADIMENSION[2]-STEP && px>=DATADIMENSION[2]-STEP
+                    posi = floor(moment(collect(skipmissing(posimap[px-STEP:px,py-STEP+1:py,1])),1,0)) |> Int64
+                    posf = floor(moment(collect(skipmissing(posimap[px-STEP:px,py-STEP+1:py,2])),1,0))+1 |> Int64
+                elseif py<=STEP && px<=STEP 
+                    posi = floor(moment(collect(skipmissing(posimap[px:px+STEP,py:py+STEP,1])),1,0)) |> Int64
+                    posf = floor(moment(collect(skipmissing(posimap[px:px+STEP,py:py+STEP,2])),1,0))+1 |> Int64
+                elseif py<=STEP && px>=DATADIMENSION[2]-STEP
+                    posi = floor(moment(collect(skipmissing(posimap[px-STEP:px,py:py+STEP,1])),1,0)) |> Int64
+                    posf = floor(moment(collect(skipmissing(posimap[px-STEP:px,py:py+STEP,2])),1,0))+1 |> Int64
                 else 
                     posi = 2
                     posf = DATADIMENSION[3]-1
