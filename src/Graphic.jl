@@ -2,7 +2,7 @@
 module Graphic
 
 using Plots,MultivariateStats, Statistics, StatsBase, LinearAlgebra
-using LaTeXStrings, Colors
+using LaTeXStrings
 using Measures, LsqFit
 
 export checkwindowopti
