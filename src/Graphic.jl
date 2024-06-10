@@ -207,22 +207,19 @@ end
 """
     StcFctWithFit()
 
-Plot structure functions of orders p in function of the structure function of order 3 with the fit used to obtain the power-law exponent. If add is true, the plot will be added on the actual plot. The figure can be saved with the number of PC used during the process in the name by changing pcfinal.
+Plot structure functions of orders p in function of the structure function of order 3 with the fit used to obtain the power-law exponent. The figure can be saved with the number of PC used during the process in the name by changing pcfinal.
 
 """
-function StcFctWithFit(StcFct,ThirdOrderStcFct,OrderP,zeta,fitcan,DataNameTitle ; add=false, save=true,pcfinal=0)
+function StcFctWithFit(StcFct,ThirdOrderStcFct,OrderP,zeta,fitcan,DataNameTitle ; save=true,pcfinal=0)
     my_cgrad = :blues#[:red, :yellow, :blue, :pink, :green, :brown]
     labs = string.(OrderP)
     labs = permutedims(labs)
     cols = distinguishable_colors(length(StcFct), [RGB(1,1,1), RGB(0,0,0)], dropseed=true)
-    if add==true
-        p = plot!(ThirdOrderStcFct,[StcFct[ix,:] for ix=1:size(StcFct)[1]],seriestype=:scatter,titlefontsize=10,yaxis=:log,xaxis=:log,labels=labs,xlabel=L"S_3(l)",ylabel=L"S_p(l)",legend=:bottomright)#,title="Structure function Sp(l) plotted against S3(l) for $(DataNameTitle)",
-    else add=false
-        p = plot(ThirdOrderStcFct,StcFct[1,:], c = cols[1],seriestype=:scatter,titlefontsize=10,labels="p=$(labs[1])",xlabel=L"S_3(l)",ylabel=L"S_p(l)",legend=:bottomright)
-        p = plot!(ThirdOrderStcFct[fitcan],zeta[1,2].*ThirdOrderStcFct[fitcan].^zeta[1,1] , c = cols[1],legendfontsize=7, label="",seriestype=:line)
-        for ix=2:size(StcFct)[1]
-            p = plot!(ThirdOrderStcFct,StcFct[ix,:], c = cols[ix],seriestype=:scatter,titlefontsize=10,labels="p=$(labs[ix])",markershape=Plots.supported_markers()[ix+2],yaxis=:log,xaxis=:log,) #title="Structure function Sp(l) plotted against S3(l) for $(DataNameTitle)",
-            p = plot!(ThirdOrderStcFct[fitcan],zeta[ix,2].*ThirdOrderStcFct[fitcan].^zeta[ix,1],yaxis=:log,xaxis=:log, c = cols[ix],legendfontsize=7,seriestype=:line,label="")
+    p = plot(ThirdOrderStcFct,StcFct[1,:], c = cols[1],seriestype=:scatter,titlefontsize=10,labels="p=$(labs[1])",xlabel=L"S_3(l)",ylabel=L"S_p(l)",legend=:bottomright)
+    p = plot!(ThirdOrderStcFct[fitcan],zeta[1,2].*ThirdOrderStcFct[fitcan].^zeta[1,1] , c = cols[1],legendfontsize=7, label="",seriestype=:line)
+    for ix=2:size(StcFct)[1]
+        p = plot!(ThirdOrderStcFct,StcFct[ix,:], c = cols[ix],seriestype=:scatter,titlefontsize=10,labels="p=$(labs[ix])",markershape=Plots.supported_markers()[ix+2],yaxis=:log,xaxis=:log,) #title="Structure function Sp(l) plotted against S3(l) for $(DataNameTitle)",
+        p = plot!(ThirdOrderStcFct[fitcan],zeta[ix,2].*ThirdOrderStcFct[fitcan].^zeta[ix,1],yaxis=:log,xaxis=:log, c = cols[ix],legendfontsize=7,seriestype=:line,label="")
         end#yaxis=:log,xaxis=:log,
     end
     if save==false
