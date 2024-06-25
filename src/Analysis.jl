@@ -3,7 +3,7 @@ module Analysis
 include("Dataprep.jl") #Read and write fits
 using .Dataprep
 
-using MultivariateStats, StatsBase, Statistics, FFTW, AbstractFFTs
+using MultivariateStats, StatsBase, Statistics, AbstractFFTs
 
 export fourmoments
 export metricOW
