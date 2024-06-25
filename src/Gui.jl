@@ -2,24 +2,27 @@
 # Pkg.add("PyCall")
 # Pkg.add("DelimitedFiles")
 # Pkg.add("https://gricad-gitlab.univ-grenoble-alpes.fr/delcamps/unveil#Graphical_Interface")
-using PyCall
+using PythonCall
 using DelimitedFiles
 using Unveil
-@pyimport PyQt5
-@pyimport sys
+#pyimport_conda("QtWidgets","PyQt5") 
+#@pyimport PyQt5
+pyimport("PyQt5")
+pyimport("sys")
 qwid = pyimport("PyQt5.QtWidgets")
 qpro = pyimport("PyQt5.QtCore")
 qgui = pyimport("PyQt5.QtGui")
 
 
 
-@pydef mutable struct MainWindow <: qwid.QMainWindow #class MainWindow(QMainWindow):
+mutable struct MainWindow <: qwid.QMainWindow 
+#class MainWindow(QMainWindow):
     function __init__(self)  #def __init__(self):
         # copy!(qwid, pyimport("PyQt6.QtWidgets", "PyQt6"))
         # copy!(qpro, pyimport("PyQt6.QtCore", "PyQt6"))
         # copy!(qgui, pyimport("PyQt6.QtGui", "PyQt6"))
 
-        py"""super($MainWindow,$self).__init__()"""
+       # py"""super($MainWindow,$self).__init__()"""
         #qwid.QMainWindow.__init__(self)
         #super(MainWindow,self).__init__()
         self.ui()

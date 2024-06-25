@@ -115,7 +115,10 @@ end #pca_nomorecalc
 
 
 function proj(M)
-    return(projection(M))
+        println(isequal(eigvecs(M),projection(M)))
+        #return(eigvecs(M)./ sqrt.(eigvals(M)'))
+        return(projection(M))#.*sqrt.(eigvals(M))))
+
 end #proj
 
 
