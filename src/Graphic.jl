@@ -1,9 +1,12 @@
 
 module Graphic
 
+include("Analysis.jl")
+
+using .Analysis
 using Plots,MultivariateStats, Statistics, StatsBase, LinearAlgebra
 using Formatting, LaTeXStrings, Colors
-using Measures, LsqFit
+using Measures, LsqFit, Makie, CairoMakie, DelimitedFiles, CurveFit
 
 export checkwindowopti
 export distribcv_multiow
@@ -12,6 +15,43 @@ export energyspec
 export StcFct
 export StcFctWithFit
 export StcFctExponent
+
+
+
+
+function adjustspless(file,NORD::Int,NCOL::Int,NROW::Int,LAGTOFIT)
+    #file = readdlm(DATPATH,comment_char='#',skipstart=1)
+    spl = file[2:NORD+1,2:end]
+    f = Figure(backgroundcolor = RGBf(0.98, 0.98, 0.98),size = (1000, 700))
+    gg = f[1, 1] = GridLayout()
+    axs = [Axis(gg[row, col],xtickalign = 1.0,ytickalign = 1.0, aspect = nothing,xscale=log10,yscale=log10,xlabel=L"S_3(l)",ylabel=L"S_p(l)\times S_3(l)^{-\zeta_p/\zeta_3}") for row in 1:NROW, col in 1:NCOL]
+    fitted = zeros(NORD,2)
+    for ord=1:NORD
+        fitted[ord,:] .= CurveFit.power_fit(spl[3,LAGTOFIT],spl[ord,LAGTOFIT])
+    end
+    
+    for row in 1:NROW, col in 1:NCOL
+        if (row-1)*NCOL+col<=NORD 
+            Makie.scatter!(axs[row,col],spl[3,:],spl[(row-1)*NCOL+col,:].*spl[3,:].^(.-fitted[(row-1)*NCOL+col,2]./fitted[3,2]),marker=:xcross,color=:black)
+        # lines!(axs[row,col],spl[3,:],fitted[1].*spl[3,:].^fitted[2])
+
+            if row!=NROW || col!=1 
+                Makie.hidedecorations!.(axs[row, col],ticks = false,ticklabels=false,grid=false)
+            else
+                Makie.hidedecorations!.(axs[row, col],ticks = false,label=false,ticklabels=false,grid=false)
+            end
+            Makie.text!(axs[row, col],0.5,0.5,text="p=$((row-1)*NCOL+col)",space = :relative)
+        else 
+            Makie.hidedecorations!.(axs[row, col])
+        end
+        
+
+    end
+    f
+
+end
+
+
 
 function checkwindowopti(sourcecube,cubewo,minimap,VELOCITYVECTOR,NBROW,NBCOL;limx=(minimum(VELOCITYVECTOR),maximum(VELOCITYVECTOR)))
     l = @layout [grid(NBROW,NBCOL)]
@@ -32,6 +72,199 @@ function checkwindowopti(sourcecube,cubewo,minimap,VELOCITYVECTOR,NBROW,NBCOL;li
 
     display(p)
 end
+
+
+function convpca(METRICPATH::String,FIRST::Int,BURNALL::Int;BURNMET=BURNALL,NMEAN=3)
+    file = readdlm(METRICPATH,skipstart=2)
+    allm = zeros(size(file)[1],5)
+    allm[:,1] .= file[:,2]  #Moment 1
+    allm[:,2] .= file[:,4]  #Moment 3
+    allm[:,3] .= file[:,5]  #Moment 4
+    allm[:,4] .= sqrt.(allm[:,1].^2 .+(allm[:,2]).^2 .+allm[:,3].^2 )  #Metric 
+    allm[:,5] .= file[:,6]  #PC
+
+    SMOO = zeros(convert(Int64,ceil(size(file)[1]/NMEAN)))
+    NEWX = similar(SMOO)
+    NEWX .= allm[1:NMEAN:end,5]
+    range = FIRST:BURNALL
+    f = Figure(backgroundcolor = RGBf(0.98, 0.98, 0.98),size = (1000, 700))
+
+    gg = f[1, 1] = GridLayout()
+    #axs = [Axis(gg[row,1],xtickalign = 1.0,ytickalign = 1.0, aspect = nothing,yscale=log10) for row in 1:4]
+    #hidedecorations!.(axs, ticks = true)
+
+
+    for row =1:4
+        SMOO .= mean.(abs.(allm[1:NMEAN:end,row]))
+        
+        if row==1
+            axs = Axis(gg[row,1], ylabel = "Moment 1",xtickalign = 1.0,ytickalign = 1.0,xminortickalign = 1.0, aspect = nothing,yscale=log10,xminorticksvisible = true, xminorgridvisible = true,yminorticksvisible = true, yminorgridvisible = true,xminorticks= IntervalsBetween(5))
+            hidedecorations!.(axs,ticks = false,ticklabels=false,grid=false,label=false,minorticks=false,minorgrid = false)
+        elseif row==2 || row==3
+            axs = Axis(gg[row,1], ylabel = "Moment $(row+1)",xtickalign = 1.0,ytickalign = 1.0,xminortickalign = 1.0, aspect = nothing,yscale=log10,xminorticksvisible = true, xminorgridvisible = true,yminorticksvisible = true, yminorgridvisible = true,xminorticks= IntervalsBetween(5))
+            hidedecorations!.(axs,ticks = false,ticklabels=false,grid=false,label=false,minorticks=false,minorgrid = false)
+        else 
+            axs = Axis(gg[row,1], ylabel = "Metric", xlabel="Principal Component",xtickalign = 1.0,xminortickalign = 1.0,ytickalign = 1.0, aspect = nothing,yscale=log10,xminorticksvisible = true,yminorticksvisible = true, yminorgridvisible = true, xminorgridvisible = true,xminorticks= IntervalsBetween(5))
+            hidedecorations!.(axs,ticks = false,ticklabels=false,grid=false,label=false,minorticks=false,minorgrid = false)
+        end
+        Makie.vspan!(axs,FIRST,BURNALL,color=(:grey,0.5))
+        Makie.scatter!(axs,allm[:,5],abs.(allm[:,row]),markersize=4,marker=:cross,color=:red)
+        mea = mean(filter(x->x!=0,allm[FIRST:BURNALL,row]))
+        disp = std(filter(x->x!=0,allm[FIRST:BURNALL,row]))
+        Makie.hlines!(axs,mea+3*disp,linestyle=:dot,color=:black)
+       
+        Makie.scatter!(axs,NEWX,SMOO,markersize=10,marker=:star4,color=:black)
+        pc = ceil(Int64,BURNMET/NMEAN)
+        if pc>size(SMOO)[1]
+            pc = size(SMOO)[1]
+        end
+        nopt = 0
+        while (SMOO[pc]<=mea+3*disp) && pc<size(SMOO)[1] && pc>1
+            nopt = pc*3-2
+            pc -= 1
+        end
+
+        Makie.vlines!(axs,nopt,linestyle=:dash,color=:black)
+        Makie.text!(axs,0.9,0.9,text="Nopt = $nopt",space = :relative)
+        if row==4
+            Makie.xlims!(axs,-1,BURNMET)
+        else 
+            Makie.xlims!(axs,-1,maximum(allm[:,5])+1)
+        end
+    end
+    rowgap!(gg,1)
+
+    return(f)
+end 
+
+
+
+function convintegrantspl(cvi,NCOL::Int,NROW::Int,WINDSIZE::Int)
+    ptnb = convert(Int64,ceil(size(cvi)[1]/WINDSIZE)) 
+    f = Figure(backgroundcolor = RGBf(0.98, 0.98, 0.98),size = (1000, 700))
+    gg = f[1, 1] = GridLayout()
+    axs = [Axis(gg[row, col],xtickalign = 1.0,ytickalign = 1.0, aspect = nothing) for row in 1:NROW, col in 1:NCOL]
+    for row in 1:NROW, col in 1:NCOL
+        mea = zeros(ptnb)
+        mea .= -1000
+        dis = similar(mea)
+        ttx = similar(mea)
+        tx,ty = Analysis.distrcvi(cvi)
+        ty = ty.*abs.(tx).^((row-1)*NCOL+col)
+        mini = minimum(ty)
+        arr = 1
+        for arr=1:ptnb
+            if arr*WINDSIZE<=size(ty)[1] || (arr-1)*WINDSIZE+1<=size(ty)[1]
+                mea[arr] = mean(ty[(arr-1)*WINDSIZE+1:arr*WINDSIZE])
+                dis[arr] = std(ty[(arr-1)*WINDSIZE+1:arr*WINDSIZE])
+                ttx[arr] = mean(tx[(arr-1)*WINDSIZE+1:arr*WINDSIZE]) 
+            elseif arr*WINDSIZE<=size(ty)[1] #(arr-1)*WINDSIZE+1<=size(ty)[1]
+                mea[arr] = mean(ty[(arr-1)*WINDSIZE+1:end])
+                dis[arr] = std(ty[(arr-1)*WINDSIZE+1:end])
+                ttx[arr] = mean(tx[(arr-1)*WINDSIZE+1:end])
+            end
+        end
+
+        mea = replace(mea,NaN=>0)
+        mea = replace(mea,-1000=>0)
+
+        dis = replace(dis,NaN=>0)
+        dis = replace(dis,-1000=>0)
+
+        posi = findall(x->x!=0,mea)
+        mea = mea[posi]
+        dis = dis[posi]
+        ttx = ttx[posi]
+
+        Makie.scatter!(axs[row,col],ttx,mea,markersize=5,marker=:ltriangle,color=:blue)
+        Makie.errorbars!(axs[row,col],ttx,mea,dis)
+
+        Makie.text!(axs[row, col],0.9,0.9,text="p=$((row-1)*NCOL+col)",space=:relative)
+        Makie.hidedecorations!.(axs[row, col],ticks = false,label=false,ticklabels=false)
+        # if minimum(mea)!=0
+        #     ylims!(axs[row, col],minimum(mea.-dis)-0.5*minimum(mea.-dis),maximum(mea.+dis)+1e-3*maximum(mea.+dis))
+        # else
+        #     ylims!(axs[row, col],minimum(filter(x->x!=0,mea.-dis))-0.5*minimum(filter(x->x!=0,mea.-dis)),maximum(mea.+dis)+1e-3*maximum(mea.+dis))
+        # end
+
+        
+        # xlims!(axs[row, col],-10,10)
+    end
+    Makie.colgap!(gg,5)
+    Makie.rowgap!(gg,5)
+    return(f)
+end
+
+
+
+function convpca(METRICPATH::String;NMEAN=3)
+    file = readdlm(METRICPATH,skipstart=2)
+    allm = zeros(size(file)[1],5)
+    allm[:,1] .= file[:,2]  #Moment 1
+    allm[:,2] .= file[:,4]  #Moment 3
+    allm[:,3] .= file[:,5]  #Moment 4
+    allm[:,4] .= file[:,1]  #Metric 
+    allm[:,5] .= file[:,6]  #PC
+
+    SMOO = zeros(convert(Int64,ceil(size(file)[1]/NMEAN)))
+    NEWX = similar(SMOO)
+    NEWX .= allm[1:NMEAN:end,5]
+    f = Figure(backgroundcolor = RGBf(0.98, 0.98, 0.98),size = (1000, 700))
+
+    gg = f[1, 1] = GridLayout()
+
+    for row =1:4
+        SMOO .= mean.(abs.(allm[1:NMEAN:end,row]))
+        
+        if row==1
+            axs = Axis(gg[row,1], ylabel = "Moment 1",xtickalign = 1.0,ytickalign = 1.0,xminortickalign = 1.0, aspect = nothing,yscale=log10,xminorticksvisible = true, xminorgridvisible = true,xminorticks= IntervalsBetween(5))
+            hidedecorations!.(axs,ticks = false,ticklabels=false,grid=false,label=false,minorticks=false,minorgrid = false)
+        elseif row==2 || row==3
+            axs = Axis(gg[row,1], ylabel = "Moment $(row+1)",xtickalign = 1.0,ytickalign = 1.0,xminortickalign = 1.0, aspect = nothing,yscale=log10,xminorticksvisible = true, xminorgridvisible = true,xminorticks= IntervalsBetween(5))
+            hidedecorations!.(axs,ticks = false,ticklabels=false,grid=false,label=false,minorticks=false,minorgrid = false)
+        else 
+            axs = Axis(gg[row,1], ylabel = "Metric", xlabel="Principal Component",xtickalign = 1.0,xminortickalign = 1.0,ytickalign = 1.0, aspect = nothing,yscale=log10,xminorticksvisible = true, xminorgridvisible = true,xminorticks= IntervalsBetween(5))
+            hidedecorations!.(axs,ticks = false,ticklabels=false,grid=false,label=false,minorticks=false,minorgrid = false)
+        end
+        Makie.scatter!(axs,allm[:,5],abs.(allm[:,row]),markersize=4,marker=:cross,color=:red)
+        Makie.scatter!(axs,NEWX,SMOO,markersize=10,marker=:star4,color=:black)
+
+        Makie.xlims!(axs,-1,maximum(allm[:,5])+1)
+        
+    end
+    rowgap!(gg,1)
+
+    return(f)
+end 
+
+
+
+function distreigenimage(eigen,NCOL::Int,NROW::Int)
+    #eigen = replace(eigen,-1000=>0)
+    f = Figure(backgroundcolor = RGBf(0.98, 0.98, 0.98),size = (1000, 700))
+    gg = f[1, 1] = GridLayout()
+    axs = [Axis(gg[row, col],xtickalign = 1.0,ytickalign = 1.0, aspect = nothing,yscale=log10) for row in 1:NROW, col in 1:NCOL]
+    #hidedecorations!.(axs, ticks = true)
+    for row in 1:NROW, col in 1:NCOL
+        tt = reshape(eigen[:,:,(row-1)*NCOL+col],size(eigen[:,:,(row-1)*NCOL+col])[1]*size(eigen[:,:,(row-1)*NCOL+col])[2])
+        tx,ty = Analysis.calcdistr(tt)
+        Makie.scatter!(axs[row, col],tx,ty,markersize=5,marker=:cross,color=:black)
+        gau = exp.(.-(tx.-0).^2 ./2)./sqrt.(2pi)./1
+        Makie.lines!(axs[row, col],tx,gau,linestyle=:dash)
+        Makie.ylims!(axs[row, col],1e-3,1)
+        Makie.xlims!(axs[row, col],-6,6)
+        if row!=NROW || col!=1
+            Makie.hidedecorations!.(axs[row, col],ticks = false)
+        end
+        Makie.text!(axs[row, col],-5.5,3e-1,text="$((row-1)*NCOL+col)")
+    end
+    Makie.hidedecorations!.(axs[NROW,1],ticks = false,label=false,ticklabels=false)
+    Makie.colgap!(gg,1)
+    Makie.rowgap!(gg,1)
+    return(f)
+
+end
+
 
 
 function distribcv_multipc(mom1,mom2,mom3,mom4,metric,xvector)
@@ -139,6 +372,105 @@ end
 
 
 
+function expo(file,NORD::Int,LAGTOFIT,LAG)
+    #file = readdlm(DATPATH,comment_char='#',skipstart=1)
+    spl = file[2:NORD+1,2:end]
+    f = Figure(backgroundcolor = RGBf(0.98, 0.98, 0.98),size = (1000, 700))
+    ax = Axis(f[1, 1],xlabel=L"p",ylabel=L"\zeta_p/\zeta_3")
+    #axs = Axis(xtickalign = 1.0,ytickalign = 1.0, aspect = nothing,xscale=log10,yscale=log10,xlabel=L"S_3(l)",ylabel=L"S_p(l)\times S_3(l)^{-\zeta_p/\zeta_3}")
+    fitted = zeros(NORD,2)
+    ordd = zeros(NORD)
+    res = similar(ordd)
+    for ord=1:NORD
+        fitted[ord,:] .= CurveFit.power_fit(spl[3,LAGTOFIT],spl[ord,LAGTOFIT])
+        eps = zeros(size(spl[3,LAGTOFIT])[1])
+        for ix=1:size(spl[3,LAGTOFIT])[1]
+            eps[ix] = (spl[ord,ix])-(fitted[ord,1]*(spl[3,ix])^fitted[ord,2])
+        end
+        res[ord] = sqrt.(sum(eps.^2))./(sum(spl[3,LAGTOFIT]) .-mean(spl[3,LAGTOFIT]).^2)
+        # Error based on what I understood quickly of : https://en.wikipedia.org/wiki/Simple_linear_regression
+        ordd[ord] = ord
+    end
+    Makie.scatter!(ordd,fitted[:,2]./fitted[3,2],marker=:xcross,markersize=15,label="[$(LAG[LAGTOFIT[1]+1]):$(LAG[LAGTOFIT[2]+1])]pix")
+    Makie.errorbars!(ordd,fitted[:,2]./fitted[3,2],res,whiskerwidth = 10)
+
+    Makie.lines!(ordd,ordd./3,label="K41",color=:black)
+    Makie.lines!(ordd,ordd./9 .+2 .*(1 .-(2 ./3).^(ordd./3)),label="SL94",color=:black,linestyle=:dot)
+    Makie.lines!(ordd,ordd./9 .+1 .-(1/3).^(ordd./3),label="B02",color=:black,linestyle=:dash)
+    return(f)
+end
+
+function expoadd(file,NORD::Int,LAGTOFIT,LAG,f)
+    spl = file[2:NORD+1,2:end]
+    fitted = zeros(NORD,2)
+    ordd = zeros(NORD)
+    res = similar(ordd)
+    for ord=1:NORD
+        fitted[ord,:] .= CurveFit.power_fit(spl[3,LAGTOFIT],spl[ord,LAGTOFIT])
+        eps = zeros(size(spl[3,LAGTOFIT])[1])
+        for ix=1:size(spl[3,LAGTOFIT])[1]
+            eps[ix] = (spl[ord,ix])-(fitted[ord,1]*(spl[3,ix])^fitted[ord,2])
+        end
+        res[ord] = sqrt.(sum(eps.^2))./(sum(spl[3,LAGTOFIT]) .-mean(spl[3,LAGTOFIT]).^2)
+        # Error based on what I understood quickly of : https://en.wikipedia.org/wiki/Simple_linear_regression
+        ordd[ord] = ord
+    end
+    Makie.scatter!(ordd,fitted[:,2]./fitted[3,2],marker=:xcross,markersize=15,label="[$(LAG[LAGTOFIT[1]+1]):$(LAG[LAGTOFIT[2]+1])]pix")
+    Makie.errorbars!(ordd,fitted[:,2]./fitted[3,2],res,whiskerwidth = 10)
+    Makie.axislegend(position = :lt)
+
+    #Makie.axislegend(position = :lt)
+    return(f)
+end
+
+function integrantspl(CVICUBE,NCOL::Int,NROW::Int)
+
+    f = Figure(backgroundcolor = RGBf(0.98, 0.98, 0.98),size = (1000, 700))
+    gg = f[1, 1] = GridLayout()
+    axs = [Axis(gg[row, col],xtickalign = 1.0,ytickalign = 1.0, aspect = nothing,yscale=log10) for row in 1:NROW, col in 1:NCOL]
+    for row in 1:NROW, col in 1:NCOL
+        tx,ty = Analysis.distrcvi(CVICUBE)
+        ty = ty.*abs.(tx).^((row-1)*NCOL+col)
+        Makie.scatter!(axs[row,col],tx,ty,markersize=5,marker=:ltriangle,color=:blue,alpha=0.5)
+        Makie.text!(axs[row, col],0.9,0.9,text="p=$((row-1)*NCOL+col)",space = :relative)
+        Makie.hidedecorations!.(axs[row, col],ticks = false,label=false,ticklabels=false)
+        Makie.ylims!(axs[row, col],1e-3,1e2)
+        Makie.xlims!(axs[row, col],-10,10)
+    end
+    Makie.colgap!(gg,5)
+    Makie.rowgap!(gg,5)
+    f
+end
+
+
+
+
+
+function mapeigenimage(eigen,NCOL::Int,NROW::Int,ZLIM)
+    eigen = replace(eigen,-1000=>NaN)
+    f = Figure(backgroundcolor = RGBf(0.98, 0.98, 0.98),size = (1000, 700))
+    gg = f[1, 1] = GridLayout()
+    axs = [Axis(gg[row, col],xtickalign = 1.0,ytickalign = 1.0,xticksmirrored = true, xminorticksvisible = true,yticksmirrored = true, yminorticksvisible = true) for row in 1:NROW, col in 1:NCOL]
+    for row in 1:NROW, col in 1:NCOL
+        Makie.heatmap!( axs[row, col], eigen[:,:,(row-1)*NCOL+col],colorrange=(-ZLIM,ZLIM))
+        if row!=NROW || col!=1
+            Makie.hidedecorations!.(axs[row, col],ticks = false)
+        end
+        Makie.text!(axs[row, col],0.8,0.8,text="$((row-1)*NCOL+col)",space = :relative)
+
+    end
+    Makie.hidedecorations!.(axs[NROW,1],ticks = false,label=false,ticklabels=false)
+    Colorbar(f[1, 2],limits=(-ZLIM,ZLIM))
+    #Makie.colgap!(gg,2)
+    #Makie.rowgap!(gg,2)
+    colsize!(f.layout,1, Aspect(1,1.0))
+    resize_to_layout!(f)
+    
+    return(f)
+end # mapeigenimage
+
+
+
 """
     pratio(M::PCA,ylog::Bool,pc,titl)
 
@@ -172,6 +504,142 @@ function metric_PCA(metric,xvector,PATHTOSAVE)
     scatter(X, Y, title="pol_metricPCA", xlabel="PCs", ylabel="Metric", mc=:red, ms=2, ma=0.5)
     savefig(PATHTOSAVE)
 end
+
+
+
+function residusPCA(PCA,ORI,VELOCITYVECTOR,NCOL::Int,NROW::Int,NCANMAX::Int;file="")
+    f = Figure(backgroundcolor = RGBf(0.98, 0.98, 0.98),size = (1000, 700))
+    gg = f[1, 1] = GridLayout()
+    axs = [Axis(gg[row, col],xtickalign = 1.0,ytickalign = 1.0, aspect = nothing) for row in 1:NROW, col in 1:NCOL]
+    if file==""
+        open("posispec.dat","w") do io
+        end
+    else
+        temp = readdlm(file)
+    end
+    yma = maximum(ORI.-PCA)+maximum(ORI.-PCA)*0.5
+    ymi = minimum(ORI.-PCA)-abs(minimum(ORI.-PCA))*0.5
+    for row in 1:NROW, col in 1:NCOL
+        if file==""
+            posx = rand(1:size(ORI)[1],1)[1]
+            posy = rand(1:size(ORI)[2],1)[1]
+            while ORI[posx,posy,1]==-1000 
+                posx = rand(1:size(ORI)[1],1)[1]
+                posy = rand(1:size(ORI)[2],1)[1]
+            end
+            open("posispec.dat","a") do io
+                towrite = [posx posy]
+                writedlm(io,towrite)
+            end
+        else 
+            posx = convert.(Int64,temp[(row-1)*NCOL+col,1])
+            posy = convert.(Int64,temp[(row-1)*NCOL+col,2])
+        end
+        rms = std(ORI[posx,posy,1:NCANMAX])
+        Makie.stairs!(axs[row,col],VELOCITYVECTOR,ORI[posx,posy,:].-PCA[posx,posy,:],color=:black)
+        Makie.hlines!(axs[row,col],rms,color=:blue)
+        Makie.hlines!(axs[row,col],-rms,color=:blue)
+        if row!=NROW || col!=1
+            Makie.hidedecorations!.(axs[row, col],ticks = false)
+        end
+        Makie.text!(axs[row, col],8,50,text="$((row-1)*NCOL+col)")
+
+        Makie.xlims!(axs[row, col],VELOCITYVECTOR[1],VELOCITYVECTOR[end])
+        Makie.ylims!(axs[row, col],ymi,yma)
+
+    end
+    Makie.hidedecorations!.(axs[NROW,1],ticks = false,label=false,ticklabels=false)
+
+    colgap!(gg,2)
+    rowgap!(gg,2)
+    return(f)
+end
+
+
+
+function spectrePCASWO(PCA,SWO,ORI,VELOCITYVECTOR,NCOL::Int,NROW::Int;file="")
+    f = Figure(backgroundcolor = RGBf(0.98, 0.98, 0.98),size = (1000, 700))
+    gg = f[1, 1] = GridLayout()
+    axs = [Axis(gg[row, col],xtickalign = 1.0,ytickalign = 1.0) for row in 1:NROW, col in 1:NCOL]
+    if file==""
+        open("posispec.dat","w") do io
+        end
+    else
+        temp = readdlm(file)
+    end
+    yma = maximum(ORI)+maximum(ORI)*0.5
+    ymi = minimum(ORI)-abs(minimum(ORI))*0.5
+    for row in 1:NROW, col in 1:NCOL
+        if file==""
+            posx = rand(1:size(ORI)[1],1)[1]
+            posy = rand(1:size(ORI)[2],1)[1]
+            while ORI[posx,posy,1]==-1000 
+                posx = rand(1:size(ORI)[1],1)[1]
+                posy = rand(1:size(ORI)[2],1)[1]
+            end
+            open("posispec.dat","a") do io
+                towrite = [posx posy]
+                writedlm(io,towrite)
+            end
+        else 
+            posx = convert.(Int64,temp[(row-1)*NCOL+col,1])
+            posy = convert.(Int64,temp[(row-1)*NCOL+col,2])
+        end
+        v2 = size(ORI)[3]
+        v1 = 1
+        while SWO[posx,posy,v1]==0
+            v1 += 1
+        end
+        while SWO[posx,posy,v2]==0
+            v2 -= 1
+        end
+        Makie.stairs!(axs[row,col],VELOCITYVECTOR,ORI[posx,posy,:],color=:grey)
+        Makie.stairs!(axs[row,col],VELOCITYVECTOR,PCA[posx,posy,:],color=:blue)
+        Makie.vlines!(axs[row,col],VELOCITYVECTOR[v1],color=:orange)
+        Makie.vlines!(axs[row,col],VELOCITYVECTOR[v2],color=:orange)
+        if row!=NROW || col!=1
+            Makie.hidedecorations!.(axs[row, col],ticks = false)
+        end
+        Makie.text!(axs[row, col],8,50,text="$((row-1)*NCOL+col)")
+        Makie.xlims!(axs[row, col],VELOCITYVECTOR[1],VELOCITYVECTOR[end])
+        Makie.ylims!(axs[row, col],ymi,yma)
+
+    end
+    Makie.hidedecorations!.(axs[NROW,1],ticks = false,label=false,ticklabels=false)
+    colgap!(gg,2)
+    rowgap!(gg,2)
+    return(f)
+end
+
+
+
+function spless(file,NORD::Int,NCOL::Int,NROW::Int ; LAG=0)
+    if LAG==0
+       spl = file[2:NORD+1,2:end]
+
+    else 
+        spl = file[2:NORD+1,2:LAG]
+    end
+    f = Figure(backgroundcolor = RGBf(0.98, 0.98, 0.98),size = (1000, 700))
+    gg = f[1, 1] = GridLayout()
+    axs = [Axis(gg[row, col],xtickalign = 1.0,ytickalign = 1.0, aspect = nothing,xscale=log10,yscale=log10,xlabel=L"S_3(l)",ylabel=L"S_p(l)") for row in 1:NROW, col in 1:NCOL]
+    for row in 1:NROW, col in 1:NCOL
+        Makie.scatter!(axs[row,col],spl[3,:],spl[(row-1)*NCOL+col,:],marker=:xcross,color=:black)
+        Makie.text!(axs[row, col],0.2,0.7,text="p=$((row-1)*NCOL+col)",space=:relative)
+        if row!=NROW || col!=1
+            Makie.hidedecorations!.(axs[row, col],ticks = false,ticklabels=false,grid=false)
+        end
+    end
+    Makie.hidedecorations!.(axs[NROW,1],ticks = false,label=false,ticklabels=false,grid=false)
+    return(f)
+end
+
+
+
+
+
+###############################"
+# DEPRECATED
 
 
 
