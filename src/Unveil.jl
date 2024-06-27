@@ -20,6 +20,8 @@ using .PCA
 using Plots
 using ProgressBars
 using StatsBase
+using Makie
+using DelimitedFiles
 
 export pca
 export swo
@@ -31,6 +33,72 @@ export combinecv
 export prodvarfile
 export structure_functions
 export compmethod_stcfct
+
+
+
+
+"""
+    checkPCASWO(VARFILEPATH)
+
+Check PCA and SWO results by plotting randomly taken spectra on the cubes. Plot the noisy original cube superposed by the PCA spectra reconstructed and with the SWO windows. Plot also the residual (original noisy cube less PCA) for the same cubes.
+
+OUTPUTS : 2 plots
+
+Use this script in a julia terminal with :
+    julia>Unveil.checkPCASWO("VARFILEPATH")
+"""
+function checkPCASWO(VARFILEPATH)
+    FITSPATH, PCANAME, SWONAME, ORINAME, PATHTOSAVE, SAVENAME, NCOL, NROW, SPECFILE, UNITVELOCITY, NOISECANTXT,OVERWRITE = Dataprep.read_var_files(VARFILEPATH)
+    NOISECAN = [parse(Int, ss) for ss in split(NOISECANTXT,",")]
+
+
+    # Read the fits from the path. Return the data, the VelocityVector, the dimension, the velocity_increment, and the header.
+    cubepca,VELOCITYVECTOR,DATADIMENSION,VELOCITYINCREMENT,HEAD = Dataprep.read_fits_ppv("$(FITSPATH)/$(PCANAME)",UNITVELOCITY ; check=false)
+
+    cubeswo,VELOCITYVECTOR,DATADIMENSION,VELOCITYINCREMENT,HEAD = Dataprep.read_fits_ppv("$(FITSPATH)/$(SWONAME)",UNITVELOCITY ; check=false)
+
+    cubeori,VELOCITYVECTOR,DATADIMENSION,VELOCITYINCREMENT,HEAD = Dataprep.read_fits_ppv("$(FITSPATH)/$(ORINAME)",UNITVELOCITY ; check=false)
+
+    # Prepare directories where plots and data will be saved.
+    Dataprep.directory_prep(PATHTOSAVE)
+
+    # Replace any NaN value into a missing value and deleted them (can't do PCA on missing values with that package).
+    cubepca = Dataprep.replace_nantomissing(cubepca)
+    cubeswo = Dataprep.replace_nantomissing(cubeswo)
+    cubeori = Dataprep.replace_nantomissing(cubeori)
+
+    f = Graphic.spectrePCASWO(cubepca,cubeswo,cubeori,VELOCITYVECTOR,NCOL,NROW,file="$SPECFILE")
+    newname = "$(SAVENAME)_CHECKPCASWO"
+    if (OVERWRITE==false && isfile("$(PATHTOSAVE)/Figures/$(SAVENAME)_CHECKPCASWO.pdf")==true)
+        println("THE GIVEN FILE NAME ALREADY EXIST. AN INDICE WILL BE ADDED AT THE END OF THE GIVEN NAME, EQUAL TO THE NUMBER OF FILES WITH THE SAME NAME +1 ")
+        count = 0
+        for ix=1:size((findall.("$(SAVENAME)_CHECKPCASWO",readdir("$(PATHTOSAVE)/Figures/"))))[1]
+            if size(findall("$(SAVENAME)_CHECKPCASWO",readdir("$(PATHTOSAVE)/Figures/")[ix]))[1]!=0
+                count += 1
+            end
+        end
+        newname = "$(newname)_$(count)"
+    end #if
+    Makie.save("$PATHTOSAVE/Figures/$(SAVENAME)_CHECKPCASWO.pdf",f)
+
+
+
+    f = Graphic.residusPCA(cubepca,cubeori,VELOCITYVECTOR,NCOL,NROW,NOISECAN[end],file="$SPECFILE")
+    newname = "$(SAVENAME)_RESIDUSPCA"
+    if (OVERWRITE==false && isfile("$(PATHTOSAVE)/Figures/$(SAVENAME)_RESIDUSPCA.pdf")==true)
+        println("THE GIVEN FILE NAME ALREADY EXIST. AN INDICE WILL BE ADDED AT THE END OF THE GIVEN NAME, EQUAL TO THE NUMBER OF FILES WITH THE SAME NAME +1 ")
+        count = 0
+        for ix=1:size((findall.("$(SAVENAME)_RESIDUSPCA",readdir("$(PATHTOSAVE)/Figures/"))))[1]
+            if size(findall("$(SAVENAME)_RESIDUSPCA",readdir("$(PATHTOSAVE)/Figures/")[ix]))[1]!=0
+                count += 1
+            end
+        end
+        newname = "$(newname)_$(count)"
+    end #if
+    Makie.save("$PATHTOSAVE/Figures/$(SAVENAME)_RESIDUSPCA.pdf",f)
+
+end #checkPCASWO
+
 
 
 
@@ -103,114 +171,256 @@ Use this script in a julia terminal with :
     julia>Unveil.convpca("VARFILEPATH")
 
 """
-function convpca(VARFILEPATH; plot=true)
+function convpca(VARFILEPATH; plot=true, onlyplot="")
     FITSPATH,FILENAME,PATHTOSAVE,SAVENAME,NOISECANTXT,UNITVELOCITY,HIGHESTPC,BLANK,OVERWRITE = Dataprep.read_var_files(VARFILEPATH)
     NOISECAN = [parse(Int, ss) for ss in split(NOISECANTXT,",")]
 
+    if onlyplot==""
 
-    # Read the fits from the path. Return the data, the VelocityVector, the dimension, the velocity_increment, and the header.
-    cube,VELOCITYVECTOR,DATADIMENSION,VELOCITYINCREMENT,HEAD = Dataprep.read_fits_ppv("$(FITSPATH)/$(FILENAME)",UNITVELOCITY ; check=false)
+        # Read the fits from the path. Return the data, the VelocityVector, the dimension, the velocity_increment, and the header.
+        cube,VELOCITYVECTOR,DATADIMENSION,VELOCITYINCREMENT,HEAD = Dataprep.read_fits_ppv("$(FITSPATH)/$(FILENAME)",UNITVELOCITY ; check=false)
 
-    # Prepare directories where plots and data will be saved.
-    Dataprep.directory_prep(PATHTOSAVE)
+        # Prepare directories where plots and data will be saved.
+        Dataprep.directory_prep(PATHTOSAVE)
 
 
 
-    # Replace any NaN value into a missing value and deleted them (can't do PCA on missing values with that package).
-    cube = Dataprep.replace_nantomissing(cube)
+        # Replace any NaN value into a missing value and deleted them (can't do PCA on missing values with that package).
+        cube = Dataprep.replace_nantomissing(cube)
 
-    ismis = 0
-    if any(ismissing,cube) 
-        ismis = 1
-        cube,missingplaces1D,missingplaces2D  = Dataprep.pca_prep(cube,DATADIMENSION)
-        cube                                  = convert(Array{Float64},cube)
-        DATADIMENSION_NOMISSING               = Dataprep.read_dim(cube)
+        ismis = 0
+        if any(ismissing,cube) 
+            ismis = 1
+            cube,missingplaces1D,missingplaces2D  = Dataprep.pca_prep(cube,DATADIMENSION)
+            cube                                  = convert(Array{Float64},cube)
+            DATADIMENSION_NOMISSING               = Dataprep.read_dim(cube)
+        else
+            cube                                 = reshape(cube,DATADIMENSION[1]*DATADIMENSION[2],DATADIMENSION[3])
+            cube                                 = convert(Array{Float64},cube)
+            DATADIMENSION_NOMISSING              = (DATADIMENSION[1]*DATADIMENSION[2],DATADIMENSION[3])
+        end
+
+        SIGMAT = Analysis.rms_cube(cube,NOISECAN)[2]
+
+        #First PCA
+        println("Perform PCA")
+        M, Yt, VARPERCENT,cubereconstructed = PCA.pca(cube,HIGHESTPC)
+
+        # Projection matrix
+        proj = PCA.proj(M)
+        mom1,mom2,mom3,mom4 = Analysis.fourmoments(proj,dim=2)
+
+
+        if ismis == 1
+            proj = Dataprep.addblank(proj,missingplaces2D[:,1:HIGHESTPC],BLANK,(DATADIMENSION[1],DATADIMENSION[2],HIGHESTPC))
+        end
+        proj = reshape(proj,(DATADIMENSION[1],DATADIMENSION[2],HIGHESTPC))
+        Dataprep.write_fits("$(FITSPATH)/$FILENAME","$(SAVENAME)_projectionmatrix","$(PATHTOSAVE)/Data/",proj,(DATADIMENSION_NOMISSING[1],DATADIMENSION_NOMISSING[2],HIGHESTPC),BLANK,finished=true,overwrite=OVERWRITE)
+        xvector = range(1,HIGHESTPC)#[1:HIGHESTPC]
+
+
+
+
+        cubereconstructed = 0
+        cube = 0
+        missingplaces1D = 0.0 
+        missingplaces2D = 0
+        M = 0
+        Yt = 0
+        GC.gc()   # CLEANING MEMORY, NECESSARY FOR LARGE DATASET
+
+        #BL#Graphic.distribmom_multipc(mom1[2:end-1],mom2[2:end-1],mom3[2:end-1],mom4[2:end-1],xvector[2:end-1])
+        newname = "$(SAVENAME)_mom"
+        if (OVERWRITE==false && isfile("$(PATHTOSAVE)/Figures/$(SAVENAME)_mom.pdf")==true)
+            println("THE GIVEN FILE NAME ALREADY EXIST. AN INDICE WILL BE ADDED AT THE END OF THE GIVEN NAME, EQUAL TO THE NUMBER OF FILES WITH THE SAME NAME +1 ")
+            count = 0
+            for ix=1:size((findall.("$(SAVENAME)_mom",readdir("$(PATHTOSAVE)/Figures/"))))[1]
+                if size(findall("$(SAVENAME)_mom",readdir("$(PATHTOSAVE)/Figures/")[ix]))[1]!=0
+                    count += 1
+                end
+            end
+            newname = "$(newname)_$(count)"
+        end #if
+        #BL#Plots.savefig("$(PATHTOSAVE)/Figures/$(newname).pdf")
+
+
+        #if PCOPT==0
+        #    println(" ")
+        #    println("From which PC number moments are converging ?")
+        #    println("First indice : ")
+        #    PCOPT   = parse(Int64,readline())
+        #end
+
+        metric = Analysis.metricPCA(mom1,mom2,mom3,mom4,abs(VELOCITYINCREMENT))#,SIGMAT)#abs(VELOCITYINCREMENT))
+        #metric = Analysis.metricPCA(mom1,mom2,mom3,mom4)#,SIGMAT)#abs(VELOCITYINCREMENT))
+        #metric = Analysis.metricPCA(mom1,mom2,mom3,mom4,abs(VELOCITYINCREMENT))
+        #println(metric)
+        println("Metric calculated")
+        #BL#Graphic.distribcv_multipc(mom1[2:end-1],mom2[2:end-1],mom3[2:end-1],mom4[2:end-1],metric[2:end-1],xvector[2:end-1])
+        newname = "$(SAVENAME)_metric"
+        if (OVERWRITE==false && isfile("$(PATHTOSAVE)/Figures/$(SAVENAME)_metric.pdf")==true)
+            println("THE GIVEN FILE NAME ALREADY EXIST. AN INDICE WILL BE ADDED AT THE END OF THE GIVEN NAME, EQUAL TO THE NUMBER OF FILES WITH THE SAME NAME +1 ")
+            count = 0
+            for ix=1:size((findall.("$(SAVENAME)_metric",readdir("$(PATHTOSAVE)/Figures/"))))[1]
+                if size(findall("$(SAVENAME)_metric",readdir("$(PATHTOSAVE)/Figures/")[ix]))[1]!=0
+                    count += 1
+                end
+            end
+            newname = "$(newname)_$(count)"
+
+        end #if
+
+        Dataprep.write_dat([metric mom1 mom2 mom3 mom4.-3 xvector],"$PATHTOSAVE/Data/","$(SAVENAME)_metricPCA",overwrite=OVERWRITE,more=["$FILENAME","Metric  Mom1   Mom2   Mom3   Mom4   PCs"])
+        if plot==true
+            f=Graphic.convpca("$PATHTOSAVE/Data/$(SAVENAME)_metricPCA.dat")
+            newname = "$(SAVENAME)_metric"
+            if (OVERWRITE==false && isfile("$(PATHTOSAVE)/Figures/$(SAVENAME)_metric.pdf")==true)
+                println("THE GIVEN FILE NAME ALREADY EXIST. AN INDICE WILL BE ADDED AT THE END OF THE GIVEN NAME, EQUAL TO THE NUMBER OF FILES WITH THE SAME NAME +1 ")
+                count = 0
+                for ix=1:size((findall.("$(SAVENAME)_metric",readdir("$(PATHTOSAVE)/Figures/"))))[1]
+                    if size(findall("$(SAVENAME)_metric",readdir("$(PATHTOSAVE)/Figures/")[ix]))[1]!=0
+                        count += 1
+                    end
+                end
+                newname = "$(newname)_$(count)"
+    
+            end #if
+            Makie.save("$PATHTOSAVE/Figures/$(SAVENAME)_metric.pdf",f)
+
+            println("First PC with convergence ?")
+            FIRST = parse(Int64,readline())
+            println("Last PC with convergence ?")
+            BURN = parse(Int64,readline())
+            BURNMET = BURN
+            g=Graphic.convpca("$PATHTOSAVE/Data/$(SAVENAME)_metricPCA.dat",FIRST,BURN,BURNMET=BURNMET)
+            newname = "$(SAVENAME)_NOPT"
+            if (OVERWRITE==false && isfile("$(PATHTOSAVE)/Figures/$(SAVENAME)_NOPT.pdf")==true)
+                println("THE GIVEN FILE NAME ALREADY EXIST. AN INDICE WILL BE ADDED AT THE END OF THE GIVEN NAME, EQUAL TO THE NUMBER OF FILES WITH THE SAME NAME +1 ")
+                count = 0
+                for ix=1:size((findall.("$(SAVENAME)_NOPT",readdir("$(PATHTOSAVE)/Figures/"))))[1]
+                    if size(findall("$(SAVENAME)_NOPT",readdir("$(PATHTOSAVE)/Figures/")[ix]))[1]!=0
+                        count += 1
+                    end
+                end
+                newname = "$(newname)_$(count)"
+    
+            end #if
+            Makie.save("$PATHTOSAVE/Figures/$(SAVENAME)_NOPT.pdf",g)
+
+            println("How many rows for Eigenimages plots ?")
+            NROW = parse(Int64,readline())
+            println("How many columns for Eigenimages plots ?")
+            NCOL = parse(Int64,readline())
+            g=Graphic.distreigenimage(proj,NROW,NCOL)
+            newname = "$(SAVENAME)_distreigenimage"
+            if (OVERWRITE==false && isfile("$(PATHTOSAVE)/Figures/$(SAVENAME)_distreigenimage.pdf")==true)
+                println("THE GIVEN FILE NAME ALREADY EXIST. AN INDICE WILL BE ADDED AT THE END OF THE GIVEN NAME, EQUAL TO THE NUMBER OF FILES WITH THE SAME NAME +1 ")
+                count = 0
+                for ix=1:size((findall.("$(SAVENAME)_distreigenimage",readdir("$(PATHTOSAVE)/Figures/"))))[1]
+                    if size(findall("$(SAVENAME)_distreigenimage",readdir("$(PATHTOSAVE)/Figures/")[ix]))[1]!=0
+                        count += 1
+                    end
+                end
+                newname = "$(newname)_$(count)"
+            end #if
+            Makie.save("$PATHTOSAVE/Figures/$(SAVENAME)_distreigenimage.pdf",g)
+
+            println("Max of the color scale ?")
+            ZLIM = parse(Float64,readline())
+            g=Graphic.mapeigenimage(proj,NROW,NCOL,ZLIM)
+            newname = "$(SAVENAME)_eigenimage"
+            if (OVERWRITE==false && isfile("$(PATHTOSAVE)/Figures/$(SAVENAME)_eigenimage.pdf")==true)
+                println("THE GIVEN FILE NAME ALREADY EXIST. AN INDICE WILL BE ADDED AT THE END OF THE GIVEN NAME, EQUAL TO THE NUMBER OF FILES WITH THE SAME NAME +1 ")
+                count = 0
+                for ix=1:size((findall.("$(SAVENAME)_eigenimage",readdir("$(PATHTOSAVE)/Figures/"))))[1]
+                    if size(findall("$(SAVENAME)_eigenimage",readdir("$(PATHTOSAVE)/Figures/")[ix]))[1]!=0
+                        count += 1
+                    end
+                end
+                newname = "$(newname)_$(count)"
+            end #if
+            Makie.save("$PATHTOSAVE/Figures/$(SAVENAME)_eigenimage.pdf",g)
+
+            println("Change color scale ? Y/N")
+            CONT = readline()
+            while CONT=="Y" || CONT=="y"
+                println("Max of the color scale ?")
+                ZLIM = parse(Float64,readline())
+                g=Graphic.mapeigenimage(proj,NROW,NCOL,ZLIM)
+                Makie.save("$PATHTOSAVE/Figures/$(SAVENAME)_eigenimage.pdf",g)
+                println("Change color scale ?")
+                CONT = readline()
+            end
+        end 
+
     else
-        cube                                 = reshape(cube,DATADIMENSION[1]*DATADIMENSION[2],DATADIMENSION[3])
-        cube                                 = convert(Array{Float64},cube)
-        DATADIMENSION_NOMISSING              = (DATADIMENSION[1]*DATADIMENSION[2],DATADIMENSION[3])
-    end
-
-    SIGMAT = Analysis.rms_cube(cube,NOISECAN)[2]
-
-    #First PCA
-    println("Perform PCA")
-    M, Yt, VARPERCENT,cubereconstructed = PCA.pca(cube,HIGHESTPC)
-
-    # Projection matrix
-    proj = PCA.proj(M)
-    mom1,mom2,mom3,mom4 = Analysis.fourmoments(proj,dim=2)
-
-
-    if ismis == 1
-        proj = Dataprep.addblank(proj,missingplaces2D[:,1:HIGHESTPC],BLANK,(DATADIMENSION[1],DATADIMENSION[2],HIGHESTPC))
-    end
-    proj = reshape(proj,(DATADIMENSION[1],DATADIMENSION[2],HIGHESTPC))
-    Dataprep.write_fits("$(FITSPATH)/$FILENAME","$(SAVENAME)_projectionmatrix","$(PATHTOSAVE)/Data/",proj,(DATADIMENSION_NOMISSING[1],DATADIMENSION_NOMISSING[2],HIGHESTPC),BLANK,finished=true,overwrite=OVERWRITE)
-    xvector = range(1,HIGHESTPC)#[1:HIGHESTPC]
-
-
-
-    proj = 0
-    cubereconstructed = 0
-    cube = 0
-    missingplaces1D = 0.0 
-    missingplaces2D = 0
-    M = 0
-    Yt = 0
-    GC.gc()   # CLEANING MEMORY, NECESSARY FOR LARGE DATASET
-
-    #BL#Graphic.distribmom_multipc(mom1[2:end-1],mom2[2:end-1],mom3[2:end-1],mom4[2:end-1],xvector[2:end-1])
-    newname = "$(SAVENAME)_mom"
-    if (OVERWRITE==false && isfile("$(PATHTOSAVE)/Figures/$(SAVENAME)_mom.pdf")==true)
-        println("THE GIVEN FILE NAME ALREADY EXIST. AN INDICE WILL BE ADDED AT THE END OF THE GIVEN NAME, EQUAL TO THE NUMBER OF FILES WITH THE SAME NAME +1 ")
-        count = 0
-        for ix=1:size((findall.("$(SAVENAME)_mom",readdir("$(PATHTOSAVE)/Figures/"))))[1]
-            if size(findall("$(SAVENAME)_mom",readdir("$(PATHTOSAVE)/Figures/")[ix]))[1]!=0
-                count += 1
+        file = readdlm("$onlyplot",skipstart=2)
+        metric = file[:,1]
+        println(size(metric))
+        println("First PC with convergence ?")
+        FIRST = parse(Int64,readline())
+        println("Last PC with convergence ?")
+        BURN = parse(Int64,readline())
+        BURNMET = BURN
+        g=Graphic.convpca("$onlyplot",FIRST,BURN,BURNMET=BURNMET)
+        if (OVERWRITE==false && isfile("$(PATHTOSAVE)/Figures/$(SAVENAME)_NOPT.pdf")==true)
+            println("THE GIVEN FILE NAME ALREADY EXIST. AN INDICE WILL BE ADDED AT THE END OF THE GIVEN NAME, EQUAL TO THE NUMBER OF FILES WITH THE SAME NAME +1 ")
+            count = 0
+            for ix=1:size((findall.("$(SAVENAME)_NOPT",readdir("$(PATHTOSAVE)/Figures/"))))[1]
+                if size(findall("$(SAVENAME)_NOPT",readdir("$(PATHTOSAVE)/Figures/")[ix]))[1]!=0
+                    count += 1
+                end
             end
-        end
-        newname = "$(newname)_$(count)"
-    end #if
-    #BL#Plots.savefig("$(PATHTOSAVE)/Figures/$(newname).pdf")
+            newname = "$(newname)_$(count)"
+        end #if
+        Makie.save("$PATHTOSAVE/Figures/$(SAVENAME)_NOPT.pdf",g)
 
+        println("How many rows for Eigenimages plots ?")
+            NROW = parse(Int64,readline())
+            println("How many columns for Eigenimages plots ?")
+            NCOL = parse(Int64,readline())
+            g=Graphic.distreigenimage(proj,NROW,NCOL)
+            newname = "$(SAVENAME)_distreigenimage"
+            if (OVERWRITE==false && isfile("$(PATHTOSAVE)/Figures/$(SAVENAME)_distreigenimage.pdf")==true)
+                println("THE GIVEN FILE NAME ALREADY EXIST. AN INDICE WILL BE ADDED AT THE END OF THE GIVEN NAME, EQUAL TO THE NUMBER OF FILES WITH THE SAME NAME +1 ")
+                count = 0
+                for ix=1:size((findall.("$(SAVENAME)_distreigenimage",readdir("$(PATHTOSAVE)/Figures/"))))[1]
+                    if size(findall("$(SAVENAME)_distreigenimage",readdir("$(PATHTOSAVE)/Figures/")[ix]))[1]!=0
+                        count += 1
+                    end
+                end
+                newname = "$(newname)_$(count)"
+            end #if
+            Makie.save("$PATHTOSAVE/Figures/$(SAVENAME)_distreigenimage.pdf",g)
 
-    #if PCOPT==0
-    #    println(" ")
-    #    println("From which PC number moments are converging ?")
-    #    println("First indice : ")
-    #    PCOPT   = parse(Int64,readline())
-    #end
+            println("Max of the color scale ?")
+            ZLIM = parse(Float64,readline())
+            g=Graphic.mapeigenimage(proj,NROW,NCOL,ZLIM)
+            newname = "$(SAVENAME)_eigenimage"
+            if (OVERWRITE==false && isfile("$(PATHTOSAVE)/Figures/$(SAVENAME)_eigenimage.pdf")==true)
+                println("THE GIVEN FILE NAME ALREADY EXIST. AN INDICE WILL BE ADDED AT THE END OF THE GIVEN NAME, EQUAL TO THE NUMBER OF FILES WITH THE SAME NAME +1 ")
+                count = 0
+                for ix=1:size((findall.("$(SAVENAME)_eigenimage",readdir("$(PATHTOSAVE)/Figures/"))))[1]
+                    if size(findall("$(SAVENAME)_eigenimage",readdir("$(PATHTOSAVE)/Figures/")[ix]))[1]!=0
+                        count += 1
+                    end
+                end
+                newname = "$(newname)_$(count)"
+            end #if
+            Makie.save("$PATHTOSAVE/Figures/$(SAVENAME)_eigenimage.pdf",g)
 
-    metric = Analysis.metricPCA(mom1,mom2,mom3,mom4,abs(VELOCITYINCREMENT))#,SIGMAT)#abs(VELOCITYINCREMENT))
-    #metric = Analysis.metricPCA(mom1,mom2,mom3,mom4)#,SIGMAT)#abs(VELOCITYINCREMENT))
-    #metric = Analysis.metricPCA(mom1,mom2,mom3,mom4,abs(VELOCITYINCREMENT))
-    #println(metric)
-    println("Metric calculated")
-    #BL#Graphic.distribcv_multipc(mom1[2:end-1],mom2[2:end-1],mom3[2:end-1],mom4[2:end-1],metric[2:end-1],xvector[2:end-1])
-    newname = "$(SAVENAME)_metric"
-    if (OVERWRITE==false && isfile("$(PATHTOSAVE)/Figures/$(SAVENAME)_metric.pdf")==true)
-        println("THE GIVEN FILE NAME ALREADY EXIST. AN INDICE WILL BE ADDED AT THE END OF THE GIVEN NAME, EQUAL TO THE NUMBER OF FILES WITH THE SAME NAME +1 ")
-        count = 0
-        for ix=1:size((findall.("$(SAVENAME)_metric",readdir("$(PATHTOSAVE)/Figures/"))))[1]
-            if size(findall("$(SAVENAME)_metric",readdir("$(PATHTOSAVE)/Figures/")[ix]))[1]!=0
-                count += 1
+            println("Change color scale ?")
+            CONT = readline()
+            while CONT=="Y" || CONT=="y"
+                println("Max of the color scale ?")
+                ZLIM = parse(Float64,readline())
+                g=Graphic.mapeigenimage(proj,NROW,NCOL,ZLIM)
+                Makie.save("$PATHTOSAVE/Figures/$(SAVENAME)_eigenimage.pdf",g)
+                println("Change color scale ?")
+                CONT = readline()
             end
-        end
-        newname = "$(newname)_$(count)"
-
-    end #if
-    #BL#Plots.savefig("$(PATHTOSAVE)/Figures/$(newname).pdf")
-#test
-#test2
-    Dataprep.write_dat([metric mom1./0.05 mom2 mom3 mom4.-3 xvector],"$PATHTOSAVE/Data/","$(SAVENAME)_metricPCA",overwrite=OVERWRITE,more=["$FILENAME","Metric  Mom1   Mom2   Mom3   Mom4   PCs"])
-    if plot==true
-        Graphic.metric_PCA(metric,xvector,"$PATHTOSAVE/Data/"*"$(SAVENAME)_metricPCA"*".png")
     end
-    #minimetr = minimum(metric)
-    #minipc   = xvector[findall(x->x==minimetr,metric)]
-    #println("Metric minimum=$(minimetr)")
-    #println("#PC of metric minimum=$(minipc)")
+
 end #convpca
 
 
@@ -695,6 +905,121 @@ end #function cvi
 
 
 
+
+"""
+    fitspl(VARFILEPATH)
+
+Do the Sp(l) adjustments on multiple lag ranges. Produce a plot of the compensated Sp(l) with the computed exponents. Plot the exponents obtained at chosen lag ranges.
+
+
+Use this script in a julia terminal with :
+    julia>Unveil.fitspl("VARFILEPATH")
+"""
+function fitspl(VARFILEPATH)
+    DATPATH,DATNAME,PATHTOSAVE,SAVENAME,NORD,NCOL,NROW,LAGTOFITT,OVERWRITE = Dataprep.read_var_files(VARFILEPATH)
+    file = readdlm("$DATPATH/$DATNAME",comment_char='#',skipstart=1)
+    LAG = file[1,:]
+    LAGTOFIT = [parse(Int, ss) for ss in split(LAGTOFITT,",")]
+    f=Graphic.adjustspless(file,NORD,NCOL,NROW,LAGTOFIT)
+    newname = "$(SAVENAME)_adjustspless_fitrange$(LAGTOFIT[1])_$(LAGTOFIT[2])px"
+    if (OVERWRITE==false && isfile("$(PATHTOSAVE)/Figures/$(SAVENAME)_adjustspless_fitrange$(LAGTOFIT[1])_$(LAGTOFIT[2])px.pdf")==true)
+        println("THE GIVEN FILE NAME ALREADY EXIST. AN INDICE WILL BE ADDED AT THE END OF THE GIVEN NAME, EQUAL TO THE NUMBER OF FILES WITH THE SAME NAME +1 ")
+        count = 0
+        for ix=1:size((findall.("$(SAVENAME)_adjustspless_fitrange$(LAGTOFIT[1])_$(LAGTOFIT[2])px",readdir("$(PATHTOSAVE)/Figures/"))))[1]
+            if size(findall("$(SAVENAME)_adjustspless_fitrange$(LAGTOFIT[1])_$(LAGTOFIT[2])px",readdir("$(PATHTOSAVE)/Figures/")[ix]))[1]!=0
+                count += 1
+            end
+        end
+        newname = "$(newname)_$(count)"
+
+    end #if
+    Makie.save("$PATHTOSAVE/Figures/$(SAVENAME)_adjustspless_fitrange$(LAGTOFIT[1])_$(LAGTOFIT[2])px.pdf",f)
+
+    println("LAG=$(LAG[2:end])")
+    println("Now : $(LAG[LAGTOFIT[1]]):$(LAG[LAGTOFIT[end]])px")
+    println("More ranges to fit ? Y/N")
+    CONT = readline()
+    while CONT=="Y" || CONT=="y"
+        println("LAG=$(LAG[2:end])")
+        println("First lag for the new fit ? (position, not lag value)")
+        LAGTOFIT[1] = parse(Int, readline())
+        println("Last lag for the new fit ? (position, not lag value)")
+        LAGTOFIT[2] = parse(Int, readline())
+        f=Graphic.adjustspless(file,NORD,NCOL,NROW,LAGTOFIT)
+        newname = "$(SAVENAME)_adjustspless_fitrange$(LAGTOFIT[1])_$(LAGTOFIT[2])px"
+        if (OVERWRITE==false && isfile("$(PATHTOSAVE)/Figures/$(SAVENAME)_adjustspless_fitrange$(LAGTOFIT[1])_$(LAGTOFIT[2])px.pdf")==true)
+            println("THE GIVEN FILE NAME ALREADY EXIST. AN INDICE WILL BE ADDED AT THE END OF THE GIVEN NAME, EQUAL TO THE NUMBER OF FILES WITH THE SAME NAME +1 ")
+            count = 0
+            for ix=1:size((findall.("$(SAVENAME)_adjustspless_fitrange$(LAGTOFIT[1])_$(LAGTOFIT[2])px",readdir("$(PATHTOSAVE)/Figures/"))))[1]
+                if size(findall("$(SAVENAME)_adjustspless_fitrange$(LAGTOFIT[1])_$(LAGTOFIT[2])px",readdir("$(PATHTOSAVE)/Figures/")[ix]))[1]!=0
+                    count += 1
+                end
+            end
+            newname = "$(newname)_$(count)"
+        end #if
+        Makie.save("$PATHTOSAVE/Figures/$(SAVENAME)_adjustspless_fitrange$(LAGTOFIT[1])_$(LAGTOFIT[2])px.pdf",f)
+        println("More ranges to fit ?")
+        CONT = readline()
+    end
+
+    println("LAG=$(LAG[2:end])")
+    println("Now : $(LAG[LAGTOFIT[1]]):$(LAG[LAGTOFIT[end]])")
+    println("First lag for the fit ? (position, not lag value)")
+    LAGTOFIT[1] = parse(Int, readline())
+    println("Last lag for the fit ? (position, not lag value)")
+    LAGTOFIT[2] = parse(Int, readline())
+    f = Graphic.expo(file,NORD,LAGTOFIT,LAG)
+    if (OVERWRITE==false && isfile("$(PATHTOSAVE)/Figures/$(SAVENAME)_expo.pdf")==true)
+        println("THE GIVEN FILE NAME ALREADY EXIST. AN INDICE WILL BE ADDED AT THE END OF THE GIVEN NAME, EQUAL TO THE NUMBER OF FILES WITH THE SAME NAME +1 ")
+        count = 0
+        for ix=1:size((findall.("$(SAVENAME)_expo",readdir("$(PATHTOSAVE)/Figures/"))))[1]
+            if size(findall("$(SAVENAME)_expo",readdir("$(PATHTOSAVE)/Figures/")[ix]))[1]!=0
+                count += 1
+            end
+        end
+        newname = "$(newname)_$(count)"
+
+    end #if
+    Makie.save("$PATHTOSAVE/Figures/$(SAVENAME)_expo.pdf",f)
+
+    println("LAG=$(LAG[2:end])")
+    println("Now : $(LAG[LAGTOFIT[1]]):$(LAG[LAGTOFIT[end]])")
+    println("Add other fit ranges ? Y/N")
+    CONT = readline()
+    while CONT=="y" || CONT=="Y"
+        println("LAG=$(LAG[2:end])")
+        println("Now : $(LAG[LAGTOFIT[1]]):$(LAG[LAGTOFIT[end]])")
+
+        println("First lag for the new fit ? (position, not lag value)")
+        LAGTOFIT[1] = parse(Int, readline())
+        println("Last lag for the new fit ? (position, not lag value)")
+        LAGTOFIT[2] = parse(Int, readline())
+        f=Graphic.expoadd(file,NORD,LAGTOFIT,LAG,f)
+        println("Add other fit ranges ? Y/N")
+        CONT = readline()
+        newname = "$(SAVENAME)_expo"
+        if (OVERWRITE==false && isfile("$(PATHTOSAVE)/Figures/$(SAVENAME)_expo.pdf")==true)
+            println("THE GIVEN FILE NAME ALREADY EXIST. AN INDICE WILL BE ADDED AT THE END OF THE GIVEN NAME, EQUAL TO THE NUMBER OF FILES WITH THE SAME NAME +1 ")
+            count = 0
+            for ix=1:size((findall.("$(SAVENAME)_expo",readdir("$(PATHTOSAVE)/Figures/"))))[1]
+                if size(findall("$(SAVENAME)_expo",readdir("$(PATHTOSAVE)/Figures/")[ix]))[1]!=0
+                    count += 1
+                end
+            end
+            newname = "$(newname)_$(count)"
+    
+        end #if
+    end
+    
+    Makie.save("$PATHTOSAVE/Figures/$(SAVENAME)_expo.pdf",f)
+end
+
+
+
+
+
+
+
 """
     pca(VARFILEPATH)
 
@@ -829,16 +1154,16 @@ end
 
 
 """
-    structure_functions(VARFILEPATH; meth="moninyaglom", limi=0,limf=0)
+    structure_functions(VARFILEPATH; meth="moninyaglom")
 
-Compute the structure functions ``S_p(l)`` of a Centroid Velocity Increment cube. By default will use the definition in Monin & Yaglom+75, but can compute the one in  NOT WORKING ANYMORE NEED DEBUGING Hily-Blant+2008 by changing the option 'meth=hily' NOT WORKING ANYMORE NEED DEBUGING. A '.txt' file should be used accordingly as an input : use the function 'Unveil.prodallvarfile' to produce it. The cube given as input should be a CVI (use function **Unveil.cvi** if needed). Prefer a cube with rotations of every lags than azimutal average, like that : (Pixel positions,angles,lag). To compute the exponent of the ``S_p(l)``, we need the limits of the fit : this can be given as an option when calling the function if you already know it (with options limi=N,limf=M), or the function will asking a user input. These limits should be given as the position number of the desired lag in the lag array (seen in cvi fits header).
+Compute the structure functions ``S_p(l)`` of a Centroid Velocity Increment cube. By default will use the definition in Monin & Yaglom+75, but can compute the one in  NOT WORKING ANYMORE NEED DEBUGING Hily-Blant+2008 by changing the option 'meth=hily' NOT WORKING ANYMORE NEED DEBUGING. A '.txt' file should be used accordingly as an input : use the function 'Unveil.prodallvarfile' to produce it. The cube given as input should be a CVI (use function **Unveil.cvi** if needed). Prefer a cube with rotations of every lags than azimutal average, like that : (Pixel positions,angles,lag). 
 
-WARNING : FIGURES AREN'T PLOTTED FOR NOW DUE TO A PROBLEM. OUTPUTS : One figure with ``S_p(l)`` vs ``S_3(l)``, same with fit, and exponants of ``S_p(l)`` function of p. Also, *.dat* files with values of the exponants and with the ``S_p(l)``.
+
 Use this function in a julia terminal with :
     julia> Unveil.structure_functions(VARFILEPATH)
 """
-function structure_functions(VARFILEPATH ; meth="moninyaglom", limi=0,limf=0)
-    FITSPATH,FILENAME,PATHTOSAVE,SAVENAME,ORDERSTXT,BLANK,OVERWRITE = Dataprep.read_var_files(VARFILEPATH)
+function structure_functions(VARFILEPATH ; meth="moninyaglom", plot=true,LAGMAX=0,NWIN=10)
+    FITSPATH,FILENAME,PATHTOSAVE,SAVENAME,ORDERSTXT,BLANK,NROW,NCOL,OVERWRITE = Dataprep.read_var_files(VARFILEPATH)
     ORDERS = [parse(Int, ss) for ss in split(ORDERSTXT,",")]
 
 
@@ -865,6 +1190,42 @@ function structure_functions(VARFILEPATH ; meth="moninyaglom", limi=0,limf=0)
     # Prepare directories where plots and data will be saved.
     Dataprep.directory_prep(PATHTOSAVE)
 
+    if plot==true
+        for lx in ProgressBar(1:size(LAG)[1])
+            f=Graphic.integrantspl(cvicube[:,lx],NCOL,NROW)
+            newname = "$(SAVENAME)_intsplLAG$(LAG[lx])px"
+            if (OVERWRITE==false && isfile("$(PATHTOSAVE)/Figures/$(SAVENAME)_intsplLAG$(LAG[lx])px.pdf")==true)
+                println("THE GIVEN FILE NAME ALREADY EXIST. AN INDICE WILL BE ADDED AT THE END OF THE GIVEN NAME, EQUAL TO THE NUMBER OF FILES WITH THE SAME NAME +1 ")
+                count = 0
+                for ix=1:size((findall.("$(SAVENAME)_intsplLAG$(LAG[lx])px",readdir("$(PATHTOSAVE)/Figures/"))))[1]
+                    if size(findall("$(SAVENAME)_intsplLAG$(LAG[lx])px",readdir("$(PATHTOSAVE)/Figures/")[ix]))[1]!=0
+                        count += 1
+                    end
+                end
+                newname = "$(newname)_$(count)"
+
+            end #if
+            Makie.save("$PATHTOSAVE/Figures/$(SAVENAME)_intspl$(LAG[lx])px.pdf",f)
+        end
+
+
+        for lx in ProgressBar(1:size(LAG)[1])
+            f=Graphic.convintegrantspl(cvicube[:,lx],NCOL,NROW,NWIN)
+            newname = "$(SAVENAME)_convsplLAG$(LAG[lx])px"
+            if (OVERWRITE==false && isfile("$(PATHTOSAVE)/Figures/$(SAVENAME)_convsplLAG$(LAG[lx])px.pdf")==true)
+                println("THE GIVEN FILE NAME ALREADY EXIST. AN INDICE WILL BE ADDED AT THE END OF THE GIVEN NAME, EQUAL TO THE NUMBER OF FILES WITH THE SAME NAME +1 ")
+                count = 0
+                for ix=1:size((findall.("$(SAVENAME)_convsplLAG$(LAG[lx])px",readdir("$(PATHTOSAVE)/Figures/"))))[1]
+                    if size(findall("$(SAVENAME)_convsplLAG$(LAG[lx])px",readdir("$(PATHTOSAVE)/Figures/")[ix]))[1]!=0
+                        count += 1
+                    end
+                end
+                newname = "$(newname)_$(count)"
+
+            end #if
+            Makie.save("$PATHTOSAVE/Figures/$(SAVENAME)_convspl$(LAG[lx])px.pdf",f)
+        end
+    end
     cvicube = Dataprep.replace_nantomissing(cvicube)
     cvicube = Dataprep.replace_blanktomissing(cvicube,BLANK)
     cvicube = Dataprep.replace_blanktomissing(cvicube,0)
@@ -882,70 +1243,26 @@ function structure_functions(VARFILEPATH ; meth="moninyaglom", limi=0,limf=0)
 
     Dataprep.write_dat(nsct,"$(PATHTOSAVE)/Data/","$(SAVENAME)_Sp(l)_$(METH)", more=["METHOD $(METH) ; FILE : $(SAVENAME) ; Intensity threshold during CV computation : $(THRESHOLD). Each column is a lag, each row an order. First column give the orders, first row the lags. For information : p=$(ORDERS), and l=$(LAG) ;  " ], overwrite=OVERWRITE)
 
+    if plot==true
+        f=Graphic.spless(nsct,ORDERS[end],NCOL,NROW,LAG=LAGMAX)
+        newname = "$(SAVENAME)_splESS"
+        if (OVERWRITE==false && isfile("$(PATHTOSAVE)/Figures/$(SAVENAME)_splESS.pdf")==true)
+            println("THE GIVEN FILE NAME ALREADY EXIST. AN INDICE WILL BE ADDED AT THE END OF THE GIVEN NAME, EQUAL TO THE NUMBER OF FILES WITH THE SAME NAME +1 ")
+            count = 0
+            for ix=1:size((findall.("$(SAVENAME)_splESS",readdir("$(PATHTOSAVE)/Figures/"))))[1]
+                if size(findall("$(SAVENAME)_splESS",readdir("$(PATHTOSAVE)/Figures/")[ix]))[1]!=0
+                    count += 1
+                end
+            end
+            newname = "$(newname)_$(count)"
 
-    #Graphic.StcFct(sct,sct[3,:],ORDERS,"$SAVENAME")
-    #if OVERWRITE==true
-    #    Plots.savefig("$(PATHTOSAVE)/Figures/stc_fct_$(SAVENAME)_$(METH).pdf")
-    #elseif (OVERWRITE==false && isfile("$(PATHTOSAVE)/Figures/stc_fct_$(SAVENAME)_$(METH).pdf")==true)
-    #    println("THE GIVEN FILE NAME ALREADY EXIST. AN INDICE WILL BE ADDED AT THE END OF THE GIVEN NAME, EQUAL TO THE NUMBER OF FILES WITH THE SAME NAME +1 ")
-    #    count = 1
-    #    for ix=1:size((findall.("stc_fct_$(SAVENAME)_$(METH).pdf",readdir("$(PATHTOSAVE)/Figures/"))))[1]
-    #        if size(findall("stc_fct_$(SAVENAME)_$(METH).pdf",readdir("$(PATHTOSAVE)/Figures/")[ix]))[1]!=0
-    #            count += 1
-    #        end
-    #    end
-    #    newname = "stc_fct_$(SAVENAME)_$(METH)_$(count)"
-    #    Plots.savefig("$(PATHTOSAVE)/Figures/$(newname).pdf")
-    #end
+        end #if
+        Makie.save("$PATHTOSAVE/Figures/$(SAVENAME)_splESS.pdf",f)
 
-    if limi==0 || limf==0
-        println(" ")
-        println("On which Lag to fit ? Give the indices in the array Lag of the var file (first indice=1). Size of the array : $(size(LAG)[1])")
-        println("First indice : ")
-        CANALINF   = parse(Int64,readline())
-        println("Second indice : ")
-        CANALSUP   = parse(Int64,readline())
-        CANALTOFIT = CANALINF:CANALSUP
-    else
-        CANALTOFIT = limi:limf
-    end    
-    zeta = Structure_functions.xhi_fct_p(ORDERS[:],sct[:,CANALTOFIT])
-    #Graphic.StcFctWithFit(sct,sct[3,:],ORDERS,zeta,CANALTOFIT,"$SAVENAME")
-    #if OVERWRITE==true
-    #    Plots.savefig("$(PATHTOSAVE)/Figures/stc_fctfit_$(SAVENAME)_$(METH).pdf")
-    #elseif (OVERWRITE==false && isfile("$(PATHTOSAVE)/Figures/stc_fctfit_$(SAVENAME)_$(METH).pdf")==true)
-    #    println("THE GIVEN FILE NAME ALREADY EXIST. AN INDICE WILL BE ADDED AT THE END OF THE GIVEN NAME, EQUAL TO THE NUMBER OF FILES WITH THE SAME NAME +1 ")
-    #    count = 1
-    #    for ix=1:size((findall.("stc_fctfit_$(SAVENAME)_$(METH)",readdir("$(PATHTOSAVE)/Figures/"))))[1]
-    #        if size(findall("stc_fctfit_$(SAVENAME)_$(METH)",readdir("$(PATHTOSAVE)/Figures/")[ix]))[1]!=0
-    #            count += 1
-    #        end
-    #    end
-    #    newname = "stc_fctfit_$(SAVENAME)_$(METH)_$(count)"
-    #    Plots.savefig("$(PATHTOSAVE)/Figures/$(newname).pdf")
-    #else
-    #    Plots.savefig("$(PATHTOSAVE)/Figures/stc_fctfit_$(SAVENAME)_$(METH).pdf")
-    #end
-#
-    #Graphic.StcFctExponent(zeta,zeta[3,1],ORDERS,[0,ORDERS[end]+1],[0,1.8],"Using $(METH)","$SAVENAME")
-    #if OVERWRITE==true
-    #    Plots.savefig("$(PATHTOSAVE)/Figures/zeta_$(SAVENAME)_$(METH).pdf")
-    #elseif (OVERWRITE==false && isfile("$(PATHTOSAVE)/Figures/zeta_$(SAVENAME)_$(METH).pdf")==true) #Not sure this is working
-    #    println("THE GIVEN FILE NAME ALREADY EXIST. AN INDICE WILL BE ADDED AT THE END OF THE GIVEN NAME, EQUAL TO THE NUMBER OF FILES WITH THE SAME NAME +1 ")
-    #    count = 1
-    #    for ix=1:size((findall.("zeta_$(SAVENAME)_$(METH)",readdir("$(PATHTOSAVE)/Figures/"))))[1]
-    #        if size(findall("zeta_$(SAVENAME)_$(METH)",readdir("$(PATHTOSAVE)/Figures/")[ix]))[1]!=0
-    #            count += 1
-    #        end
-    #    end
-    #    newname = "zeta_$(SAVENAME)_$(METH)_$(count)"
-    #    Plots.savefig("$(PATHTOSAVE)/Figures/$(newname).pdf")
-    #else 
-    #    Plots.savefig("$(PATHTOSAVE)/Figures/zeta_$(SAVENAME)_$(METH).pdf")
-    #end
+       
+    end             #if plot==true
 
 
-    Dataprep.write_dat(cat([METHV 0 0 0],cat(zeta,ORDERS,dims=2),dims=1),"$(PATHTOSAVE)/Data/","$(SAVENAME)_stcfct_$(METH)", more=["METHOD $(METH) ; FILE : $(SAVENAME) ; Intensity threshold during CV computation : $(THRESHOLD). ROW are results for differents orders which are given at the last column. First column is the exponant, second column is the factor A : Sp(l)=A*S3(l)^B. Also, at first row and first column is the method used : <0 for SWO, 0 for raw cube, >0 for PCA. The value gives the number of PCs for PCA)" ], overwrite=OVERWRITE)
 
 
 end #function structure_function
@@ -962,14 +1279,14 @@ end #function structure_function
 """
     swo(VARFILEPATH ; meth="swo")
 
-Use a SWO (Spectral Window Optimisation) process on a cube. See the README for a detailled working process. Two methods can be computed : the one presented in the README (meth="swo", by default) or the one presented in Pety+03 (meth="pety") A '.txt' file should be used accordingly as an input : use the function 'Unveil.prodallvarfile' to produce it.
+Use a SWO (Spectral Window Optimisation) process on a cube. See the README for a detailled working process. Two methods can be computed : the one presented in the README (meth="swo", by default) or the one presented in Pety+03 (meth="pety" DEPRECATED, NEED TO BE REWORKED) A '.txt' file should be used accordingly as an input : use the function 'Unveil.prodallvarfile' to produce it.
 
 Use this function in a julia terminal with :
     julia> Unveil.swo(VARFILEPATH)
 
 """
 function swo(VARFILEPATH ; meth="swo")   
-    FITSPATH,FILENAME,PATHTOSAVE,SAVENAME,UNITVELOCITY,BLANK,NOISECANTXT,EXAMPLES,OVERWRITE = Dataprep.read_var_files(VARFILEPATH)
+    FITSPATH,FILENAME,PATHTOSAVE,SAVENAME,UNITVELOCITY,BLANK,NOISECANTXT,OVERWRITE = Dataprep.read_var_files(VARFILEPATH)
     NOISECAN = [parse(Int, ss) for ss in split(NOISECANTXT,",")]
 
     # Read the fits from the path. Return the data, the VelocityVector, the dimension, the velocity_increment, and the header.
@@ -1001,16 +1318,6 @@ function swo(VARFILEPATH ; meth="swo")
     end
     #maskinterv,maskpety = SWO.petysnr(cube,DATADIMENSION_NOMISSING,VELOCITYVECTOR,NOISECAN)
 
-    if EXAMPLES=="YES"
-        Graphic.checkwindowopti(cube,maskinterv,mask,VELOCITYVECTOR,6,6)
-        Plots.savefig("$(PATHTOSAVE)/Figures/checkswo1.pdf")
-
-        Graphic.checkwindowopti(cube,maskinterv,mask,VELOCITYVECTOR,6,6)
-        Plots.savefig("$(PATHTOSAVE)/Figures/checkswo2.pdf")
-
-        Graphic.checkwindowopti(cube,maskinterv,mask,VELOCITYVECTOR,6,6)
-        Plots.savefig("$(PATHTOSAVE)/Figures/checkswo3.pdf")
-    end
 
     if ismis == 1
         maskinterv = Dataprep.addblank(maskinterv,missingplaces2D,BLANK,DATADIMENSION)

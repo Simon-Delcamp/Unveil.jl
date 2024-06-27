@@ -4,11 +4,51 @@ include("Dataprep.jl") #Read and write fits
 using .Dataprep
 
 using MultivariateStats, StatsBase, Statistics, AbstractFFTs
+using LsqFit
 
+export calcdistr
 export fourmoments
 export metricOW
 export metricPCA
 export rmscube
+
+
+function calcdistr(DATA)
+    # Histogram
+    hist = StatsBase.fit(Histogram,DATA,-50:0.001:50)
+    deltax = abs(hist.edges[1][2]-hist.edges[1][1])
+    xhist = hist.edges[1][1]+abs(hist.edges[1][2]-hist.edges[1][1])/2:abs(hist.edges[1][2]-hist.edges[1][1]):hist.edges[1][end]
+    # Normalisation of the histogram (mean 0 and dispersion unity)
+    sumi = sum(hist.weights)
+    temp = hist.weights/(sumi*deltax)
+    tx = xhist
+    ty = temp
+    model(x,xhi) = exp.(.-(x.-xhi[1]).^2 ./2 ./xhi[2].^2)./sqrt.(2pi)./xhi[2]
+    fitted = LsqFit.curve_fit(model, tx, ty, [0.0,1.0])
+    tx = (xhist.-fitted.param[1])./fitted.param[2]
+    ty = temp.*fitted.param[2]
+    deltatx = abs(tx[1]-tx[2])
+    return(tx,ty)
+end #calcdistr
+
+
+
+function distrcvi(DATA)
+    # Histogram
+    hist = StatsBase.fit(Histogram,DATA,-30:0.001:30)
+    deltax = abs(hist.edges[1][2]-hist.edges[1][1])
+    xhist = hist.edges[1][1]+abs(hist.edges[1][2]-hist.edges[1][1])/2:abs(hist.edges[1][2]-hist.edges[1][1]):hist.edges[1][end]
+    # Normalisation of the histogram (mean 0 and dispersion unity)
+    sumi = sum(hist.weights)
+    temp = hist.weights/(sumi*deltax)
+    tx = xhist
+    ty = temp
+    model(x,xhi) = exp.(.-(x.-xhi[1]).^2 ./2 ./xhi[2].^2)./sqrt.(2pi)./xhi[2]
+    fitted = LsqFit.curve_fit(model, tx, ty, [0.001,0.001])
+    tx = (xhist.-fitted.param[1])./fitted.param[2]
+    ty = temp.*fitted.param[2]
+    return(tx,ty)
+end
 
 
 """ 

@@ -262,6 +262,27 @@ function prodvarfile(;PATH=".",com=true)
             writedlm(io,towrite, quotes=false)
         end #open io
 
+
+        open("$PATH/checkPCASWO.txt","w") do io
+            towrite = ["# FILE USED TO RUN FUNCTION Unveil.checkPCASWO(). Plot random spectra (or positions given by SPECFILE) of the original cube (noisy), superposed by spectra of the PCA reconstructed cube, and with their SWO windows. Plot also the residuals of the original cube less the reconstructed by PCA of the same spectra.",
+            "# COMMENTS ARE #",
+            "#---------------------------------------------------------------------------------------------------------------#",
+            "FITSPATH     \"PATH/TO/FITS\"   # Path of the fits.",
+            "PCANAME	 \"NAME/TO/PCA\"  # Name of the fits reconstructed by PCA at the FITSPATH",
+            "SWONAME	 \"NAME/TO/SWO\"  # Name of the fits treated by SWO at the FITSPATH",
+            "ORINAM 	 \"NAME/TO/ORIGINALCUBE\"  # Name of the noise cube at the FITSPATH",
+            "PATHTOSAVE       \"PATH/FOR/SAVING\"       # Path where Data and Plots will be saved",
+            "SAVENAME	 \"SAVENAME\"				  # Generic name for the outputs. Extensions and attributes will be added by Unveil.",
+            "NCOL              6                 # Number of column to be plotted",
+            "NROW              2                 # Number of row to be plotted",
+            "SPECFILE          \"\"              # If any, file with position of spectra to plot. Else, they will be taken randomly and saved in posispec.dat.     ",
+            "UNITVELOCITY      m/s					# Velocity units of the fits file",
+            "NOISECAN	      1,20						# Positions of the noise channels",
+            "OVERWRITE         false          # Would you like to overwrite output files with the same name ? true or false ",
+           ]
+            writedlm(io,towrite, quotes=false)
+        end #open io
+
         open("$PATH/convpca.txt","w") do io
             towrite = ["# FILE USED TO RUN FUNCTION Unveil.convpca(). Calculate the optimum number of PCs to used for the data reconstruction of a PPV cube (keeping most of the signals but removing  most of the noise)",
             "# COMMENTS ARE #",
@@ -342,6 +363,25 @@ function prodvarfile(;PATH=".",com=true)
             
         end #open io
 
+
+        open("$PATH/fitspl.txt","w") do io
+            towrite = ["# FILE USED TO RUN FUNCTION Unveil.fitspl(). Adjust the Sp(l), and plot all figures related to structure functions adjustements. ",
+            "# COMMENTS ARE #",
+            "#---------------------------------------------------------------------------------------------------------------#",
+            "DATPATH     \"PATH/TO/DATA\"  #Path to the Sp(l) data file",
+            "DATNAME         \"DATAFILENAME\"   #Name of the Sp(l) data file ",
+            "PATHTOSAVE       \"PATH/FOR/SAVING\"                                             # Path where Data and Plots will be saved",
+            "SAVENAME	     \"SAVENAME\"					    # Generic name for the outputs. Extensions and attributes will be added by Unveil.",
+            "NORD		  6    # Number of order to use in the file",
+            "NCOL               2        # Number of columns for the plot   ",
+            "NROW               3        # Number of row for the plot   ",
+            "LAGTOFIT           1,5     # Range of lags (position, not value) for the first fit",
+            "OVERWRITE	false         # Would you like to overwrite output files with the same name ? true or false ",
+            ]
+            writedlm(io,towrite, quotes=false)
+        end #open io
+
+
         open("$PATH/swo.txt","w") do io
             towrite = ["# FILE USED TO RUN FUNCTION Unveil.swo(). Construct a cube by using the Spectral Window Optimisation method (SWO) on a noisy cube.",
             "# COMMENTS ARE #",
@@ -350,16 +390,12 @@ function prodvarfile(;PATH=".",com=true)
             "FITSNAME         \"FITSNAME\"                                                # Name of the fits at the FITSPATH",
             "PATHTOSAVE       \"PATH/FOR/SAVING\"                                             # Path where Data and Plots will be saved",
             "SAVENAME	 \"SAVENAME\"					    # Generic name for the outputs. Extensions and attributes will be added by Unveil.",
-            "UNITVELOCITY      m/s									         # Velocity units of the fits file",
-            "BLANK             -1000                                          # Blanking data",
-            "NOISECAN          1,30                                           # Positions of the noise channels",
-            "EXAMPLES          YES                                            # YES or NO. If yes, will plot 3 figures of 16 randomly chosen spectra each of the new cube in front of the source cube.",
-            "OVERWRITE         false                                             # Would you like to overwrite output files with the same name ? true or false ",
-            
-            "#---------------------------------------------------------------------------------------------------------------#",
+            "OVERWRITE	false         # Would you like to overwrite output files with the same name ? true or false ",
+
             ]
             writedlm(io,towrite, quotes=false)
         end #open io
+
 
 
         open("$PATH/compmethod_stcfct.txt","w") do io
@@ -389,6 +425,8 @@ function prodvarfile(;PATH=".",com=true)
             "SAVENAME	 \"SAVENAME\"					    # Generic name for the outputs. Extensions and attributes will be added by Unveil.",
             "ORDERS		  1,2,3,4,5,6                   # Orders of the structures functions",
             "BLANK             -1000                                                     # Blanking data",
+            "NROW               2                   # Number of row for the plot (if any)",
+            "NCOL               3                   # Number of column for the plot (if any).",
             "OVERWRITE         false                                             # Would you like to overwrite output files with the same name ? true or false ",
             "#---------------------------------------------------------------------------------------------------------------#",
             ]
@@ -407,6 +445,24 @@ function prodvarfile(;PATH=".",com=true)
             "NBPC              64                 ",
             "BLANK             -1000              ",
             "NOISECAN	      1,25						",
+            "OVERWRITE         false          ",
+           ]
+            writedlm(io,towrite, quotes=false)
+        end #open io
+
+        open("$PATH/checkPCASWO.txt","w") do io
+            towrite = [
+            "FITSPATH     \"PATH/TO/FITS\"   ",
+            "PCANAME	 \"NAME/TO/PCA\"  ",
+            "SWONAME	 \"NAME/TO/SWO\"  ",
+            "ORINAM 	 \"NAME/TO/ORIGINALCUBE\"  ",
+            "PATHTOSAVE       \"PATH/FOR/SAVING\"        ",
+            "SAVENAME	 \"SAVENAME\"				",
+            "NCOL              6                 ",
+            "NROW              2                 ",
+            "SPECFILE          \"\"                   ",
+            "UNITVELOCITY      m/s					",
+            "NOISECAN	      1,20						",
             "OVERWRITE         false          ",
            ]
             writedlm(io,towrite, quotes=false)
@@ -480,6 +536,22 @@ function prodvarfile(;PATH=".",com=true)
             
         end #open io
 
+        open("$PATH/fitspl.txt","w") do io
+            towrite = [
+            "DATPATH     \"PATH/TO/DATA\"  ",
+            "DATNAME         \"DATAFILENAME\"    ",
+            "PATHTOSAVE       \"PATH/FOR/SAVING\"      ",
+            "SAVENAME	 \"SAVENAME\"		",
+            "NORD		  6    ",
+            "NCOL               2           ",
+            "NROW               3           ",
+            "LAGTOFIT           1,5",
+            "OVERWRITE         false       ",
+            ]
+            writedlm(io,towrite, quotes=false)
+        end #open io
+
+
         open("$PATH/swo.txt","w") do io
             towrite = [
             "FITSPATH     \"PATH/TO/FITS\"  ",
@@ -489,26 +561,11 @@ function prodvarfile(;PATH=".",com=true)
             "UNITVELOCITY      m/s					",
             "BLANK             -1000                ",
             "NOISECAN          1,30                 ",
-            "EXAMPLES          YES                 ",
             "OVERWRITE         false               ",
             ]
             writedlm(io,towrite, quotes=false)
         end #open io
 
-
-        open("$PATH/compmethod_stcfct.txt","w") do io
-            towrite = [
-            "DATPATH		\"/PATH/TO/FITS\" ",
-            "PCNAME		\"PCDATA.dat\" ",
-            "SWONAME 	\"SWODATA.dat\" ",
-            "NFNAME      \"NOISEFREEDATA.dat\" ",
-            "RAWNAME		\"RAWDATA\" ",
-            "PATHTOSAVE      \"PATH/FOR/SAVING\" ",  
-            "SAVENAME	\"NAME\" ",
-            "OVERWRITE	true ",
-            ]
-            writedlm(io,towrite, quotes=false)
-        end #open io
 
         open("$PATH/structure_functions.txt","w") do io
             towrite = [
@@ -518,6 +575,8 @@ function prodvarfile(;PATH=".",com=true)
             "SAVENAME	 \"SAVENAME\"		",
             "ORDERS		  1,2,3,4,5,6    ",
             "BLANK             -1000      ",
+            "NROW               2           ",
+            "NCOL               3           ",
             "OVERWRITE         false       ",
             ]
             writedlm(io,towrite, quotes=false)
