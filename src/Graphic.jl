@@ -447,6 +447,7 @@ end
 
 
 function mapeigenimage(eigen,NCOL::Int,NROW::Int,ZLIM)
+    data = Dataprep.permcolrow(data)
     eigen = replace(eigen,-1000=>NaN)
     f = Figure(backgroundcolor = RGBf(0.98, 0.98, 0.98),size = (1000, 700))
     gg = f[1, 1] = GridLayout()
