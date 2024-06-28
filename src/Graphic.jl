@@ -488,10 +488,10 @@ function pratio(M,ylog::Bool,pc,titl)
         loga=:none
         leg = :right
     end
-    p = Plots.plot([1:1:size(explained_percentage)[1]],explained_percentage*100, label="p",title=titl,titlefontsize=10)
-    p = Plots.plot!([1:1:size(explained_percentage)[1]],explained_percentage*100, markercolor=:blue, seriestype=:scatter, markershape=:+,label=false,markersize=2)
-    p = Plots.plot!([1:1:(size(explained_percentage)[1])],100 .-cumsum(explained_percentage).*100,linestyle=:solid, linewidth=2,yaxis=loga, label="1-CumulSum(p)",xlabel="Number of Principal Components",ylabel = "Variance percentage explained", framestyle=:box)
-    p = Plots.plot!(xaxis=(0:10:pc),xrotation=45,ylims=(1e-4,2e2),yminorticks=10) #ylim=[minimum(explained_percentage*100),110],,yminorticks=10,yticks=5
+    p = plot([1:1:size(explained_percentage)[1]],explained_percentage*100, label="p",title=titl,titlefontsize=10)
+    p = plot!([1:1:size(explained_percentage)[1]],explained_percentage*100, markercolor=:blue, seriestype=:scatter, markershape=:+,label=false,markersize=2)
+    p = plot!([1:1:(size(explained_percentage)[1])],100 .-cumsum(explained_percentage).*100,linestyle=:solid, linewidth=2,yaxis=loga, label="1-CumulSum(p)",xlabel="Number of Principal Components",ylabel = "Variance percentage explained", framestyle=:box)
+    p = plot!(xaxis=(0:10:pc),xrotation=45,ylims=(1e-4,2e2),yminorticks=10) #ylim=[minimum(explained_percentage*100),110],,yminorticks=10,yticks=5
     display(p)
 end
 
