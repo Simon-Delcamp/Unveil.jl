@@ -69,6 +69,9 @@ function checkPCASWO(VARFILEPATH)
     cubeswo = Dataprep.replace_nantomissing(cubeswo)
     cubeori = Dataprep.replace_nantomissing(cubeori)
 
+    cubepca = Dataprep.replace_missingtoblank(cubepca,-1000)
+    cubeswo = Dataprep.replace_missingtoblank(cubeswo,-1000)
+    cubeori = Dataprep.replace_missingtoblank(cubeori,-1000)
     f = Graphic.spectrePCASWO(cubepca,cubeswo,cubeori,VELOCITYVECTOR,NCOL,NROW,file="$SPECFILE")
     newname = "$(SAVENAME)_CHECKPCASWO"
     if (OVERWRITE==false && isfile("$(PATHTOSAVE)/Figures/$(SAVENAME)_CHECKPCASWO.pdf")==true)
