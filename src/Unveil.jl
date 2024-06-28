@@ -23,6 +23,7 @@ using StatsBase
 using Makie
 using DelimitedFiles
 
+export checkPCASWO
 export pca
 export swo
 export convpca
@@ -30,6 +31,7 @@ export cvcvi
 export cvi 
 export multipca
 export combinecv
+export fitspl
 export prodvarfile
 export structure_functions
 export compmethod_stcfct

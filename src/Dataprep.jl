@@ -390,6 +390,9 @@ function prodvarfile(;PATH=".",com=true)
             "FITSNAME         \"FITSNAME\"                                                # Name of the fits at the FITSPATH",
             "PATHTOSAVE       \"PATH/FOR/SAVING\"                                             # Path where Data and Plots will be saved",
             "SAVENAME	 \"SAVENAME\"					    # Generic name for the outputs. Extensions and attributes will be added by Unveil.",
+            "UNITVELOCITY      m/s					# Units of the velocity dimension (m/s, km/s)",
+            "BLANK             -1000                # Blank value",
+            "NOISECAN          1,30                 # Velocity noise channels",
             "OVERWRITE	false         # Would you like to overwrite output files with the same name ? true or false ",
 
             ]
@@ -398,22 +401,22 @@ function prodvarfile(;PATH=".",com=true)
 
 
 
-        open("$PATH/compmethod_stcfct.txt","w") do io
-            towrite = ["# FILE USED TO RUN FUNCTION Unveil.compmethod_stcfct(). Plot exponents of the structures functions computed on cube treated by multiple methods : PCA, SWO, Noise Free (if coming from a simulation) and Raw (if without data pre-treatment).",
-            "# COMMENTS ARE #",
-            "#---------------------------------------------------------------------------------------------------------------#",
-            "DATPATH		\"/PATH/TO/FITS\" # Path to the FITS",
-            "PCNAME		\"PCDATA.dat\" #Name of the structure functions dat file computed from the cube reconstructed by PCA. Let blank if none.",
-            "SWONAME 	\"SWODATA.dat\" #Name of the structure functions dat file computed from the cube reconstructed by SWO. Let blank if none.",
-            "NFNAME      \"NOISEFREEDATA.dat\" #Name of the structure functions dat file computed from the cube without noise (from simulation). Let blank if none.",
-            "RAWNAME		\"RAWDATA\" #Name of the structure functions dat file computed from a cube reconstructed by PCA. Let blank if none.",
-            "PATHTOSAVE      \"PATH/FOR/SAVING\" # Path where Data and Plots will be saved",  
-            "SAVENAME	\"NAME\"  # Generic name for the outputs. Extensions and attributes will be added by Unveil.",
-            "OVERWRITE	true # Would you like to overwrite output files with the same name ? true or false ",
-            "#---------------------------------------------------------------------------------------------------------------#",
-            ]
-            writedlm(io,towrite, quotes=false)
-        end #open io
+        # open("$PATH/compmethod_stcfct.txt","w") do io
+        #     towrite = ["# FILE USED TO RUN FUNCTION Unveil.compmethod_stcfct(). Plot exponents of the structures functions computed on cube treated by multiple methods : PCA, SWO, Noise Free (if coming from a simulation) and Raw (if without data pre-treatment).",
+        #     "# COMMENTS ARE #",
+        #     "#---------------------------------------------------------------------------------------------------------------#",
+        #     "DATPATH		\"/PATH/TO/FITS\" # Path to the FITS",
+        #     "PCNAME		\"PCDATA.dat\" #Name of the structure functions dat file computed from the cube reconstructed by PCA. Let blank if none.",
+        #     "SWONAME 	\"SWODATA.dat\" #Name of the structure functions dat file computed from the cube reconstructed by SWO. Let blank if none.",
+        #     "NFNAME      \"NOISEFREEDATA.dat\" #Name of the structure functions dat file computed from the cube without noise (from simulation). Let blank if none.",
+        #     "RAWNAME		\"RAWDATA\" #Name of the structure functions dat file computed from a cube reconstructed by PCA. Let blank if none.",
+        #     "PATHTOSAVE      \"PATH/FOR/SAVING\" # Path where Data and Plots will be saved",  
+        #     "SAVENAME	\"NAME\"  # Generic name for the outputs. Extensions and attributes will be added by Unveil.",
+        #     "OVERWRITE	true # Would you like to overwrite output files with the same name ? true or false ",
+        #     "#---------------------------------------------------------------------------------------------------------------#",
+        #     ]
+        #     writedlm(io,towrite, quotes=false)
+        # end #open io
 
         open("$PATH/structure_functions.txt","w") do io
             towrite = ["# FILE USED TO RUN FUNCTION Unveil.structure_functions(). Compute structure functions and exponents from a CVI cube (better to consider all rotations, not an azimutal average)",
