@@ -31,7 +31,7 @@ function adjustspless(file,NORD::Int,NCOL::Int,NROW::Int,LAGTOFIT)
     end
     
     for row in 1:NROW, col in 1:NCOL
-        if (row-1)*NCOL+col<=NORD 
+        if (row-1)*NCOL+col<=NORD && (row-1)*NCOL+col!=3
             Makie.scatter!(axs[row,col],spl[3,:],spl[(row-1)*NCOL+col,:].*spl[3,:].^(.-fitted[(row-1)*NCOL+col,2]./fitted[3,2]),marker=:xcross,color=:black)
         # lines!(axs[row,col],spl[3,:],fitted[1].*spl[3,:].^fitted[2])
 
@@ -41,6 +41,10 @@ function adjustspless(file,NORD::Int,NCOL::Int,NROW::Int,LAGTOFIT)
                 Makie.hidedecorations!.(axs[row, col],ticks = false,label=false,ticklabels=false,grid=false)
             end
             Makie.text!(axs[row, col],0.5,0.5,text="p=$((row-1)*NCOL+col)",space = :relative)
+        elseif (row-1)*NCOL+col==3
+            Makie.text!(axs[row, col],0.5,0.5,text="p=3",space = :relative)
+
+            Makie.hidedecorations!.(axs[row, col])
         else 
             Makie.hidedecorations!.(axs[row, col])
         end

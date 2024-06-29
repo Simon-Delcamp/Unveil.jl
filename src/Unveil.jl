@@ -925,6 +925,7 @@ function fitspl(VARFILEPATH)
     file = readdlm("$DATPATH/$DATNAME",comment_char='#',skipstart=1)
     LAG = file[1,:]
     LAGTOFIT = [parse(Int, ss) for ss in split(LAGTOFITT,",")]
+    #LAGTOFIT = LAGTOFIT[1]:LAGTOFIT[2]
     f=Graphic.adjustspless(file,NORD,NCOL,NROW,LAGTOFIT)
     newname = "$(SAVENAME)_adjustspless_fitrange$(LAGTOFIT[1])_$(LAGTOFIT[2])px"
     if (OVERWRITE==false && isfile("$(PATHTOSAVE)/Figures/$(SAVENAME)_adjustspless_fitrange$(LAGTOFIT[1])_$(LAGTOFIT[2])px.pdf")==true)
