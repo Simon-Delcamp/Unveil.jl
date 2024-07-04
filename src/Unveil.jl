@@ -69,10 +69,12 @@ function checkPCASWO(VARFILEPATH)
     cubeswo = Dataprep.replace_nantomissing(cubeswo)
     cubeori = Dataprep.replace_nantomissing(cubeori)
 
+    f = Graphic.spectrePCASWO(cubepca,cubeswo,cubeori,VELOCITYVECTOR,NCOL,NROW,file="$SPECFILE")
+
     cubepca = Dataprep.replace_missingtoblank(cubepca,-1000)
     cubeswo = Dataprep.replace_missingtoblank(cubeswo,-1000)
     cubeori = Dataprep.replace_missingtoblank(cubeori,-1000)
-    f = Graphic.spectrePCASWO(cubepca,cubeswo,cubeori,VELOCITYVECTOR,NCOL,NROW,file="$SPECFILE")
+
     newname = "$(SAVENAME)_CHECKPCASWO"
     if (OVERWRITE==false && isfile("$(PATHTOSAVE)/Figures/$(SAVENAME)_CHECKPCASWO.pdf")==true)
         println("THE GIVEN FILE NAME ALREADY EXIST. AN INDICE WILL BE ADDED AT THE END OF THE GIVEN NAME, EQUAL TO THE NUMBER OF FILES WITH THE SAME NAME +1 ")
@@ -1072,6 +1074,7 @@ function pca(VARFILEPATH)
     # Perform the first PCA analysis (same notation as in the MultivariateStats doc)
     println("Perform PCA")
     M, Yt, VARPERCENT,cubereconstructed = PCA.pca(cube,NBPC)
+    
     #println(size(Yt))
     Dataprep.write_fits("$(FITSPATH)/$(FILENAME)","Yt_$(NBPC)PC","$PATHTOSAVE/Data/",Yt,(NBPC,DATADIMENSION[3]),BLANK,overwrite=OVERWRITE,more=["NBPC",NBPC,"VARPERC",VARPERCENT[NBPC]*100,"METHOD","PCA"])
     println("Matrix of PCs saved in in $(PATHTOSAVE)/Data/Yt_$(NBPC)PC_NumberOfFilesWithTheSameNameAsPrefixe.fits as a fits.")
@@ -1095,6 +1098,7 @@ function pca(VARFILEPATH)
         proj = Dataprep.addblank(proj,missingplaces2D[:,1:NBPC],BLANK,(DATADIMENSION[1],DATADIMENSION[2],NBPC))
     end
     proj = reshape(proj,(DATADIMENSION[1],DATADIMENSION[2],NBPC))
+    eigen = proj[1]
     Dataprep.write_fits("$(FITSPATH)/$FILENAME","$(SAVENAME)_projectionmatrix","$(PATHTOSAVE)/Data/",proj,(DATADIMENSION_NOMISSING[1],DATADIMENSION_NOMISSING[2],NBPC),BLANK,finished=true,overwrite=OVERWRITE)
     xvector = range(1,NBPC)#[1:HIGHESTPC]
 
@@ -1137,6 +1141,38 @@ function pca(VARFILEPATH)
     Plots.savefig("$(PATHTOSAVE)/Figures/$(newname).pdf")
 
     println("Figure of pratio saved in $(PATHTOSAVE)/Figures/pratio_$(SAVENAME)_$(NBPC)PC.pdf")
+
+    Graphic.mapeigenimage(eigen,10,10,[-0.03,0.03])
+    newname = "mapeigenimage_$(SAVENAME)"
+    if (OVERWRITE==false && isfile("$(PATHTOSAVE)/Figures/mapeigenimage_$(SAVENAME).pdf")==true)
+        println("THE GIVEN FILE NAME ALREADY EXIST. AN INDICE WILL BE ADDED AT THE END OF THE GIVEN NAME, EQUAL TO THE NUMBER OF FILES WITH THE SAME NAME +1 ")
+        count = 1
+        for ix=1:size((findall.("mapeigenimage_$(SAVENAME).pdf",readdir("$(PATHTOSAVE)/Figures/"))))[1]
+            if size(findall("mapeigenimage_$(SAVENAME).pdf",readdir("$(PATHTOSAVE)/Figures/")[ix]))[1]!=0
+                count += 1
+            end
+        end
+        newname = "pratio_$(SAVENAME)_$(NBPC)PC_$(count)" 
+    end
+    Plots.savefig("$(PATHTOSAVE)/Figures/$(newname).pdf")
+
+    println("Figure of pratio saved in $(PATHTOSAVE)/Figures/pratio_$(SAVENAME)_$(NBPC)PC.pdf")
+
+    Graphic.distreigenimage(eigen,10,10)
+    newname = "distreigenimage_$(SAVENAME)"
+    if (OVERWRITE==false && isfile("$(PATHTOSAVE)/Figures/distreigenimage_$(SAVENAME).pdf")==true)
+        println("THE GIVEN FILE NAME ALREADY EXIST. AN INDICE WILL BE ADDED AT THE END OF THE GIVEN NAME, EQUAL TO THE NUMBER OF FILES WITH THE SAME NAME +1 ")
+        count = 1
+        for ix=1:size((findall.("distreigenimage_$(SAVENAME).pdf",readdir("$(PATHTOSAVE)/Figures/"))))[1]
+            if size(findall("distreigenimage_$(SAVENAME).pdf",readdir("$(PATHTOSAVE)/Figures/")[ix]))[1]!=0
+                count += 1
+            end
+        end
+        newname = "distreigenimage_$(SAVENAME)_$(count)" 
+    end
+    Plots.savefig("$(PATHTOSAVE)/Figures/$(newname).pdf")
+
+    println("Figure of pratio saved in $(PATHTOSAVE)/Figures/distreigenimage_$(SAVENAME).pdf")
 end   #pca
 
 

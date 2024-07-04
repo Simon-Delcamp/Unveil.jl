@@ -20,6 +20,9 @@ export StcFctExponent
 
 
 function adjustspless(file,NORD::Int,NCOL::Int,NROW::Int,LAGTOFIT)
+    println(LAGTOFIT[1])
+    LAGTOFIT = LAGTOFIT[1]:LAGTOFIT[2]
+    println(LAGTOFIT)
     #file = readdlm(DATPATH,comment_char='#',skipstart=1)
     spl = file[2:NORD+1,2:end]
     f = Figure(backgroundcolor = RGBf(0.98, 0.98, 0.98),size = (1000, 700))
@@ -29,9 +32,10 @@ function adjustspless(file,NORD::Int,NCOL::Int,NROW::Int,LAGTOFIT)
     for ord=1:NORD
         fitted[ord,:] .= CurveFit.power_fit(spl[3,LAGTOFIT],spl[ord,LAGTOFIT])
     end
-    
+    println(fitted)
     for row in 1:NROW, col in 1:NCOL
         if (row-1)*NCOL+col<=NORD 
+            println("jess")
             Makie.scatter!(axs[row,col],spl[3,:],spl[(row-1)*NCOL+col,:].*spl[3,:].^(.-fitted[(row-1)*NCOL+col,2]./fitted[3,2]),marker=:xcross,color=:black)
         # lines!(axs[row,col],spl[3,:],fitted[1].*spl[3,:].^fitted[2])
 
@@ -41,13 +45,16 @@ function adjustspless(file,NORD::Int,NCOL::Int,NROW::Int,LAGTOFIT)
                 Makie.hidedecorations!.(axs[row, col],ticks = false,label=false,ticklabels=false,grid=false)
             end
             Makie.text!(axs[row, col],0.5,0.5,text="p=$((row-1)*NCOL+col)",space = :relative)
+        elseif (row-1)*NCOL+col == 3
+            Makie.scatter!(axs[row,col],spl[3,:],spl[3,:])
         else 
             Makie.hidedecorations!.(axs[row, col])
         end
+        save("/home/perronia/Bureau/datas/Polaris/teste$((row-1)*NCOL+col).pdf",f)
         
 
     end
-    f
+    return(f)
 
 end
 
@@ -568,8 +575,10 @@ function spectrePCASWO(PCA,SWO,ORI,VELOCITYVECTOR,NCOL::Int,NROW::Int;file="")
     else
         temp = readdlm(file)
     end
+    minori = -1
     yma = maximum(ORI)+maximum(ORI)*0.5
-    ymi = minimum(ORI)-abs(minimum(ORI))*0.5
+    ymi = minimum(ORI)-minimum(ORI)*0.5
+    #    ymi = minori-abs(minori)*0.5
     for row in 1:NROW, col in 1:NCOL
         if file==""
             posx = rand(1:size(ORI)[1],1)[1]
