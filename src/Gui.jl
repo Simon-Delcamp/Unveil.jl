@@ -1,9 +1,7 @@
 module Gui
 
-include("UnveilGUI.jl")
 using PyCall
 using DelimitedFiles
-using .UnveilGUI
 #using Unveil
 
 # using Pkg
