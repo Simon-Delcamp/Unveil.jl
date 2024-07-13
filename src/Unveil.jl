@@ -8,7 +8,7 @@ include("SWO.jl")                   # Functions for method SWO
 include("Graphic.jl")               # Plotting 
 include("CVI.jl")                   # Functions for CVI computations
 include("Structure_functions.jl")   # Functions for Structure functions computations
-include("Gui.jl")                   # Functions for a GUI 
+# include("Gui.jl")                   # Functions for a GUI 
 
 
 using .Dataprep
@@ -18,7 +18,7 @@ using .Analysis
 using .Structure_functions
 using .CVI
 using .PCA
-using .Gui
+# using .Gui
 using Plots
 using ProgressBars
 using StatsBase
@@ -1715,10 +1715,10 @@ function swo(FITSPATH,FILENAME,PATHTOSAVE,SAVENAME,UNITVELOCITY,STEP,BLANK,NOISE
 end
 
 
-function gui()
-    #include("Gui.jl")
-    Gui.opengui()
-end
+# function gui()
+#     #include("Gui.jl")
+#     Gui.opengui()
+# end
 
 
 

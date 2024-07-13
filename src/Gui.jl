@@ -1,7 +1,8 @@
 module Gui
 using PyCall
 using DelimitedFiles
-include("UnveilGUI.jl")
+include("Unveil.jl")
+using .Unveil
 #using Unveil
 
 # using Pkg
@@ -613,10 +614,10 @@ end
 
 
 function opengui()
-app = qwid.QApplication(sys.argv)
-wind = MainWindow()
-wind.show()
-app.exec()
+    app = qwid.QApplication(sys.argv)
+    wind = MainWindow()
+    wind.show()
+    app.exec()
 end
 
 
