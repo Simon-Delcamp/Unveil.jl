@@ -20,6 +20,14 @@ using .PCA
 using Plots
 using ProgressBars
 using StatsBase
+using PyCall
+
+
+@pyimport PyQt5
+@pyimport sys
+qwid = pyimport("PyQt5.QtWidgets")
+qpro = pyimport("PyQt5.QtCore")
+qgui = pyimport("PyQt5.QtGui")
 
 export pca
 export swo
@@ -32,13 +40,6 @@ export prodvarfile
 export structure_functions
 export compmethod_stcfct
 
-using PyCall
-
-# @pyimport PyQt5
-# @pyimport sys
-# qwid = pyimport("PyQt5.QtWidgets")
-# qpro = pyimport("PyQt5.QtCore")
-# qgui = pyimport("PyQt5.QtGui")
 
 
 
