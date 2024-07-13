@@ -23,11 +23,7 @@ using StatsBase
 using PyCall
 
 
-@pyimport PyQt5
-@pyimport sys
-qwid = pyimport("PyQt5.QtWidgets")
-qpro = pyimport("PyQt5.QtCore")
-qgui = pyimport("PyQt5.QtGui")
+
 
 export pca
 export swo
@@ -43,8 +39,13 @@ export compmethod_stcfct
 
 
 
-@pydef mutable struct MainWindow <: qwid.QMainWindow 
+@pydef mutable struct MainWindow # <: qwid.QMainWindow 
     #class MainWindow(QMainWindow):#class MainWindow(QMainWindow):
+    @pyimport PyQt5
+    @pyimport sys
+    qwid = pyimport("PyQt5.QtWidgets")
+    qpro = pyimport("PyQt5.QtCore")
+    qgui = pyimport("PyQt5.QtGui")
     function __init__(self)  #def __init__(self):
         # copy!(qwid, pyimport("PyQt6.QtWidgets", "PyQt6"))
         # copy!(qpro, pyimport("PyQt6.QtCore", "PyQt6"))
