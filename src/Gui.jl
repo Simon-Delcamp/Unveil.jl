@@ -1,11 +1,14 @@
 module Gui
+using PyCall
+using DelimitedFiles
+include("UnveilGUI.jl")
+#using Unveil
+
 # using Pkg
 # Pkg.add("PyCall")
 # Pkg.add("DelimitedFiles")
 # Pkg.add("https://gricad-gitlab.univ-grenoble-alpes.fr/delcamps/unveil#Graphical_Interface")
-using PyCall
-using DelimitedFiles
-using Unveil
+
 #pyimport_conda("QtWidgets","PyQt5") 
 #@pyimport PyQt5
 @pyimport PyQt5
@@ -476,7 +479,7 @@ qgui = pyimport("PyQt5.QtGui")
         self.pcabtn.setEnabled(false)
         self.pcabtn.setText("PCA running....")
         qwid.QApplication.processEvents()
-        Unveil.pca(
+        UnveilGUI.pca(
             self.fitsourcepathpca.text(),
             self.fitsourcenamepca,
             self.savepath.text(),
@@ -501,17 +504,17 @@ qgui = pyimport("PyQt5.QtGui")
         self.swobtn.setEnabled(false)
         self.swobtn.setText("SWO running....")
         qwid.QApplication.processEvents()
-        Unveil.swo(
-            self.fitsourcepathswo.text(),
-            self.fitsourcenameswo,
-            self.savepath.text(),
-            self.savename.text(),
-            self.units.text(),
-            self.step.value(),
-            self.blankvalbtn.value(),
-            [self.noisebtn1.value(),self.noisebtn2.value()],
-            self.overcheckswo.isChecked()
-        )
+        # Unveil.swo(
+        #     self.fitsourcepathswo.text(),
+        #     self.fitsourcenameswo,
+        #     self.savepath.text(),
+        #     self.savename.text(),
+        #     self.units.text(),
+        #     self.step.value(),
+        #     self.blankvalbtn.value(),
+        #     [self.noisebtn1.value(),self.noisebtn2.value()],
+        #     self.overcheckswo.isChecked()
+        # )
         self.swobtn.setEnabled(true)
         self.swobtn.setText("Go SWO")
         qwid.QApplication.processEvents()
@@ -523,17 +526,17 @@ qgui = pyimport("PyQt5.QtGui")
         self.convpcabtn.setEnabled(false)
         self.convpcabtn.setText("ConvPCA running....")
         qwid.QApplication.processEvents()
-        Unveil.convpca(
-            self.fitsourcepathcpca.text(),
-            self.fitsourcenamecpca,
-            self.savepath.text(),
-            self.savename.text(),
-            [self.noisebtn1.value(),self.noisebtn2.value()],
-            self.units.text(),
-            self.npchigh.value(),
-            self.blankvalbtn.value(),
-            self.overcheckconvpca.isChecked()
-        )
+        # Unveil.convpca(
+        #     self.fitsourcepathcpca.text(),
+        #     self.fitsourcenamecpca,
+        #     self.savepath.text(),
+        #     self.savename.text(),
+        #     [self.noisebtn1.value(),self.noisebtn2.value()],
+        #     self.units.text(),
+        #     self.npchigh.value(),
+        #     self.blankvalbtn.value(),
+        #     self.overcheckconvpca.isChecked()
+        # )
         self.convpcabtn.setEnabled(true)
         self.convpcabtn.setText("Go ConvPCA")
         qwid.QApplication.processEvents()
@@ -544,19 +547,19 @@ qgui = pyimport("PyQt5.QtGui")
         self.cvbtn.setEnabled(false)
         self.cvbtn.setText("CV running....")
         qwid.QApplication.processEvents()
-        Unveil.cv( 
-            self.fitsourcepathcv.text(),
-            self.fitsourcenamecv,
-            self.savepath.text(),
-            self.fitsourcepathoricv.text(),
-            self.savename.text(),
-            self.units.text(),
-            self.threshcv.value(),
-            [self.noisebtn1.value(),self.noisebtn2.value()],
-            self.vshiftcv.value(),
-            self.blankvalbtn.value(),
-            self.overcheckcv.isChecked()
-            )
+        # Unveil.cv( 
+        #     self.fitsourcepathcv.text(),
+        #     self.fitsourcenamecv,
+        #     self.savepath.text(),
+        #     self.fitsourcepathoricv.text(),
+        #     self.savename.text(),
+        #     self.units.text(),
+        #     self.threshcv.value(),
+        #     [self.noisebtn1.value(),self.noisebtn2.value()],
+        #     self.vshiftcv.value(),
+        #     self.blankvalbtn.value(),
+        #     self.overcheckcv.isChecked()
+        #     )
         self.cvbtn.setEnabled(true)
         self.cvbtn.setText("Go CV")
         qwid.QApplication.processEvents()
@@ -568,16 +571,16 @@ qgui = pyimport("PyQt5.QtGui")
         self.cvibtn.setEnabled(false)
         self.cvibtn.setText("CVI running....")
         qwid.QApplication.processEvents()
-        Unveil.cvi(
-            self.fitsourcepathcvi.text(),
-            self.fitsourcenamecvi,
-            self.savepath.text(),
-            self.savename.text(),
-            self.blankvalbtn.value(),
-            self.lags.text(),
-            self.difftype.text(),
-            self.overcheckcvi.isChecked()
-        )
+        # Unveil.cvi(
+        #     self.fitsourcepathcvi.text(),
+        #     self.fitsourcenamecvi,
+        #     self.savepath.text(),
+        #     self.savename.text(),
+        #     self.blankvalbtn.value(),
+        #     self.lags.text(),
+        #     self.difftype.text(),
+        #     self.overcheckcvi.isChecked()
+        # )
         self.cvibtn.setEnabled(true)
         self.cvibtn.setText("Go CVI")
         qwid.QApplication.processEvents()
@@ -588,16 +591,16 @@ qgui = pyimport("PyQt5.QtGui")
     function callspl(self) # THIS IS A SLOT
         self.splbtn.setEnabled(false)
         self.splbtn.setText("Spl running....")
-        Unveil.structure_functions(
-            self.fitsourcepathspl.text(),
-            self.fitsourcenamespl,
-            self.savepath.text(),
-            self.savename.text(),
-            self.orders.text(),
-            self.method.text(),
-            self.blankvalbtn.value(),
-            self.overcheckspl.isChecked()
-        )
+        # Unveil.structure_functions(
+        #     self.fitsourcepathspl.text(),
+        #     self.fitsourcenamespl,
+        #     self.savepath.text(),
+        #     self.savename.text(),
+        #     self.orders.text(),
+        #     self.method.text(),
+        #     self.blankvalbtn.value(),
+        #     self.overcheckspl.isChecked()
+        # )
         self.splbtn.setEnabled(true)
         self.splbtn.setText("Go Spl")
         qwid.QApplication.processEvents()
