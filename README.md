@@ -1,7 +1,7 @@
 
 
 # Presentation 
-This code unveil positions of extreme intermittent dissipation of turbulence on PPV cubes obtained by observing molecular gas inside molecular clouds. It uses statistical analysis by computing Centroid Velocity Increments, based on Lis et al. 1996, Pety et al. 1999, Hily-Blant et al. 2007, Hily-Blant et al. 2008, Hily-Blant et al. 2009, and on the PhD thesis of Simon Delcamp (in prep). 
+This code unveil positions of extreme intermittent dissipation of turbulence on PPV cubes obtained by observing molecular gas inside molecular clouds. It uses statistical analysis by computing Centroid Velocity Increments, based on Lis et al. 1996, Pety et al. 1999, Hily-Blant et al. 2007, Hily-Blant et al. 2008, Hily-Blant et al. 2009, and on the PhD thesis of Simon Delcamp (Delcamp, 2024). 
 
 One of the original features of the Unveil.jl analysis code is its ability to estimate uncertainties in statistical markers. On the one hand, Unveil.jl provides two independent methods of data treatment: the Spectral Window Optimisation (SWO), inspired by the work of Pety+2003, and a data compression using Principal Component Analysis (PCA). These two methods were tested on numerical simulations in order to calibrate the parameters of use, providing strong recommendations on the SNR required for observations. The code's ability to measure the statistical properties of turbulence was tested on magnetohydrodynamic numerical simulations covering sub- to supersonic and sub- to superAlfvénic regimes.
 
