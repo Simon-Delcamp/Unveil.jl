@@ -1713,7 +1713,7 @@ end
 
 
 function gui()
-    include("Gui.jl")
+    include("src/Gui.jl")
 end
 
 
