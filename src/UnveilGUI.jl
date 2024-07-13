@@ -44,11 +44,6 @@ qpro = pyimport("PyQt5.QtCore")
 qgui = pyimport("PyQt5.QtGui")
 
 
-    app = qwid.QApplication(sys.argv)
-    wind = MainWindow()
-    wind.show()
-    app.exec()   
-
 
 @pydef mutable struct MainWindow  <: qwid.QMainWindow 
     #class MainWindow(QMainWindow):#class MainWindow(QMainWindow):
@@ -643,6 +638,11 @@ qgui = pyimport("PyQt5.QtGui")
    
 end
 
+
+app = qwid.QApplication(sys.argv)
+wind = MainWindow()
+wind.show()
+app.exec()   
 
 
 
