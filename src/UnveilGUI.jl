@@ -42,23 +42,23 @@ qwid = pyimport("PyQt5.QtWidgets")
 qpro = pyimport("PyQt5.QtCore")
 qgui = pyimport("PyQt5.QtGui")
 
-function __init__()
+function opengui()
     app = qwid.QApplication(sys.argv)
     wind = MainWindow()
     wind.show()
     app.exec()   
-
 end
 
 @pydef mutable struct MainWindow  <: qwid.QMainWindow 
     #class MainWindow(QMainWindow):#class MainWindow(QMainWindow):
 
-    function __init__(self)  #def __init__(self):
+    #function __init__(self)  #def __init__(self):
+    function main(self)
         # copy!(qwid, pyimport("PyQt6.QtWidgets", "PyQt6"))
         # copy!(qpro, pyimport("PyQt6.QtCore", "PyQt6"))
         # copy!(qgui, pyimport("PyQt6.QtGui", "PyQt6"))
 
-        py"""super($MainWindow,$self).__init__()"""
+        py"""super($MainWindow,$self).main()"""
         #qwid.QMainWindow.__init__(self)
         #super(MainWindow,self).__init__()
        # self.ui()
