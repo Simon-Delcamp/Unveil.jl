@@ -36,13 +36,14 @@ export prodvarfile
 export structure_functions
 export compmethod_stcfct
 
-@pyimport PyQt5
-@pyimport sys
+
 const qwid = PyNULL()
 const qpro = PyNULL()
 const qgui = PyNULL()
 
 function __init__()
+    @pyimport PyQt5
+    @pyimport sys
     copy!(qwid, pyimport_conda("PyQt5.QtWidgets", "PyQt5"))
     copy!(qpro, pyimport_conda("PyQt5.QtCore", "PyQt5"))
     copy!(qgui, pyimport_conda("PyQt5.QtGui", "PyQt5"))
