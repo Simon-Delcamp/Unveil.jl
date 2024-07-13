@@ -8,7 +8,7 @@ include("SWO.jl")                   # Functions for method SWO
 include("Graphic.jl")               # Plotting 
 include("CVI.jl")                   # Functions for CVI computations
 include("Structure_functions.jl")   # Functions for Structure functions computations
-# include("Gui.jl")                   # Functions for a GUI 
+ include("Gui.jl")                   # Functions for a GUI 
 
 
 using .Dataprep
