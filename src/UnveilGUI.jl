@@ -37,9 +37,9 @@ export structure_functions
 export compmethod_stcfct
 
 
-const qwid = PyNULL()
-const qpro = PyNULL()
-const qgui = PyNULL()
+# const qwid = PyNULL()
+# const qpro = PyNULL()
+# const qgui = PyNULL()
 
 function __init__()
     @pyimport PyQt5
