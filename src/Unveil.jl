@@ -23,6 +23,7 @@ using Plots
 using ProgressBars
 using StatsBase
 
+
 export pca
 export swo
 export convpca
@@ -1715,10 +1716,10 @@ function swo(FITSPATH,FILENAME,PATHTOSAVE,SAVENAME,UNITVELOCITY,STEP,BLANK,NOISE
 end
 
 
-# function gui()
-#     #include("Gui.jl")
-#     Gui.opengui()
-# end
+function gui()
+    #include("Gui.jl")
+    Gui.opengui()
+end
 
 
 
