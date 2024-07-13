@@ -1,3 +1,4 @@
+module Gui
 # using Pkg
 # Pkg.add("PyCall")
 # Pkg.add("DelimitedFiles")
@@ -608,12 +609,14 @@ qgui = pyimport("PyQt5.QtGui")
 end
 
 
-
+function opengui()
 app = qwid.QApplication(sys.argv)
 wind = MainWindow()
 wind.show()
 app.exec()
+end
 
 
 
 
+end

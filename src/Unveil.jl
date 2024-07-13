@@ -8,6 +8,8 @@ include("SWO.jl")                   # Functions for method SWO
 include("Graphic.jl")               # Plotting 
 include("CVI.jl")                   # Functions for CVI computations
 include("Structure_functions.jl")   # Functions for Structure functions computations
+include("Gui.jl")                   # Functions for a GUI 
+
 
 using .Dataprep
 using .SWO
@@ -16,6 +18,7 @@ using .Analysis
 using .Structure_functions
 using .CVI
 using .PCA
+using .Gui
 using Plots
 using ProgressBars
 using StatsBase
@@ -1713,7 +1716,8 @@ end
 
 
 function gui()
-    include("Gui.jl")
+    #include("Gui.jl")
+    Gui.opengui()
 end
 
 
