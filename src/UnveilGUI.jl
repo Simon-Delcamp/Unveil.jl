@@ -502,7 +502,7 @@ qgui = pyimport("PyQt5.QtGui")
         self.pcabtn.setEnabled(false)
         self.pcabtn.setText("PCA running....")
         qwid.QApplication.processEvents()
-        UnveilGUI.pca(
+        pca(
             self.fitsourcepathpca.text(),
             self.fitsourcenamepca,
             self.savepath.text(),
