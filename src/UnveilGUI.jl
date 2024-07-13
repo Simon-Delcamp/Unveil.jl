@@ -48,9 +48,6 @@ function __init__()
     copy!(qpro, pyimport_conda("PyQt5.QtCore", "PyQt5"))
     copy!(qgui, pyimport_conda("PyQt5.QtGui", "PyQt5"))
 
-end
-
-function opengui()
 
     # qwid = pyimport("PyQt5.QtWidgets")
     # qpro = pyimport("PyQt5.QtCore")
@@ -649,17 +646,19 @@ function opengui()
     end
 
 
-    app = qwid.QApplication(sys.argv)
-    wind = MainWindow()
-    wind.show()
-    app.exec()   
+
 
 
 
 end
 
 
-
+function opengui()
+    app = qwid.QApplication(sys.argv)
+    wind = MainWindow()
+    wind.show()
+    app.exec()   
+end
 
 #########################################################################
 ###             FOR GUI             ###
