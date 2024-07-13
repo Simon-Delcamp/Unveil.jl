@@ -1,23 +1,23 @@
 module Unveil
 
 
-# include("Dataprep.jl")              # Read and write fits
-# include("Analysis.jl")              # PCA metric, power_spectra, rms...
-# include("PCA.jl")                   # Functions for method PCA
-# include("SWO.jl")                   # Functions for method SWO
-# include("Graphic.jl")               # Plotting 
-# include("CVI.jl")                   # Functions for CVI computations
-# include("Structure_functions.jl")   # Functions for Structure functions computations
+include("Dataprep.jl")              # Read and write fits
+include("Analysis.jl")              # PCA metric, power_spectra, rms...
+include("PCA.jl")                   # Functions for method PCA
+include("SWO.jl")                   # Functions for method SWO
+include("Graphic.jl")               # Plotting 
+include("CVI.jl")                   # Functions for CVI computations
+include("Structure_functions.jl")   # Functions for Structure functions computations
 include("UnveilGUI.jl")                   # Functions for a GUI 
 
 
-# using .Dataprep
-# using .SWO
-# using .Graphic
-# using .Analysis
-# using .Structure_functions
-# using .CVI
-# using .PCA
+using .Dataprep
+using .SWO
+using .Graphic
+using .Analysis
+using .Structure_functions
+using .CVI
+using .PCA
 using .UnveilGUI
 # using .Gui
 using Plots
