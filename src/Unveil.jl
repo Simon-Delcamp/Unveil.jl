@@ -1142,7 +1142,7 @@ end
 
 function gui()
     #include("Gui.jl")
-    UnveilGUI.opengui()
+    #UnveilGUI.opengui()
 end
 
 

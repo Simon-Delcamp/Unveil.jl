@@ -36,16 +36,21 @@ export prodvarfile
 export structure_functions
 export compmethod_stcfct
 
+@pyimport PyQt5
+@pyimport sys
+qwid = pyimport("PyQt5.QtWidgets")
+qpro = pyimport("PyQt5.QtCore")
+qgui = pyimport("PyQt5.QtGui")
 
 function __init__()
-    @pyimport PyQt5
-    @pyimport sys
-    qwid = pyimport("PyQt5.QtWidgets")
-    qpro = pyimport("PyQt5.QtCore")
-    qgui = pyimport("PyQt5.QtGui")
+    app = qwid.QApplication(sys.argv)
+    wind = MainWindow()
+    wind.show()
+    app.exec()   
+
 end
 
-@pydef mutable struct MainWindow # <: qwid.QMainWindow 
+@pydef mutable struct MainWindow  <: qwid.QMainWindow 
     #class MainWindow(QMainWindow):#class MainWindow(QMainWindow):
 
     function __init__(self)  #def __init__(self):
@@ -640,12 +645,6 @@ end
 
 
 
-function opengui()
-    app = qwid.QApplication(sys.argv)
-    wind = MainWindow()
-    wind.show()
-    app.exec()
-end
 
 
 
