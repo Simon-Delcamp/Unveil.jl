@@ -37,7 +37,13 @@ export structure_functions
 export compmethod_stcfct
 
 
-
+function __init__()
+    @pyimport PyQt5
+    @pyimport sys
+    qwid = pyimport("PyQt5.QtWidgets")
+    qpro = pyimport("PyQt5.QtCore")
+    qgui = pyimport("PyQt5.QtGui")
+end
 
 @pydef mutable struct MainWindow # <: qwid.QMainWindow 
     #class MainWindow(QMainWindow):#class MainWindow(QMainWindow):
@@ -46,11 +52,7 @@ export compmethod_stcfct
         # copy!(qwid, pyimport("PyQt6.QtWidgets", "PyQt6"))
         # copy!(qpro, pyimport("PyQt6.QtCore", "PyQt6"))
         # copy!(qgui, pyimport("PyQt6.QtGui", "PyQt6"))
-        @pyimport PyQt5
-        @pyimport sys
-        qwid = pyimport("PyQt5.QtWidgets")
-        qpro = pyimport("PyQt5.QtCore")
-        qgui = pyimport("PyQt5.QtGui")
+
         py"""super($MainWindow,$self).__init__()"""
         #qwid.QMainWindow.__init__(self)
         #super(MainWindow,self).__init__()
