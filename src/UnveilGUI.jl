@@ -36,10 +36,24 @@ export prodvarfile
 export structure_functions
 export compmethod_stcfct
 
+@pyimport PyQt5
+@pyimport sys
+const qwid = PyNULL()
+const qpro = PyNULL()
+const qgui = PyNULL()
 
+function __init__()
+    copy!(qwid, pyimport_conda("PyQt5.QtWidgets", "PyQt5"))
+    copy!(qpro, pyimport_conda("PyQt5.QtCore", "PyQt5"))
+    copy!(qgui, pyimport_conda("PyQt5.QtGui", "PyQt5"))
+
+end
 
 function opengui()
 
+    # qwid = pyimport("PyQt5.QtWidgets")
+    # qpro = pyimport("PyQt5.QtCore")
+    # qgui = pyimport("PyQt5.QtGui")
     @pydef mutable struct MainWindow  <: qwid.QMainWindow 
         #class MainWindow(QMainWindow):#class MainWindow(QMainWindow):
 
