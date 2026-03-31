@@ -535,7 +535,7 @@ Use this script in a julia terminal with :
     julia>Unveil.cvcvi(VARFILEPATH)
 """
 function cvcvi(VARFILEPATH)    #  ; thresh=0, add="0")  #<- OPTION used to benchmark intensity threshold easiest    
-    FITSPATH,FITSNAME,PATHTOSAVE,FITSOURCE,SAVENAME,THRESHOLD,NOISECANTXT,UNITVELOCITY,REMOVE,VSHIFT,BLANK,LAG,DIFFTYPE,OVERWRITE = Dataprep.read_var_files(VARFILEPATH)
+    FITSPATH,FITSNAME,PATHTOSAVE,FITSOURCE,SAVENAME,THRESHOLD,NOISECANTXT,UNITVELOCITY,REMOVE,VSHIFT,BLANK,LAG,DIFFTYPE,ECVI,OVERWRITE = Dataprep.read_var_files(VARFILEPATH)
     NOISECAN = [parse(Int, ss) for ss in split(NOISECANTXT,",")]
     if length(LAG)!=1
         LAG = [parse(Int, ss) for ss in split(LAG,",")]
@@ -665,7 +665,11 @@ function cvcvi(VARFILEPATH)    #  ; thresh=0, add="0")  #<- OPTION used to bench
         DIFFTYPE = "rel"
 
     elseif DIFFTYPE=="abs" 
-        cviallangle,cvimap_averaged,NANGLE = CVI.construct_cvimap(cvmap,LAG,(DATADIMENSION[1],DATADIMENSION[2]),diff="absolute")
+        if ECVI==true
+            cviallangle,cvimap_averaged,NANGLE = CVI.construct_cvimap(cvmap,LAG,(DATADIMENSION[1],DATADIMENSION[2]),diff="absolute",getmax=true)
+        else
+            cviallangle,cvimap_averaged,NANGLE = CVI.construct_cvimap(cvmap,LAG,(DATADIMENSION[1],DATADIMENSION[2]),diff="absolute",getmax=false)
+        end
         DIFFTYPE = "abs"
 
     else

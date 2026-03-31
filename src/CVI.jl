@@ -20,7 +20,7 @@ export moment_one_field
 
 Will construct a cvi map using preallocated array. Need an array preallocated for the storage of the average on all cvi angle (cvimean), and another for the cvi calculated with all angle and lag (cvi_allangle_alllag). The cvi map is constructed by taking the mean of all rotations of the cv increment calculation at each pixel. The Lag is the increment. xyarr have to be in 2D (pixel*pixel). Mapdim is the dimension of your 2Dmap. The differences can be absolute or relative. 
 """
-function construct_cvimap!(xyarr,Lag::Vector{Int64},nangle,mapdim,cvi_averaged_alllag::Array{Union{Missing, Float64},2},cvi_allangle_alllag::Array{Union{Missing, Float64}, 3},cvi_allangle::Array{Union{Missing,Float64},3}; diff="relative",keepmissing=true)
+function construct_cvimap!(xyarr,Lag::Vector{Int64},nangle,mapdim,cvi_averaged_alllag::Array{Union{Missing, Float64},2},cvi_allangle_alllag::Array{Union{Missing, Float64}, 3},cvi_allangle::Array{Union{Missing,Float64},3}; diff="relative",keepmissing=true,getmax=true)
     nangle = floor(Int,2pi ./(atan.(1 ./Lag)))
     
     cvi_allangle_alllag = cv_increment!(xyarr,Lag,nangle,cvi_allangle_alllag,cvi_allangle,diff=diff)
@@ -30,8 +30,12 @@ function construct_cvimap!(xyarr,Lag::Vector{Int64},nangle,mapdim,cvi_averaged_a
             cvi_allangle_alllag[missing1D,lagstep] .= missing
         end
         @inbounds @views for pix=1:size(cvi_allangle_alllag)[1]
-            keepmissing==false && (cvi_averaged_alllag[pix,lagstep] = mean(skipmissing(cvi_allangle_alllag[pix,:,lagstep])))
-            keepmissing==true  && (cvi_averaged_alllag[pix,lagstep] = mean(cvi_allangle_alllag[pix,:,lagstep]))
+            if getmax==true
+                keepmissing==false && (cvi_averaged_alllag[pix,lagstep] = maximum(skipmissing(cvi_allangle_alllag[pix,:,lagstep])))
+            else
+                keepmissing==false && (cvi_averaged_alllag[pix,lagstep] = mean(skipmissing(cvi_allangle_alllag[pix,:,lagstep])))
+                keepmissing==true  && (cvi_averaged_alllag[pix,lagstep] = mean(cvi_allangle_alllag[pix,:,lagstep]))
+            end
         end
     end
     cvi_averaged_alllag = reshape(cvi_averaged_alllag,mapdim[1],mapdim[2],size(Lag)[1])
@@ -45,7 +49,7 @@ end
 
 Will construct a cvi map using preallocated array. Need an array preallocated for the storage of the average on all cvi angle (cvi_averaged), and another for the cvi calculated with all angle and lag (cvi_allangle). The cvi map is constructed by taking the mean of all rotations of the cv increment calculation at each pixel. The Lag is the increment. xyarr have to be in 2D (pixel*pixel). Mapdim is the dimension of your 2Dmap. The differences can be absolute or relative. 
 """
-function construct_cvimap!(xyarr,Lag::Int64,mapdim,cvi_averaged::Array{Union{Missing, Float64}},cvi_allangle::Array{Union{Missing,Float64},3}; diff="relative",keepmissing=true) 
+function construct_cvimap!(xyarr,Lag::Int64,mapdim,cvi_averaged::Array{Union{Missing, Float64}},cvi_allangle::Array{Union{Missing,Float64},3}; diff="relative",keepmissing=true,getmax=true) 
     nangle = floor.(Int,2pi ./(atan.(1 ./Lag)))
     cvi_allangle = reshape(cv_increment!(xyarr,Lag,nangle,cvi_allangle,diff=diff),mapdim[1]*mapdim[2],nangle) 
     if keepmissing==true
@@ -53,8 +57,12 @@ function construct_cvimap!(xyarr,Lag::Int64,mapdim,cvi_averaged::Array{Union{Mis
         cvi_allangle[missing1D] .= missing
     end
     @inbounds @views for pix in eachindex(cvi_averaged)
-        keepmissing==false && (cvi_averaged[pix] = mean(skipmissing(cvi_allangle[pix,:])))
-        keepmissing==true  && (cvi_averaged[pix] = mean(cvi_allangle[pix,:]))
+        if getmax==true
+            keepmissing==false && (cvi_averaged[pix] = maximum(skipmissing(cvi_allangle[pix,:])))
+        else
+            keepmissing==false && (cvi_averaged[pix] = mean(skipmissing(cvi_allangle[pix,:])))
+            keepmissing==true  && (cvi_averaged[pix] = mean(cvi_allangle[pix,:]))
+        end
     end
     cvi_averaged = reshape(cvi_averaged,mapdim[1],mapdim[2])
     return(cvi_averaged,cvi_allangle,nangle)
@@ -67,7 +75,7 @@ end
 
 Construct a Centroid Velocity Increment map based on a 'cvmap'. The cvi map is constructed by taking the mean of all rotations of the Centroid Velocity Increment calculation at each pixel. The Lag is the increment. xyarr have to be in 2D (pixel*pixel). Mapdim is the dimension of your 2Dmap. The differences can be absolute or relative. 
 """
-function construct_cvimap(cvmap,Lag::Vector{Int64},mapdim; diff="relative",keepmissing=true,BLANK=-1000)
+function construct_cvimap(cvmap,Lag::Vector{Int64},mapdim; diff="relative",keepmissing=true,getmax=true,BLANK=-1000)
    # nangle = fill(floor.(Int,2pi ./atan(1)),size(Lag)[1]) #Array{Float64}(undef,size(Lag)[1]).*0 .+floor.(Int,2pi ./atan(1))    #floor.(Int,2pi ./(atan.(1 ./Lag)) )
     nangle = floor.(Int,2pi ./(atan.(1 ./Lag)) )
     cvi_allangle_alllag = cv_increment(cvmap,Lag,nangle,diff=diff)
@@ -91,7 +99,11 @@ function construct_cvimap(cvmap,Lag::Vector{Int64},mapdim; diff="relative",keepm
             # Iteration in rows
             @inbounds @views for row=1:size(cvi_allangle_alllag)[1]
             #(ismissing(cvi_allangle_alllag[pix,1,lagstep])) || (cvi_averaged_alllag[pix,lagstep] = mean(skipmissing((cvi_allangle_alllag[pix,:,lagstep]))))
+            if getmax==true
+                (cvi_averaged_alllag[row,col,lagstep] = maximum(skipmissing((cvi_allangle_alllag[row,col,:,lagstep]))))
+            else
                 (cvi_averaged_alllag[row,col,lagstep] = mean(skipmissing((cvi_allangle_alllag[row,col,:,lagstep]))))
+            end
             end
         end
         #@inbounds @views for pix=1:size(cvi_allangle_alllag)[1]
@@ -113,7 +125,7 @@ end
 
 Same as construct_cvimap if Lag is a Int64 of one lag. Mapdim is the dimension of your 2Dmap. The differences can be absolute or relative.
 """
-function construct_cvimap(cvmap,Lag::Int64,mapdim; diff="relative",keepmissing=true,BLANK=-1000)
+function construct_cvimap(cvmap,Lag::Int64,mapdim; diff="relative",keepmissing=true,getmax=true,BLANK=-1000)
     nangle = floor(Int,2pi/(atan(1/Lag)))
     cvi_allangle_alllag = cv_increment(cvmap,Lag,nangle,mapdim,diff=diff)
 
@@ -140,7 +152,11 @@ function construct_cvimap(cvmap,Lag::Int64,mapdim; diff="relative",keepmissing=t
     for col in ProgressBar(1:size(cvi_allangle_alllag)[2])
         # Iteration in rows
         @inbounds @views for row=1:size(cvi_allangle_alllag)[1]
+            if getmax==true
+                (cvi_averaged_alllag[row,col] = maximum(skipmissing((cvi_allangle_alllag[row,col,:]))))
+            else
                 (cvi_averaged_alllag[row,col] = mean(skipmissing((cvi_allangle_alllag[row,col,:]))))
+            end
         end
     end
 
