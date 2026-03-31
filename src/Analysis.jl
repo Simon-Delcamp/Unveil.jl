@@ -34,6 +34,9 @@ end #calcdistr
 
 
 function distrcvi(DATA)
+    # DATA = replace(DATA, NaN=>0.001)
+    # DATA = replace(DATA, Inf=>0.001)
+    # DATA = replace(DATA, 0=>0.001)
     # Histogram
     hist = StatsBase.fit(Histogram,DATA,-30:0.001:30)
     deltax = abs(hist.edges[1][2]-hist.edges[1][1])
@@ -41,6 +44,10 @@ function distrcvi(DATA)
     # Normalisation of the histogram (mean 0 and dispersion unity)
     sumi = sum(hist.weights)
     temp = hist.weights/(sumi*deltax)
+    xhist = replace(xhist, NaN=>0.001)
+    xhist = replace(xhist, Inf=>0.001)
+    temp = replace(temp, NaN=>0.001)
+    temp = replace(temp, Inf=>0.001)
     tx = xhist
     ty = temp
     model(x,xhi) = exp.(.-(x.-xhi[1]).^2 ./2 ./xhi[2].^2)./sqrt.(2pi)./xhi[2]

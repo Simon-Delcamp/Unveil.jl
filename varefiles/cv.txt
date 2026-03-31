@@ -1,16 +1,15 @@
-
-# FILE USED TO RUN FUNCTION  "cv"  
+# FILE USED TO RUN FUNCTION Unveil.cv(). Calculate the Centroid Velocities (CV) on a PPV cube.
 # COMMENTS ARE #
-
 #---------------------------------------------------------------------------------------------------------------#
-
-FITSPATH         "PATH/TO/FITS"                                             # Path of the fits. Its header will be used for the writting of the output fits file
-FITSNAME         "FITSNAME"                                                 # Name of the CV fits at the FITSPATH
-PATHTOSAVE       "PATH/FOR/SAVING"                                          # Path where Data and Plots will be saved
+FITSPATH     "PATH/TO/FITS"   # Path of the fits. Its header will be used for the writting of the output fits file.
+FITSNAME         "FITSNAME"                                                # Name of the fits at the FITSPATH
+PATHTOSAVE       "PATH/FOR/SAVING"                                             # Path where Data and Plots will be saved
+FITSOURCE       "PATH/OF/FITS"              # Path to the original fits. This is the cube without PCA nor SWO treatment, so with full noise.
 SAVENAME	 "SAVENAME"					    # Generic name for the outputs. Extensions and attributes will be added by Unveil.
 UNITVELOCITY      m/s									                    # Velocity units of the fits file
 THREHSOLD         0.2                                                       # Values lower than this factor multiplied by the noise RMS will be blanked. 
 NOISECANTXT       1,25                                                      # Noise channels 
+VSHIFT             0                                       # Velocity value to use for centering spectra
 BLANK             -1000                                                     # Blanking data
 OVERWRITE         false                                             # Would you like to overwrite output files with the same name ? true or false 
-
+#---------------------------------------------------------------------------------------------------------------#

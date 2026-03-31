@@ -1,0 +1,11 @@
+# FILE USED TO RUN FUNCTION Unveil.swo(). Construct a cube by using the Spectral Window Optimisation method (SWO) on a noisy cube.
+# COMMENTS ARE #
+#---------------------------------------------------------------------------------------------------------------#
+FITSPATH     "PATH/TO/FITS"   # Path of the fits. Its header will be used for the writting of the output fits file.
+FITSNAME         "FITSNAME"                                                # Name of the fits at the FITSPATH
+PATHTOSAVE       "PATH/FOR/SAVING"                                             # Path where Data and Plots will be saved
+SAVENAME	 "SAVENAME"					    # Generic name for the outputs. Extensions and attributes will be added by Unveil.
+UNITVELOCITY      m/s					# Units of the velocity dimension (m/s, km/s)
+BLANK             -1000                # Blank value
+NOISECAN          1,30                 # Velocity noise channels
+OVERWRITE	false         # Would you like to overwrite output files with the same name ? true or false 

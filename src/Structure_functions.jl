@@ -17,7 +17,9 @@ function fct_sct(cvicube,LAG,ORDERS)
     for ord=1:size(ORDERS)[1]    
         for lag=1:size(LAG)[1]
             #sct[ord,lag]= mean(skipmissing(abs.(cvicube[:,:,lag])).^ORDERS[ord])
-            sct[ord,lag]= mean(skipmissing(abs.(cvicube[:,lag])).^ORDERS[ord])
+            vals = skipmissing(cvicube[:, lag])
+            sct[ord, lag] = isempty(vals) ? NaN : mean(abs.(collect(vals)).^ORDERS[ord])
+
         end
     end
     return(sct)

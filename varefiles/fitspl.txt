@@ -1,0 +1,12 @@
+# FILE USED TO RUN FUNCTION Unveil.fitspl(). Adjust the Sp(l), and plot all figures related to structure functions adjustements. 
+# COMMENTS ARE #
+#---------------------------------------------------------------------------------------------------------------#
+DATPATH     "PATH/TO/DATA"  #Path to the Sp(l) data file
+DATNAME         "DATAFILENAME"   #Name of the Sp(l) data file 
+PATHTOSAVE       "PATH/FOR/SAVING"                                             # Path where Data and Plots will be saved
+SAVENAME	     "SAVENAME"					    # Generic name for the outputs. Extensions and attributes will be added by Unveil.
+NORD		  6    # Number of order to use in the file
+NCOL               2        # Number of columns for the plot   
+NROW               3        # Number of row for the plot   
+LAGTOFIT           1,5     # Range of lags (position, not value) for the first fit
+OVERWRITE	false         # Would you like to overwrite output files with the same name ? true or false 

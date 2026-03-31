@@ -1,19 +1,18 @@
-
-# FILE USED TO RUN FUNCTION "cvcvi.JL" 
+# FILE USED TO RUN FUNCTION Unveil.cvcvi(). Compute the Centroid Velocity (CV) of a PPV cube, and then the Centroid Velocity Increments (CVI) at multiple lags.
 # COMMENTS ARE #
-
 #---------------------------------------------------------------------------------------------------------------#
-
-FITSPATH         "/PATH/TO/FITS"                                    # Path to the fits
-FITSNAME         "FITSNAME.fits"                                                 # Name of the fits at the FITSPATH
-PATHTOSAVE       "PATH/FOR/SAVING"                                  # Path where Data and Plots will be saved
+FITSPATH     "PATH/TO/FITS"   # Path of the fits. Its header will be used for the writting of the output fits file.
+FITSNAME         "FITSNAME"                                                # Name of the fits at the FITSPATH
+PATHTOSAVE       "PATH/FOR/SAVING"                                             # Path where Data and Plots will be saved
+FITSOURCE       "PATH/OF/FITS"              # Path to the original fits. This is the cube without PCA nor SWO treatment, so with full noise.
 SAVENAME	 "SAVENAME"					    # Generic name for the outputs. Extensions and attributes will be added by Unveil.
 THREHSOLD         0.2                                                       # Values lower than this factor multiplied by the noise RMS will be blanked. 
 NOISECANTXT       1,25                                                      # Noise channels 
 UNITVELOCITY      m/s									            # Velocity units of the fits file
 REMOVE            false                                             # Remove spectra with very low intensity. 
+VSHIFT             0                                       # Velocity value to use for centering spectra
 BLANK             -1000                                             # Blanking data
-LAG               2,3,5,7,10,20,50                                  # Values of the Lag used for CVI calculations
+LAG               2,3,5,7,10,20,50                                  # Values of the Lags used for CVI calculations
 DIFFTYPE          relative                                          # Type of differences computed during CVI calculation (relative or abs)
 OVERWRITE         false                                             # Would you like to overwrite output files with the same name ? true or false 
 #---------------------------------------------------------------------------------------------------------------#

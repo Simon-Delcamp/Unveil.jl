@@ -1,0 +1,13 @@
+# FILE USED TO RUN FUNCTION Unveil.structure_functions(). Compute structure functions and exponents from a CVI cube (better to consider all rotations, not an azimutal average)
+# COMMENTS ARE #
+#---------------------------------------------------------------------------------------------------------------#
+FITSPATH     "PATH/TO/FITS"   # Path of the fits. Its header will be used for the writting of the output fits file.
+FITSNAME         "FITSNAME"                                                # Name of the fits at the FITSPATH
+PATHTOSAVE       "PATH/FOR/SAVING"                                             # Path where Data and Plots will be saved
+SAVENAME	 "SAVENAME"					    # Generic name for the outputs. Extensions and attributes will be added by Unveil.
+ORDERS		  1,2,3,4,5,6                   # Orders of the structures functions
+BLANK             -1000                                                     # Blanking data
+NROW               2                   # Number of row for the plot (if any)
+NCOL               3                   # Number of column for the plot (if any).
+OVERWRITE         false                                             # Would you like to overwrite output files with the same name ? true or false 
+#---------------------------------------------------------------------------------------------------------------#

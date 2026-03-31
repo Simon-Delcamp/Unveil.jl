@@ -1,11 +1,9 @@
-
-# FILE USED TO RUN FUNCTION "PCA"  
+# FILE USED TO RUN FUNCTION Unveil.pca(). Construct a cube by using N PCs with the Principal Component Analysis method (PCA) on a noisy PPV cube .
 # COMMENTS ARE #
-
 #---------------------------------------------------------------------------------------------------------------#
-FITSPATH         "PATH/TO/FITS"                                             # Path of the fits. Its header will be used for the writting of the output fits file.
-FITSNAME         "FITSNAME"                                                 # Name of the fits at the FITSPATH
-PATHTOSAVE       "PATH/FOR/SAVING"                                          # Path where Data and Plots will be saved
+FITSPATH     "PATH/TO/FITS"   # Path of the fits. Its header will be used for the writting of the output fits file.
+FITSNAME         "FITSNAME"                                                # Name of the fits at the FITSPATH
+PATHTOSAVE       "PATH/FOR/SAVING"                                             # Path where Data and Plots will be saved
 SAVENAME	 "SAVENAME"					    # Generic name for the outputs. Extensions and attributes will be added by Unveil.
 UNITVELOCITY      m/s									         # Velocity units of the fits file
 NBPC              64                                              # Number of PC used for the reconstruction. 

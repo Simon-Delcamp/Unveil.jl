@@ -1,0 +1,15 @@
+# FILE USED TO RUN FUNCTION Unveil.checkPCASWO(). Plot random spectra (or positions given by SPECFILE) of the original cube (noisy), superposed by spectra of the PCA reconstructed cube, and with their SWO windows. Plot also the residuals of the original cube less the reconstructed by PCA of the same spectra.
+# COMMENTS ARE #
+#---------------------------------------------------------------------------------------------------------------#
+FITSPATH     "PATH/TO/FITS"   # Path of the fits.
+PCANAME	 "NAME/TO/PCA"  # Name of the fits reconstructed by PCA at the FITSPATH
+SWONAME	 "NAME/TO/SWO"  # Name of the fits treated by SWO at the FITSPATH
+ORINAM 	 "NAME/TO/ORIGINALCUBE"  # Name of the noise cube at the FITSPATH
+PATHTOSAVE       "PATH/FOR/SAVING"       # Path where Data and Plots will be saved
+SAVENAME	 "SAVENAME"				  # Generic name for the outputs. Extensions and attributes will be added by Unveil.
+NCOL              6                 # Number of column to be plotted
+NROW              2                 # Number of row to be plotted
+SPECFILE          ""              # If any, file with position of spectra to plot. Else, they will be taken randomly and saved in posispec.dat.     
+UNITVELOCITY      m/s					# Velocity units of the fits file
+NOISECAN	      1,20						# Positions of the noise channels
+OVERWRITE         false          # Would you like to overwrite output files with the same name ? true or false 
